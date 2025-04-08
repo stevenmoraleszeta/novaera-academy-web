@@ -1,0 +1,1227 @@
+/* General Container */
+.container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 10px;
+    color: #ffffff;
+    text-align: left;
+    /* Align text to the left */
+}
+
+/* Title*/
+.titleText,
+.titleInput {
+    width: 100%;
+    font-size: 2vw;
+    font-weight: bold;
+    background: transparent;
+    color: #ffffff;
+    border: none;
+    outline: none;
+    margin: 20px 0 15px 0;
+    padding: 0;
+    text-align: left;
+    /* Align input text to the left */
+}
+
+/* Remove outline on focus */
+.titleInput:focus,
+.originalPriceInput:focus,
+.discountedPriceInput:focus,
+.featureTitleInput:focus,
+.featureDescriptionInput:focus,
+.descriptionInput:focus,
+.modalInput:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* Main Content Container - Course Video and Course Info Side-by-Side */
+.courseMainContent {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    align-items: flex-start;
+    padding: 10px 0;
+    flex-wrap: nowrap;
+    /* Prevents wrapping so items stay side-by-side */
+    height: 35vh;
+}
+
+/* Video Section */
+.courseVideo {
+    flex-shrink: 0;
+    /* Prevents video from resizing */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Course Info Section */
+.courseInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 1vh;
+    align-items: flex-start;
+    flex-grow: 1;
+    /* Takes up remaining space next to the video */
+    height: 100%;
+}
+
+/* Video Wrapper with Responsive 16:9 Aspect Ratio using viewport width */
+.videoWrapper {
+    position: relative;
+    width: 35vw;
+    /* Sets width to 40% of viewport width */
+    height: 35vh;
+    /* Ensures 16:9 aspect ratio with viewport width */
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #000;
+}
+
+.videoWrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    object-fit: cover;
+}
+
+/* Button to Edit Video URL inside the video space */
+.editVideoButton {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    /* Align button to the left */
+    background-color: var(--color-primary);
+    color: var(--text-color);
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.editVideoButton:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Placeholder if no video URL is provided */
+.videoPlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #333;
+    color: #aaa;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+/* Adjusted Description Input */
+.descriptionText,
+.descriptionInput {
+    width: 35vw;
+    background: transparent;
+    color: var(--color-lighter);
+    border: none;
+    outline: none;
+    padding: 0;
+    margin-top: 10px;
+    font-size: 1.5vw;
+    line-height: 1.4;
+    resize: none;
+    text-align: left;
+    /* Align text to the left */
+    height: 100%;
+    font-weight: bold;
+}
+
+/* Adjusted Price Container */
+.priceContainer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* Minimal gap between the two price elements */
+    font-size: 2vw;
+    font-weight: bold;
+}
+
+/* Discounted Price */
+.discountedPrice {
+    color: #ff6200;
+    /* Customize as needed */
+    display: flex;
+    align-items: center;
+}
+
+/* Original Price */
+.originalPrice {
+    color: var(--color-primary);
+    /* Customize as needed */
+    text-decoration: line-through;
+    display: flex;
+    align-items: center;
+}
+
+/* Input Fields for Prices */
+.discountedPriceInput,
+.originalPriceInput {
+    width: 5vw;
+    background: transparent;
+    color: inherit;
+    border: none;
+    font-size: 2vw;
+    outline: none;
+    padding: 0;
+    text-align: left;
+    font-weight: bold;
+    margin-left: 3px;
+    appearance: none;
+}
+
+/* Optional: Placeholder styling for clarity */
+.discountedPriceInput::placeholder,
+.originalPriceInput::placeholder {
+    color: #ccc;
+    /* Light gray for placeholder */
+}
+
+
+/* Button Container */
+.buttonContainer {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    justify-content: flex-start;
+    /* Align buttons to the left */
+}
+
+.enrollButton,
+.contactButton {
+    background-color: #ff6200;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1vw;
+    transition: background-color 0.2s ease;
+}
+
+.enrollButton:hover,
+.contactButton:hover {
+    background-color: #e55c00;
+}
+
+.enrolledButton {
+    background-color: var(--color-primary);
+    cursor: default;
+}
+
+.enrolledButton:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.enrolledPrice {
+    display: none;
+}
+
+
+/* Styles for the circular icon button */
+.iconWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.8vw;
+    /* Adjust the width and height as needed */
+    height: 1.8vw;
+    background-color: var(--color-secondary);
+    /* White background */
+    border-radius: 50%;
+    /* Makes it circular */
+    cursor: pointer;
+    align-self: center;
+    transition: background-color 0.3s ease;
+}
+
+/* Style for the icon inside the button */
+.editIcon {
+    color: var(--text-color);
+    /* Orange color */
+    font-size: 0.8vw;
+    /* Adjust size if needed */
+}
+
+/* Optional: hover effect */
+.iconWrapper:hover {
+    background-color: var(--color-secondary-hover);
+    /* Slightly darker shade on hover */
+}
+
+/* Features Section */
+.features {
+    display: grid;
+    grid-template-columns: 0.6fr 1fr;
+    gap: 8px;
+    /* Reduce el espacio entre los elementos */
+    margin-top: 2vh;
+    /* Ajusta el espacio superior si es necesario */
+}
+
+/* Feature Item */
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    /* Añade un margen inferior mínimo para separar cada feature ligeramente */
+}
+
+/* Icon for Feature */
+.featureIcon {
+    object-fit: cover;
+    align-self: flex-start;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+    position: relative;
+}
+
+/* Title and Description Inputs */
+.featureTitleInput,
+.featureDescriptionInput {
+    width: 100%;
+    background: transparent;
+    color: var(--color-light-active);
+    border: none;
+    outline: none;
+    padding: 0;
+    resize: none;
+    text-align: left;
+}
+
+/* Title Input with Slightly Smaller Font Size */
+.featureTitleInput {
+    font-size: 1.2vw;
+    /* Ajuste de tamaño */
+    font-weight: bold;
+}
+
+/* Description Input with Reduced Line Height */
+.featureDescriptionInput {
+    font-size: 1vw;
+    /* Ajuste de tamaño */
+    line-height: 1.2;
+    /* Reduce el interlineado para menor altura */
+    color: var(--text-color);
+}
+
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: var(--color-dark-hover);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 650px;
+    width: 90%;
+    max-height: 80vh;
+    /* Limita la altura máxima del modal */
+    overflow-y: auto;
+    /* Activa la barra de desplazamiento si es necesario */
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    animation: fadeIn 0.3s ease;
+    /* Fade-in animation */
+}
+
+/* Estilos para la barra de desplazamiento */
+.modalContent::-webkit-scrollbar {
+    width: 8px;
+    /* Ancho de la barra de desplazamiento */
+}
+
+.modalContent::-webkit-scrollbar-track {
+    background: var(--color-dark);
+    /* Color del fondo de la barra de desplazamiento */
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    /* Color del "pulgar" de la barra de desplazamiento */
+    border-radius: 10px;
+    /* Bordes redondeados para el "pulgar" */
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-hover);
+    /* Color del "pulgar" al pasar el mouse */
+}
+
+.modalContent h3 {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    text-align: left;
+    /* Align header to the left */
+    font-weight: bold;
+}
+
+.modalContent label {
+    color: var(--text-color);
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 10px;
+    /* Añade espacio inferior entre los labels */
+    display: block;
+    /* Asegura que cada label ocupe su propia línea */
+}
+
+.modalContent input,
+.modalContent select,
+.modalContent textarea {
+    margin-bottom: 20px;
+    /* Añade espacio inferior a los inputs relacionados */
+}
+
+.modalInput {
+    width: 100%;
+    background: var(--color-black);
+    color: var(--text-color);
+    border: none;
+    outline: none;
+    padding: 3px;
+    text-align: left;
+    /* Align input text to the left */
+    margin-top: 3px;
+    margin-bottom: 10px;
+}
+
+.modalActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-start;
+    /* Align modal actions to the left */
+}
+
+.modalActions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.modalActions button:first-child {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.modalActions button:last-child {
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+.modalActions button:hover {
+    opacity: 0.9;
+}
+
+.modules {
+    margin-top: 5vh;
+}
+
+.module {
+    background: linear-gradient(var(--color-primary), var(--color-dark));
+    border-radius: 10px;
+    padding: 0.5% 1.5% 1.5% 1.5%;
+    margin-bottom: 4vh;
+}
+
+/* Module Header */
+.moduleHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.moduleTitle {
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    font-weight: bold;
+    font-size: 1.5rem;
+    padding: 0;
+    margin: 10px 0 10px 0;
+}
+
+.moduleTitle:focus,
+.classTitle:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* Module Actions */
+.moduleActions {
+    display: flex;
+    gap: 10px;
+}
+
+/* New styles for move buttons */
+.moveButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.moveButton:hover {
+    color: var(--color-secondary);
+}
+
+/* Class Container */
+.class {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: var(--color-primary);
+    height: auto;
+    padding-left: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.class:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.classTitle {
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    font-size: 1.2rem;
+    padding: 0;
+    margin: 15px 0 15px 0;
+    width: 100%;
+}
+
+/* Style for the circle icon */
+.classCircle {
+    margin-right: 15px;
+    width: 18px;
+    height: 18px;
+    border: 4px solid var(--text-color);
+    border-radius: 50%;
+    /* Garantiza la forma circular */
+    display: flex;
+    /* Centra el contenido internamente */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Evita que el contenido desborde el contenedor */
+    flex-shrink: 0;
+    /* Evita que el círculo se comprima */
+    aspect-ratio: 1 / 1;
+    /* Asegura la proporción 1:1 */
+}
+
+.completedClass {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: var(--color-primary);
+    height: auto;
+    padding-left: 10px;
+    border-radius: 5px;
+    color: var(--text-color-light);
+}
+
+.completedClass:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.completedClass .classCircle {
+    background-color: var(--text-color);
+    color: var(--color-primary);
+}
+
+.highlightClass {
+    margin-bottom: 10px;
+    background-color: var(--color-secondary);
+    height: auto;
+    padding-left: 10px;
+    border-radius: 5px;
+    color: var(--text-color-light);
+}
+
+.highlightClass:hover {
+    background-color: var(--color-secondary-hover);
+    /* Add a hover effect */
+}
+
+
+/* Add Module Button */
+.modules button {
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    margin: 0;
+}
+
+.modules button:hover {
+    color: var(--color-secondary);
+}
+
+.addModuleButton {
+    margin-top: 10vh;
+    width: 100%;
+    background-color: transparent;
+    border: dashed 5px var(--color-secondary);
+}
+
+.addModuleButton,
+.addProjectButton {
+    width: 100%;
+    background-color: transparent;
+    border: dashed 5px var(--color-secondary);
+}
+
+/* Average displayed information */
+
+.averageLabel {
+    font-size: 1vw;
+    font-weight: bold;
+    color: var(--color-lighter);
+}
+
+/* Media queries */
+
+@media (max-width: 768px) {
+
+    /* title */
+    .titleText,
+    .titleInput {
+        width: 100%;
+        font-size: 4vw;
+
+        margin: 0px;
+        padding: 0;
+    }
+
+    /* video content */
+
+    .courseMainContent {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        flex-direction: column;
+
+        gap: 20px;
+        width: 100%;
+        height: 60vh;
+    }
+
+    .videoWrapper {
+        width: 100%;
+    }
+
+    .courseVideo {
+        width: 100%;
+    }
+
+    /* description area */
+
+    .courseInfo {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 1vh;
+        align-items: center;
+        flex-grow: 1;
+        height: 100%;
+        width: 100%;
+        align-content: center;
+        justify-content: center;
+    }
+
+    .descriptionText,
+    .descriptionInput {
+        width: 95vw;
+        background: transparent;
+        color: var(--color-lighter);
+        border: none;
+        outline: none;
+
+        font-size: 2.5vw;
+        resize: none;
+        text-align: center;
+    }
+
+    .originalPriceInput,
+    .discountedPriceInput {
+        font-size: 25px;
+        margin-left: 0px;
+        margin-right: 0px;
+        width: 10vw;
+        text-align: center;
+    }
+
+    .discountedPrice,
+    .originalPrice {
+        font-size: 30px;
+    }
+
+    .buttonContainer {
+        display: flex;
+        justify-content: center;
+
+        width: 100%;
+
+        gap: 15px;
+        margin-top: 0px;
+    }
+
+    .enrollButton,
+    .contactButton {
+        font-size: 3vw;
+    }
+
+    .iconWrapper {
+        width: 7vw;
+        height: 7vw;
+    }
+
+    .editIcon {
+        font-size: 5vw;
+    }
+
+    /* features */
+
+    .features {
+        height: 50vh;
+        margin-top: 2vh;
+        grid-template-columns: 0.6fr 1fr;
+        gap: 8px;
+
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+        justify-content: center;
+    }
+
+    .feature {
+        width: 90%;
+    }
+
+    .featureDescriptionInput,
+    .featureTitleInput {
+        font-size: 3vw;
+    }
+
+    .container {
+        border-radius: 10px;
+        color: #ffffff;
+        padding: 15px;
+        padding-top: 10px;
+        margin: 0px;
+    }
+}
+
+/* Features actions  */
+
+.featuresActionsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 20px;
+}
+
+.actionBtnsContainer {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+
+
+    gap: 20px;
+}
+
+.featuresActionsBtn {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+}
+
+.featureActions {
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width:500px) {
+
+    .container {
+        border-radius: 10px;
+        color: #ffffff;
+        padding: 15px;
+        padding-top: 10px;
+        margin: 0px;
+    }
+
+    .descriptionText,
+    .descriptionInput {
+        width: 95vw;
+        font-size: 3.5vw;
+    }
+
+    .originalPriceInput,
+    .discountedPriceInput {
+        font-size: 25px;
+        margin-left: 0;
+        margin-right: 0;
+        width: 10vw;
+        text-align: center;
+    }
+
+    .discountedPrice,
+    .originalPrice {
+        font-size: 30px;
+    }
+
+    .featureDescriptionInput,
+    .featureTitleInput {
+        font-size: 4vw;
+    }
+
+}
+
+.classItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: var(--color-primary);
+    height: auto;
+    padding: 15px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.classItem:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.classActions {
+    display: flex;
+    gap: 10px;
+}
+
+.classAction {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.classAction:hover {
+    color: var(--color-secondary);
+}
+
+.moduleContent {
+    padding: 10px;
+    background: var(--color-dark-hover);
+    border-radius: 5px;
+}
+
+.moveButton:disabled {
+    color: var(--color-dark);
+    cursor: not-allowed;
+}
+
+.collectionSelector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.collectionButton {
+    padding: 8px 16px;
+    background: var(--color-primary);
+    color: var(--text-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.collectionButton:hover {
+    background: var(--color-primary-hover);
+}
+
+.collectionButton.active {
+    background: var(--color-secondary);
+}
+
+.itemType {
+    font-size: 0.8em;
+    margin-left: 10px;
+    opacity: 0.8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--color-primary);
+}
+
+.projectType {
+    background: var(--color-secondary);
+}
+
+.classItem {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: var(--color-dark-hover);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.classItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.classInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.typeButtons {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.typeButtons button {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 4px;
+    background: var(--color-primary);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+}
+
+.typeButtons button:hover {
+    background: var(--color-primary-hover);
+}
+
+.cancelButton {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background: var(--color-secondary);
+    color: var(--text-color);
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.cancelButton:hover {
+    background: var(--color-secondary-hover);
+}
+
+.modulesProjectsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.projectItem {
+    display: flex;
+    justify-content: space-between;
+    /* Botones en el lado derecho */
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: var(--color-dark-hover);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.projectItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+
+
+@media (min-height: 1367px) {
+    .courseMainContent {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        flex-direction: column;
+
+        gap: 20px;
+        width: 100%;
+        height: 20vh;
+    }
+
+    .features {
+        height: 100vh;
+    }
+}
+
+@media (min-height: 1400px) {
+    .courseMainContent {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        flex-direction: column;
+
+        gap: 20px;
+        width: 100%;
+        height: 10vh;
+    }
+
+    .features {
+        height: 40vh;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .projectItem {
+        flex-direction: column;
+        /* Cambia a diseño vertical si no hay suficiente espacio */
+        align-items: flex-start;
+    }
+
+    .projectActions {
+        justify-content: flex-end;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .features {
+        height: 200vh;
+        margin-top: 2vh;
+
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+        justify-content: center;
+    }
+
+}
+
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    /* Espaciado entre bloques */
+    padding: 1rem;
+}
+
+.projects {
+    /* Ocupa el 70% del espacio actual */
+    background: linear-gradient(var(--color-dark), var(--color-black));
+    padding: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    /* Transición suave para cambios de diseño */
+}
+
+.modules {
+    flex: 1;
+    /* Ocupa el espacio restante */
+}
+
+/* Estilo para resoluciones pequeñas */
+@media (max-width: 768px) {
+    .modulesProjectsContainer {
+        flex-direction: column;
+        /* Cambia a diseño vertical */
+    }
+
+    .projects {
+        flex: 1;
+        /* Ocupa todo el ancho disponible */
+    }
+}
+
+.projectActions {
+    display: flex;
+    gap: 10px;
+}
+
+.projectActions {
+    display: flex;
+    gap: 10px;
+    /* Espacio entre botones */
+}
+
+.projectAction {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.projectAction:hover {
+    background-color: transparent;
+    color: var(--color-secondary);
+}
+
+.moveButton:disabled {
+    color: var(--color-dark);
+    cursor: not-allowed;
+}
+
+
+.revisado {
+    background-color: #38a169;
+    /* verde */
+}
+
+.entregado-tarde {
+    background-color: #ecc94b;
+    /* amarillo */
+}
+
+.pendiente-revision {
+    background-color: #3182ce;
+    /* azul */
+}
+
+.entregable {
+    background-color: #e2e8f0;
+    /* gris */
+}
+
+.no-entregado {
+    background-color: #f56565;
+    /* rojo */
+}
+
+/* Estilo para los botones de descarga */
+.downloadSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Alinear a la izquierda */
+    gap: 10px;
+    /* Espacio entre los elementos */
+    margin-top: 15px;
+    /* Espacio superior */
+}
+
+/* Botón de descarga */
+.downloadButton {
+    background: var(--color-primary);
+    color: var(--text-color);
+    padding: 10px 15px;
+    /* Espaciado interno */
+    border: none;
+    border-radius: 5px;
+    /* Bordes redondeados */
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    /* Transición suave */
+    text-decoration: none;
+    /* Eliminar subrayado */
+}
+
+/* Asegúrate de que los enlaces dentro de los botones también tengan el mismo estilo */
+.downloadButton a {
+    text-decoration: none;
+    /* Eliminar subrayado */
+    color: inherit;
+    /* Heredar el color del botón */
+}
+
+.downloadButton:hover {
+    background: var(--color-primary-hover);
+    /* Color al pasar el mouse */
+}
+
+/* Mensaje de proyecto cargado exitosamente */
+.successMessage {
+    background-color: #38a169;
+    /* Verde */
+    color: #ffffff;
+    /* Texto blanco */
+    padding: 10px;
+    border-radius: 5px;
+    /* Bordes redondeados */
+    font-weight: bold;
+    width: 95%;
+    /* Ancho completo */
+    text-align: center;
+    /* Centrar texto */
+    margin-top: 15px;
+    /* Espacio superior */
+}

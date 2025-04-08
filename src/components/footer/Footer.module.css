@@ -1,0 +1,147 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(80deg, #012F38 60%, #000E11 100%);
+  padding: 20px 40px;
+  color: #ffffff;
+  flex-wrap: wrap;
+  padding-bottom: 7vh;
+  margin-top: 15vh;
+}
+
+.leftContainer {
+  flex: 0 0 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.rightContainer {
+  flex: 0 0 70%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  gap: 0px;
+}
+
+.contactInfo a {
+  font-weight: bold;
+}
+
+.contactInfo p {
+  margin: 0;
+  /* Elimina cualquier margen adicional */
+  padding: 0;
+  /* Elimina cualquier padding adicional */
+  line-height: 2;
+  /* Ajusta la altura de línea para que los elementos estén más juntos */
+  margin-left: 4vh;
+}
+
+.contactInfo p:hover {
+  color: var(--color-light-active);
+}
+
+.navPair {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.navColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  margin-left: 0;
+  margin-right: 10vh;
+  text-decoration: none;
+  margin-top: 3vh;
+}
+
+.navColumn a {
+  text-decoration: none;
+  /* Elimina la decoración de texto de los enlaces */
+  color: var(--button-primary-hover);
+  /* Asegura el color del texto */
+  margin: 5px;
+  font-weight: bold;
+}
+
+.navColumn a:hover {
+  color: var(--color-light-active);
+
+}
+
+.separator {
+  border-left: 2px solid var(--color-secondary);
+  height: 8vh;
+  margin-left: 0;
+  margin-right: 1vh;
+  margin-top: 4vh;
+
+  transform: translate(0, 0) rotate(0deg);
+  transition: transform 0.5s ease;
+}
+
+.zLogo {
+  margin-left: 10px;
+  width: 30vh;
+  height: 10vh;
+  object-fit: cover;
+  margin-top: 3vh;
+}
+
+.imgLink {
+  display: flex;
+  justify-content: center;
+  padding-top: 0;
+  align-items: center;
+}
+
+.a {
+  text-decoration: none;
+}
+
+.iconsRedes {
+  width: 25px;
+  /* Ajusta el tamaño a tu preferencia */
+  height: 25px;
+  margin-right: 8px;
+  /* Espacio entre el ícono y el texto */
+  vertical-align: middle;
+  /* Alinea el icono con el texto */
+}
+
+/* Media queries */
+
+@media (max-width: 600px) {
+  .footer {
+    flex-direction: column;
+  }
+
+  .leftContainer {
+    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rightContainer {
+    flex: 0 0 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .separator {
+    transform: translate(40px, 0px) rotate(-90deg);
+  }
+
+}

@@ -1,0 +1,154 @@
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  /* Reducción del 20% */
+  background: linear-gradient(80deg, #012F38 60%, #000E11 100%);
+  color: white;
+  gap: 8px;
+  /* Reducción del 20% */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4vh;
+  /* Reducción del 20% */
+  z-index: 1000;
+}
+
+.navLinks {
+  display: flex;
+  list-style: none;
+  gap: 16px;
+  /* Reducción del 20% */
+}
+
+.navbarLink {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+  margin: 1.6vw;
+  /* Reducción del 20% */
+  font-size: clamp(0.8vw, 16px, 1.6vw);
+  /* Reducción del 20% */
+}
+
+.navbarLinkSelected {
+  color: #8CB7C0;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+  margin: 1.6vw;
+  font-size: clamp(0.8vw, 16px, 1.6vw);
+}
+
+.accessLink {
+  background-color: #FF6B00;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  /* Reducción del 20% */
+  margin-right: 16px;
+  /* Reducción del 20% */
+  font-size: clamp(0.8vw, 16px, 1.6vw);
+  /* Reducción del 20% */
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.profileLink {
+  padding: 0;
+}
+
+.profileImage {
+  width: 32px;
+  /* Reducción del 20% */
+  height: 32px;
+  /* Reducción del 20% */
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.zLogo {
+  margin-left: 16px;
+  /* Reducción del 20% */
+  width: clamp(4.8vw, 40px, 12vw);
+  /* Reducción del 20% */
+  height: clamp(6vw, 40px, 12vw);
+  /* Reducción del 20% */
+  object-fit: cover;
+}
+
+.manageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.imgLink {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.88vh;
+  /* Reducción del 20% */
+  align-items: center;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  display: none;
+}
+
+.hamburger:hover {
+  background: none;
+}
+
+.hamburger:hover {
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+
+    position: absolute;
+    top: 60%;
+    left: 0;
+    right: 0;
+
+    background: linear-gradient(80deg, var(--color-dark) 60%, var(--color-black) 100%);
+    padding: 0px 20px;
+    gap: 8px;
+
+    height: 100px;
+  }
+
+  .navLinks.showMenu {
+    display: flex;
+  }
+
+  .hamburger {
+    display: block;
+    background-color: transparent;
+  }
+
+  .zLogo {
+    width: clamp(9vw, 60px, 17vw);
+    height: clamp(11vw, 65px, 20vw);
+  }
+}
+
+@media (max-width: 500px) {
+  .navbarLink {
+    font-size: clamp(1vw, 20px, 2vw);
+  }
+}

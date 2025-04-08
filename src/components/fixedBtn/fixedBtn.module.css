@@ -1,0 +1,39 @@
+.btnContainer {
+    border-radius: 50%;
+
+    width: 60px;
+    height: 60px;
+    background-color: green;
+
+    position: absolute;
+    bottom: 70px;
+    right: 70px;
+    z-index: 10;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: transform 0.5s ease;
+}
+
+.whatsAppIcon {
+    width: 100%;
+    height: 110%;
+}
+
+.btnContainer:hover {
+    cursor: pointer;
+    transform: scale(1.09);
+}
+
+/* media queries */
+
+@media (max-width: 1200px) {
+    .btnContainer {
+        position: absolute;
+        bottom: 100px;
+        right: 30px;
+        z-index: 10;
+    }
+}

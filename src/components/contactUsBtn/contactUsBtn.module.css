@@ -1,0 +1,24 @@
+.link {
+    height: 4vh;
+    background-color: var(--color-secondary);
+
+    font-weight: bold;
+    font-size: clamp(1vw, 15px, 1.5vw);
+    text-align: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+
+
+@media (max-width: 500px) {
+    .link {
+        height: 4vh;
+        width: 20vw;
+
+        font-size: clamp(2vw, 15px, 3vw);
+        text-align: center;
+    }
+}

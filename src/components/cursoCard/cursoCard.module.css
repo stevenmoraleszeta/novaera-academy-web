@@ -1,0 +1,117 @@
+.cardContainer {
+    width: clamp(27vw, 270px, 31.5vw);
+    /* 10% menos en cada valor de width */
+    aspect-ratio: 5 / 6;
+    /* Mantiene la proporción de 3:4 entre ancho y alto */
+    background: linear-gradient(#005F73, #002128);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    cursor: url('../../assets/cursors/pngwing.com.png'), auto;
+    position: relative;
+    text-decoration: none;
+}
+
+/* course image styles */
+.imgContainer {
+    height: 50%;
+    width: 100%;
+
+}
+
+.courseImg {
+    height: 80%;
+    width: 100%;
+    opacity: 0.9;
+    /* Reduce la exposición de la imagen */
+    filter: brightness(90%);
+    /* Otra forma de reducir exposición */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+/* icon img styles */
+.iconImg {
+    width: clamp(5.4vw, 3.6vw, 6.3vw);
+    /* 10% menos */
+    height: clamp(5.4vw, 3.6vw, 6.3vw);
+    /* 10% menos */
+
+    display: flex;
+    align-self: flex-end;
+    justify-self: flex-end;
+
+    filter: brightness(120%);
+    position: absolute;
+    top: 40%;
+    left: 75%;
+    z-index: 10;
+}
+
+/* Text styles */
+
+.textContainer {
+    height: 80%;
+    width: 100%;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    flex-direction: column;
+
+    margin-top: 5%;
+}
+
+.textContainer h2 {
+    color: white;
+    font-size: clamp(1.683vw, 11.88px, 2.574vw);
+    font-weight: bold;
+    width: 90%;
+
+    margin: 0px;
+    margin-left: 18px;
+    /* 10% menos */
+    margin-right: 18px;
+    /* 10% menos */
+    margin-bottom: 4.5px;
+    /* 10% menos */
+}
+
+.textContainer p {
+    color: white;
+    font-size: clamp(1.08vw, 7.2px, 1.44vw);
+    /* 10% menos */
+    font-weight: normal;
+
+    margin-left: 18px;
+    /* 10% menos */
+    margin-right: 18px;
+    /* 10% menos */
+    margin-top: 6.3px;
+    /* 10% menos */
+}
+
+/* media queries */
+
+
+@media (max-width: 768px) {
+
+    .cardContainer,
+    .imgContainer,
+    .courseImg,
+    .iconImg,
+    .textContainer {
+        display: none;
+    }
+
+    .textContainer h2 {
+        display: none;
+    }
+
+    .textContainer p {
+        display: none;
+    }
+}
