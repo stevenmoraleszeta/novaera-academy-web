@@ -1,168 +1,369 @@
-.page {
-  --gray-rgb: 0, 0, 0;
-  --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
-  --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
+/* Estilos del main section */
 
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
+/* main containers */
+.mainSection {
+  width: 100vw;
+  height: 75vh;
 
-  display: grid;
-  grid-template-rows: 20px 1fr 20px;
-  align-items: center;
-  justify-items: center;
-  min-height: 100svh;
-  padding: 80px;
-  gap: 64px;
-  font-family: var(--font-geist-sans);
-}
-
-@media (prefers-color-scheme: dark) {
-  .page {
-    --gray-rgb: 255, 255, 255;
-    --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
-    --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-  }
-}
-
-.main {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  grid-row-start: 2;
-}
-
-.main ol {
-  font-family: var(--font-geist-mono);
-  padding-left: 0;
-  margin: 0;
-  font-size: 14px;
-  line-height: 24px;
-  letter-spacing: -0.01em;
-  list-style-position: inside;
-}
-
-.main li:not(:last-of-type) {
-  margin-bottom: 8px;
-}
-
-.main code {
-  font-family: inherit;
-  background: var(--gray-alpha-100);
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.ctas {
-  display: flex;
-  gap: 16px;
-}
-
-.ctas a {
-  appearance: none;
-  border-radius: 128px;
-  height: 48px;
-  padding: 0 20px;
-  border: none;
-  border: 1px solid transparent;
-  transition:
-    background 0.2s,
-    color 0.2s,
-    border-color 0.2s;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  line-height: 20px;
-  font-weight: 500;
 }
 
-a.primary {
-  background: var(--foreground);
-  color: var(--background);
-  gap: 8px;
-}
+.contentContainer {
+  width: 75%;
+  height: 100%;
 
-a.secondary {
-  border-color: var(--gray-alpha-200);
-  min-width: 158px;
-}
-
-.footer {
-  grid-row-start: 3;
-  display: flex;
-  gap: 24px;
-}
-
-.footer a {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
 
-.footer img {
-  flex-shrink: 0;
+/* Slogan styles*/
+
+.infoContainer {
+  width: 50%;
+  height: 100%;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
-
-  .footer a:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
+.mainTitle {
+  color: white;
+  font-size: clamp(3.15vw, 18px, 4.5vw);
+  margin: 0px;
 }
 
-@media (max-width: 600px) {
-  .page {
-    padding: 32px;
-    padding-bottom: 80px;
+.dynamicMsgContainer {
+  width: 100%;
+  height: 25%;
+  font-weight: bold;
+}
+
+.dynamicMessage {
+  color: white;
+  font-size: clamp(6.3vw, 27px, 9vw);
+  margin: 0px;
+  margin-top: 3.6%;
+}
+
+.mainSubtitle {
+  color: #005F73;
+  font-size: clamp(2.25vw, 9px, 4.5vw);
+  margin-top: 3.6%;
+  margin-bottom: 4.5%;
+}
+
+/* Courses styles */
+
+.componentContainer {
+  width: 50%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* Btn styles */
+
+.coursesBtn {
+  background-color: var(--color-secondary);
+  color: white;
+  font-size: clamp(1.5vw, 20px, 2vw);
+  font-weight: bold;
+  width: 20vw;
+  height: 7vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-decoration: none;
+  border-radius: 3px;
+}
+
+/* Benefits section styles */
+
+.benefitsSection {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 5%;
+}
+
+.benefitsContentContainer {
+  width: 55%;
+  height: 100%;
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.benefitsTextContainer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.benefitsTitle {
+  color: white;
+  font-size: clamp(4vw, 25px, 12vw);
+  margin: 0px;
+}
+
+.benefitsSubtitle {
+  color: #005F73;
+  font-size: clamp(2vw, 15px, 7vw);
+  margin-bottom: 6%;
+
+}
+
+/* Icons styles */
+
+.iconsContainer {
+  width: 100%;
+  height: 80%;
+
+  position: absolute;
+  z-index: 0;
+}
+
+.excelIcon {
+  width: 10vw;
+  height: 10vw;
+  position: absolute;
+  z-index: 0;
+
+  bottom: 20vh;
+  right: -7vh;
+  transform: translateX(30%) rotate(-20deg);
+  transition: transform ease 0.5s;
+}
+
+.sqlIcon {
+  width: 9.3vw;
+  height: 9.3vw;
+  position: absolute;
+  z-index: 0;
+
+  bottom: 20vh;
+  left: -7vh;
+  transform: translateX(-65%) rotate(15deg);
+  transition: transform ease 0.5s;
+}
+
+.pythonIcon {
+  width: 10vw;
+  height: 10vw;
+  position: absolute;
+  z-index: 0;
+
+  top: -30px;
+  left: 50%;
+  transform: translateX(-65%) rotate(-15deg);
+  transition: transform ease 0.5s;
+}
+
+
+.pythonIcon:hover {
+  transform: scale(1.15) rotate(-20deg);
+}
+
+.sqlIcon:hover {
+  transform: scale(1.3) translateX(-65%) rotate(35deg);
+}
+
+.excelIcon:hover {
+  transform: scale(1.3) translateX(30%) rotate(-40deg);
+}
+
+/* Services styles */
+
+.servicesSection {
+  width: 100%;
+  height: 70vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.servicesTitleContainer {
+  width: 82%;
+  height: 10vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.servicesTitle {
+  color: white;
+  font-size: clamp(3vw, 25px, 7.5vw);
+}
+
+.servicesMainContainer {
+  width: 200%;
+  height: fit-content;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+
+.auxContactContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 82%;
+  height: 20vh;
+}
+
+.auxContactContainer h3 {
+  font-size: clamp(1.3vw, 15px, 3vw);
+}
+
+.auxBtnContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 82%;
+  height: 20vh;
+
+  margin-bottom: 10%;
+}
+
+/* main page media queries */
+
+@media (max-width: 768px) {
+  .componentContainer {
+    display: none;
   }
 
-  .main {
+  .infoContainer,
+  .dynamicMsgContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
     align-items: center;
   }
 
-  .main ol {
-    text-align: center;
+  .dynamicMsgContainer {
+    height: 40%;
   }
 
-  .ctas {
+  .mainSubtitle {
+    font-size: clamp(3vw, 15px, 5vw);
+  }
+
+  .mainTitle {
+    font-size: clamp(6vw, 30px, 7vw);
+  }
+
+  .dynamicMessage {
+    font-size: clamp(12vw, 35px, 15vw);
+  }
+
+  .mainSection {
+    height: 35vh;
+  }
+
+  .benefitsSection {
+    height: 40vh;
+  }
+
+  .coursesBtn {
+    height: clamp(3vh, 100px, 4vh);
+  }
+
+  .pythonIcon {
+    top: -50px;
+    left: 50%;
+    transform: translateX(-65%) rotate(-15deg);
+    transition: transform ease 0.5s;
+  }
+}
+
+@media (min-width: 769px) {
+  .dynamicMsgContainer {
+    height: 15%;
+  }
+}
+
+@media (max-width: 500px) {
+  .servicesMainContainer {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     flex-direction: column;
   }
 
-  .ctas a {
-    font-size: 14px;
-    height: 40px;
-    padding: 0 16px;
+  .infoContainer {
+    width: 100%;
+    display: flex;
   }
 
-  a.secondary {
-    min-width: auto;
+  .excelIcon,
+  .sqlIcon,
+  .pythonIcon {
+    transition: transform ease 0.5s;
   }
 
-  .footer {
-    flex-wrap: wrap;
-    align-items: center;
+  .excelIcon {
+    bottom: 12vh;
+    right: -3vh;
+    transform: translateX(30%) rotate(-20deg);
+  }
+
+  .sqlIcon {
+    bottom: 12vh;
+    left: -3vh;
+    transform: translateX(-65%) rotate(15deg);
+  }
+
+  .pythonIcon {
+    top: -30px;
+    left: 50%;
+    transform: translateX(-65%) rotate(-15deg);
+  }
+
+  .iconsContainer {
+    height: 60%;
+  }
+
+  .coursesBtn {
+    font-size: clamp(2vw, 20px, 3vw);
+    width: 30vw;
+    height: clamp(3vh, 100px, 4vh);
+  }
+
+  .dynamicMsgContainer {
+    height: 20%;
+    display: flex;
     justify-content: center;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
+    align-items: center;
   }
 }

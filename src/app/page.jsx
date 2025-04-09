@@ -4,9 +4,8 @@ import CursoCard from "@/components/cursoCard/cursoCard";
 import Service from "@/components/zetaServices/zetaServices";
 import ContactUsBtn from "@/components/contactUsBtn/contactUsBtn";
 
-import Typed from 'typed.js';
-import { useEffect } from 'react';
 import React from 'react';
+import useTypedEffect from "@/hooks/typed/typed";
 
 
 import styles from "./page.module.css";
@@ -15,26 +14,14 @@ import Link from "next/link";
 
 export default function Home() {
   document.title = "ZETA Academia";
-  useEffect(() => {
-    const targetElement = document.getElementById('dynamicMsg');
-
-    if (targetElement) {
-      const typed = new Typed(targetElement, {
-        strings: ['Potencial', 'Futuro', 'Capacidad'],
-        typeSpeed: 150,
-        loop: true,
-        backSpeed: 100,
-        startDelay: 300,
-        cursorChar: '',
-      });
-
-      return () => {
-        if (typed && targetElement) {
-          typed.destroy();
-        }
-      };
-    }
-  }, []);
+  useTypedEffect('dynamicMsg', {
+    strings: ['Potencial', 'Futuro', 'Capacidad'],
+    typeSpeed: 150,
+    loop: true,
+    backSpeed: 100,
+    startDelay: 300,
+    cursorChar: '',
+  });
 
   return (
     <div className={styles.page}>
