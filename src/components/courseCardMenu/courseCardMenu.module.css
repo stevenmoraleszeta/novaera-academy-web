@@ -1,0 +1,132 @@
+.courseCard {
+    position: relative;
+    background-image: linear-gradient(var(--color-primary), var(--color-dark));
+    /* Gradiente de azul oscuro a negro */
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    padding: 0;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+
+.courseCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 16px var(--color-black);
+}
+
+.courseImage {
+    width: 100%;
+    height: 20vh;
+    object-fit: cover;
+}
+
+.courseInfo {
+    padding: 0px 20px 20px 20px;
+}
+
+.courseInfo h2 {
+    font-size: 1.3rem;
+    width: 90%;
+    font-weight: bold;
+    color: var(--text-color);
+    text-align: left;
+    margin-bottom: 0;
+    overflow: hidden;
+    /* Oculta el texto que desborda */
+    text-overflow: ellipsis;
+    /* Agrega "..." al final del texto truncado */
+    display: -webkit-box;
+    /* Habilita el truncamiento de varias líneas */
+    -webkit-line-clamp: 3;
+    /* Número de líneas a mostrar */
+    -webkit-box-orient: vertical;
+    /* Define la orientación del contenedor flexible */
+    line-clamp: 3;
+    /* Standard property for compatibility */
+    white-space: normal;
+    /* Asegura que el texto se ajuste a múltiples líneas */
+}
+
+.courseInfo p {
+    font-size: 1rem;
+    color: var(--color-lighter);
+    text-align: left;
+    font-weight: normal;
+    /* Controla la altura del contenedor */
+    overflow: hidden;
+    /* Oculta el texto que desborda */
+    text-overflow: ellipsis;
+    /* Agrega "..." al final del texto truncado */
+    display: -webkit-box;
+    /* Habilita el truncamiento de varias líneas */
+    -webkit-line-clamp: 4;
+    /* Número de líneas a mostrar */
+    -webkit-box-orient: vertical;
+    /* Define la orientación del contenedor flexible */
+    line-clamp: 4;
+    /* Standard property for compatibility */
+    white-space: normal;
+    /* Asegura que el texto se ajuste a múltiples líneas */
+}
+
+
+/* Price Container */
+.priceContainer {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    margin-top: 5vh;
+}
+
+.discountedPrice {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-secondary);
+}
+
+.originalPrice {
+    font-size: 1.5rem;
+    color: var(--color-lighter);
+    font-weight: bold;
+    text-decoration: line-through;
+}
+
+.infoButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.7vh;
+    transition: background-color 0.2s ease;
+    width: auto;
+    justify-self: left;
+}
+
+.buttonIconContainer {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+}
+
+.archiveButton,
+.duplicateButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-lighter);
+    font-size: 1.2rem;
+}
+
+.archiveButton:hover,
+.duplicateButton:hover {
+    background-color: transparent;
+    color: var(--color-secondary);
+}

@@ -1,0 +1,220 @@
+/* Container and Layout */
+.container {
+    color: var(--text-color);
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    justify-self: center;
+}
+
+/* Header with Search Form */
+.header {
+    width: 100%;
+}
+
+.searchForm {
+    position: relative;
+    width: 100%;
+}
+
+.searchBar {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--color-dark);
+    color: var(--color-lighter);
+    font-size: 1.1rem;
+    outline: none;
+    font-weight: bold;
+}
+
+
+/* Filters section with inline buttons */
+.filters {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.filterOptions {
+    color: var(--color-lighter);
+    font-size: 1.1rem;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.filterButton {
+    background-color: var(--color-dark);
+    color: var(--color-lighter);
+    font-size: 1.1rem;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    width: auto;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-weight: bold;
+}
+
+/* Active filter button style */
+.activeFilter {
+    background-color: var(--color-primary-active);
+    /* Highlight color */
+    color: var(--text-color);
+}
+
+.sliderContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-lighter);
+    /* Light gray-blue for the text */
+    font-weight: bold;
+}
+
+.sliderContainer span {
+    font-size: 1em;
+    color: var(--color-lighter);
+    /* Text color matching the provided example */
+}
+
+/* Slider Styles */
+.slider {
+    -webkit-appearance: none;
+    /* Remove default appearance */
+    appearance: none;
+    width: 150px;
+    height: 6px;
+    /* Thin track */
+    background: var(--color-primary-hover);
+    /* Track color */
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.3s;
+}
+
+/* Hover effect for the slider track */
+.slider:hover {
+    background: var(--color-primary-active);
+    /* Slightly lighter color on hover */
+}
+
+/* Custom Slider Thumb */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    /* Size of the thumb */
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-lighter);
+    /* Thumb color */
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    background: var(--color-light-active);
+    /* Lighter thumb color on hover */
+}
+
+.slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-light-active);
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.slider::-moz-range-thumb:hover {
+    background: var(--color-light-active);
+}
+
+
+/* "Agregar curso" button aligned to the right */
+.addButton {
+    color: var(--text-color);
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9vw;
+    display: inline-block;
+    width: auto;
+}
+
+/* Course Grid */
+.courseGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 25px;
+    width: 100%;
+}
+
+/* Footer styling */
+.footer {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.footer p {
+    color: var(--text-color);
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.contactButton {
+    color: var(--text-color);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+.contactButton:hover {
+    background-color: var(--color-secondary-hover);
+}
+
+@media (max-width: 768px) {
+    .filters {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 30px;
+        flex-direction: row;
+    }
+
+    .filterOptions {
+        color: var(--color-lighter);
+        font-size: 1.1rem;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .addButton {
+        color: var(--text-color);
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 3vw;
+        display: inline-block;
+        width: 30%;
+    }
+}
