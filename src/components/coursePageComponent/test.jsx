@@ -12,9 +12,11 @@ import { useAuth } from "@/context/AuthContext";
 import styles from "./coursePage.module.css";
 
 const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
+    const router = useRouter();
     const { user, isAdmin } = useAuth();
-    const { courses, minPrice, maxPrice, loading, error } = useFetchCourses(collectionName);
 
+    // Estados
+    const { courses, minPrice, maxPrice, loading, error } = useFetchCourses(collectionName);
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [priceRange, setPriceRange] = useState(maxPrice);
@@ -24,6 +26,8 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
         document.title = pageTitle;
     }, [pageTitle]);
 
+
+    // Filtrar los cursos
     const matchesQuery = (course, query) =>
         course?.title?.toLowerCase().includes(query.toLowerCase());
 
@@ -49,8 +53,9 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery, priceRange, selectedCategory, courses]);
+    }, [searchQuery, priceRange, selectedCategory]);
 
+    // Handlers
     const handleSearch = (query) => {
         setSearchQuery(query);
     };
