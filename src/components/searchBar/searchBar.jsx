@@ -21,3 +21,5 @@ export default SearchBar = ({ placeholder = 'Search...', onSearchChange }) => {
         </div>
     );
 };
+
+/* Debounce y agregar accion on enter para hacer busqueda */

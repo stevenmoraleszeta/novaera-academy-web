@@ -1,0 +1,665 @@
+/* General Container */
+.container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+  color: #ffffff;
+  text-align: left;
+  /* Align text to the left */
+}
+
+/* Title*/
+.titleText,
+.titleInput {
+  width: 100%;
+  font-size: 2vw;
+  font-weight: bold;
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  margin: 20px 0 15px 0;
+  padding: 0;
+  text-align: left;
+  /* Align input text to the left */
+}
+
+/* Main Content Container - Course Video and Course Info Side-by-Side */
+.courseMainContent {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  align-items: flex-start;
+  padding: 10px 0;
+  flex-wrap: nowrap;
+  /* Prevents wrapping so items stay side-by-side */
+  height: 35vh;
+}
+
+/* Video Section */
+.courseVideo {
+  flex-shrink: 0;
+  /* Prevents video from resizing */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Course Info Section */
+.courseInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 1vh;
+  align-items: flex-start;
+  flex-grow: 1;
+  /* Takes up remaining space next to the video */
+  height: 100%;
+}
+
+/* Video Wrapper with Responsive 16:9 Aspect Ratio using viewport width */
+.videoWrapper {
+  position: relative;
+  width: 35vw;
+  /* Sets width to 40% of viewport width */
+  height: 35vh;
+  /* Ensures 16:9 aspect ratio with viewport width */
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #000;
+}
+
+.videoWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: cover;
+}
+
+/* Button to Edit Video URL inside the video space */
+.editVideoButton {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  /* Align button to the left */
+  background-color: var(--color-primary);
+  color: var(--text-color);
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.8em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.editVideoButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Placeholder if no video URL is provided */
+.videoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #333;
+  color: #aaa;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+/* Adjusted Description Input */
+.descriptionText,
+.descriptionInput {
+  width: 35vw;
+  background: transparent;
+  color: var(--color-lighter);
+  border: none;
+  outline: none;
+  padding: 0;
+  margin-top: 10px;
+  font-size: 1.5vw;
+  line-height: 1.4;
+  resize: none;
+  text-align: left;
+  /* Align text to the left */
+  height: 100%;
+  font-weight: bold;
+}
+
+/* Adjusted Price Container */
+.priceContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* Minimal gap between the two price elements */
+  font-size: 2vw;
+  font-weight: bold;
+}
+
+/* Discounted Price */
+.discountedPrice {
+  color: #ff6200;
+  /* Customize as needed */
+  display: flex;
+  align-items: center;
+}
+
+/* Original Price */
+.originalPrice {
+  color: var(--color-primary);
+  /* Customize as needed */
+  text-decoration: line-through;
+  display: flex;
+  align-items: center;
+}
+
+/* Input Fields for Prices */
+.discountedPriceInput,
+.originalPriceInput {
+  width: 5vw;
+  background: transparent;
+  color: inherit;
+  border: none;
+  font-size: 2vw;
+  outline: none;
+  padding: 0;
+  text-align: left;
+  font-weight: bold;
+  margin-left: 3px;
+  appearance: none;
+}
+
+/* Optional: Placeholder styling for clarity */
+.discountedPriceInput::placeholder,
+.originalPriceInput::placeholder {
+  color: #ccc;
+  /* Light gray for placeholder */
+}
+
+
+/* Button Container */
+.buttonContainer {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  justify-content: flex-start;
+  /* Align buttons to the left */
+}
+
+.enrollButton,
+.contactButton {
+  background-color: #ff6200;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1vw;
+  transition: background-color 0.2s ease;
+}
+
+.enrollButton:hover,
+.contactButton:hover {
+  background-color: #e55c00;
+}
+
+.enrolledButton {
+  background-color: var(--color-primary);
+  cursor: default;
+}
+
+.enrolledButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.enrolledPrice {
+  display: none;
+}
+
+
+/* Styles for the circular icon button */
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.8vw;
+  /* Adjust the width and height as needed */
+  height: 1.8vw;
+  background-color: var(--color-secondary);
+  /* White background */
+  border-radius: 50%;
+  /* Makes it circular */
+  cursor: pointer;
+  align-self: center;
+  transition: background-color 0.3s ease;
+}
+
+/* Style for the icon inside the button */
+.editIcon {
+  color: var(--text-color);
+  /* Orange color */
+  font-size: 0.8vw;
+  /* Adjust size if needed */
+}
+
+/* Optional: hover effect */
+.iconWrapper:hover {
+  background-color: var(--color-secondary-hover);
+  /* Slightly darker shade on hover */
+}
+
+
+
+
+
+
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: var(--color-dark-hover);
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  text-align: left;
+  /* Align modal content to the left */
+}
+
+.modalContent h3 {
+  color: var(--text-color);
+  margin-bottom: 15px;
+  text-align: left;
+  /* Align header to the left */
+  font-weight: bold;
+}
+
+.modalContent label {
+  color: var(--text-color);
+  text-align: left;
+  font-weight: bold;
+}
+
+.modalInput {
+  width: 100%;
+  background: var(--color-black);
+  color: var(--text-color);
+  border: none;
+  outline: none;
+  padding: 3px;
+  text-align: left;
+  /* Align input text to the left */
+  margin-top: 3px;
+  margin-bottom: 10px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-start;
+  /* Align modal actions to the left */
+}
+
+.modalActions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modalActions button:first-child {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.modalActions button:last-child {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.modalActions button:hover {
+  opacity: 0.9;
+}
+
+.modules {
+  margin-top: 5vh;
+}
+
+.module {
+  background: linear-gradient(var(--color-primary), var(--color-dark));
+  border-radius: 10px;
+  padding: 0.5% 1.5% 1.5% 1.5%;
+  margin-bottom: 4vh;
+}
+
+/* Module Header */
+.moduleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.moduleTitle {
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  font-weight: bold;
+  font-size: 1.5rem;
+  padding: 0;
+  margin: 10px 0 10px 0;
+}
+
+.moduleTitle:focus,
+.classTitle:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* Module Actions */
+.moduleActions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Class Container */
+.class {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  background-color: var(--color-primary);
+  height: auto;
+  padding-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.class:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.classTitle {
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  font-size: 1.2rem;
+  padding: 0;
+  margin: 15px 0 15px 0;
+  width: 100%;
+}
+
+/* Style for the circle icon */
+.classCircle {
+  margin-right: 15px;
+  width: 18px;
+  height: 18px;
+  border: 4px solid var(--text-color);
+  border-radius: 50%;
+  /* Garantiza la forma circular */
+  display: flex;
+  /* Centra el contenido internamente */
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Evita que el contenido desborde el contenedor */
+  flex-shrink: 0;
+  /* Evita que el círculo se comprima */
+  aspect-ratio: 1 / 1;
+  /* Asegura la proporción 1:1 */
+}
+
+.completedClass {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  background-color: var(--color-primary);
+  height: auto;
+  padding-left: 10px;
+  border-radius: 5px;
+  color: var(--text-color-light);
+}
+
+.completedClass:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.completedClass .classCircle {
+  background-color: var(--text-color);
+  color: var(--color-primary);
+}
+
+.highlightClass {
+  margin-bottom: 10px;
+  background-color: var(--color-secondary);
+  height: auto;
+  padding-left: 10px;
+  border-radius: 5px;
+  color: var(--text-color-light);
+}
+
+.highlightClass:hover {
+  background-color: var(--color-secondary-hover);
+  /* Add a hover effect */
+}
+
+
+/* Add Module Button */
+.modules button {
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: color 0.3s ease;
+  margin: 0;
+}
+
+.modules button:hover {
+  color: var(--color-secondary);
+}
+
+.addModuleButton {
+  margin-top: 10vh;
+  width: 100%;
+  background-color: transparent;
+  border: dashed 5px var(--color-secondary);
+}
+
+/* Media queries */
+
+@media (max-width: 768px) {
+
+  /* title */
+  .titleText,
+  .titleInput {
+    width: 100%;
+    font-size: 4vw;
+
+    margin: 0px;
+    padding: 0;
+  }
+
+  /* video content */
+
+  .courseMainContent {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    flex-direction: column;
+
+    gap: 20px;
+    width: 100%;
+    height: 60vh;
+  }
+
+  .videoWrapper {
+    width: 100%;
+  }
+
+  .courseVideo {
+    width: 100%;
+  }
+
+  /* description area */
+
+  .courseInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 1vh;
+    align-items: center;
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    align-content: center;
+    justify-content: center;
+  }
+
+  .descriptionText,
+  .descriptionInput {
+    width: 95vw;
+    background: transparent;
+    color: var(--color-lighter);
+    border: none;
+    outline: none;
+
+    font-size: 2.5vw;
+    resize: none;
+    text-align: center;
+  }
+
+  .originalPriceInput,
+  .discountedPriceInput {
+    font-size: 25px;
+    margin-left: 0px;
+    margin-right: 0px;
+    width: 10vw;
+    text-align: center;
+  }
+
+  .discountedPrice,
+  .originalPrice {
+    font-size: 30px;
+  }
+
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+
+    width: 100%;
+
+    gap: 15px;
+    margin-top: 0px;
+  }
+
+  .enrollButton,
+  .contactButton {
+    font-size: 3vw;
+  }
+
+  .iconWrapper {
+    width: 7vw;
+    height: 7vw;
+  }
+
+  .editIcon {
+    font-size: 5vw;
+  }
+
+  /* features */
+
+  .features {
+    height: 100vh;
+    margin-top: 2vh;
+    grid-template-columns: 0.6fr 1fr;
+    gap: 8px;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+  }
+
+  .feature {
+    width: 90%;
+  }
+
+  .featureDescriptionInput,
+  .featureTitleInput {
+    font-size: 3vw;
+  }
+
+  .container {
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 15px;
+    padding-top: 10px;
+    margin: 0px;
+  }
+}
+
+@media (max-width:500px) {
+
+  .container {
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 15px;
+    padding-top: 10px;
+    margin: 0px;
+  }
+
+  .descriptionText,
+  .descriptionInput {
+    width: 95vw;
+    font-size: 3.5vw;
+  }
+
+  .originalPriceInput,
+  .discountedPriceInput {
+    font-size: 25px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 10vw;
+    text-align: center;
+  }
+
+  .discountedPrice,
+  .originalPrice {
+    font-size: 30px;
+  }
+
+  .featureDescriptionInput,
+  .featureTitleInput {
+    font-size: 4vw;
+  }
+
+}

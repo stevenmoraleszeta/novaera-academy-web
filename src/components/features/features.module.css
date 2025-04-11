@@ -1,0 +1,166 @@
+.feature {
+    width: 90%;
+}
+
+.container {
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 15px;
+    padding-top: 10px;
+    margin: 0px;
+}
+
+@media (max-width:500px) {
+
+    .container {
+        border-radius: 10px;
+        color: #ffffff;
+        padding: 15px;
+        padding-top: 10px;
+        margin: 0px;
+    }
+
+    .descriptionText,
+    .descriptionInput {
+        width: 95vw;
+        font-size: 3.5vw;
+    }
+
+    .originalPriceInput,
+    .discountedPriceInput {
+        font-size: 25px;
+        margin-left: 0;
+        margin-right: 0;
+        width: 10vw;
+        text-align: center;
+    }
+
+    .discountedPrice,
+    .originalPrice {
+        font-size: 30px;
+    }
+
+    .featureDescriptionInput,
+    .featureTitleInput {
+        font-size: 4vw;
+    }
+
+}
+
+/* Features Section */
+.features {
+    display: grid;
+    grid-template-columns: 0.6fr 1fr;
+    gap: 8px;
+    /* Reduce el espacio entre los elementos */
+    margin-top: 2vh;
+    /* Ajusta el espacio superior si es necesario */
+}
+
+/* Feature Item */
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    /* Añade un margen inferior mínimo para separar cada feature ligeramente */
+}
+
+/* Icon for Feature */
+.featureIcon {
+    object-fit: cover;
+    align-self: flex-start;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+    position: relative;
+}
+
+/* Title and Description Inputs */
+.featureTitleInput,
+.featureDescriptionInput {
+    width: 100%;
+    background: transparent;
+    color: var(--color-light-active);
+    border: none;
+    outline: none;
+    padding: 0;
+    resize: none;
+    text-align: left;
+}
+
+/* Title Input with Slightly Smaller Font Size */
+.featureTitleInput {
+    font-size: 1.2vw;
+    /* Ajuste de tamaño */
+    font-weight: bold;
+}
+
+/* Description Input with Reduced Line Height */
+.featureDescriptionInput {
+    font-size: 1vw;
+    /* Ajuste de tamaño */
+    line-height: 1.2;
+    /* Reduce el interlineado para menor altura */
+    color: var(--text-color);
+}
+
+/* Actions btns */
+.featuresActionsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 20px;
+}
+
+.actionBtnsContainer {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+
+
+    gap: 20px;
+}
+
+.featuresActionsBtn {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+}
+
+.featureActions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Remove outline on focus */
+.titleInput:focus,
+.originalPriceInput:focus,
+.discountedPriceInput:focus,
+.featureTitleInput:focus,
+.featureDescriptionInput:focus,
+.descriptionInput:focus,
+.modalInput:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.moveButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .moveButton:hover {
+    color: var(--color-secondary);
+  }

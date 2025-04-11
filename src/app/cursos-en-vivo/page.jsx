@@ -1,4 +1,4 @@
-import CoursesPage from "@/components/coursePageComponent/coursePage";
+import CoursesPage from "@/components/coursePage/coursePage";
 
 const OnlineCourses = () => {
     return (
