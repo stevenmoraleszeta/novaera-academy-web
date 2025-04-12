@@ -4,16 +4,148 @@ import styles from './moduleCard.module.css';
 
 const ModuleCard = ({
     moduleData,
-    isAdmin,
-    onTitleChange,
-    onMoveModule,
-    onAddClass,
-    onDeleteModule,
-    onMoveClass,
-    onToggleClassRestriction,
-    onDeleteClass,
-    onClassClick,
+    collection,
+    isAdmin
 }) => {
+
+
+    const onTitleChange = (moduleId, newTitle) => {
+        setModules((prevModules) =>
+            prevModules.map((classModule) =>
+                classModule.id === moduleId ? { ...classModule, title: newTitle } : classModule
+            )
+        );
+        debouncedUpdateModuleTitle(moduleId, newTitle);
+    };
+
+    const onMoveModule = async (index, direction) => {
+        setModules((prevModules) => {
+            const newModules = [...prevModules];
+            const [movedModule] = newModules.splice(index, 1);
+            newModules.splice(index + direction, 0, movedModule);
+
+            // Update the order in the database
+            newModules.forEach(async (classModule, newIndex) => {
+                try {
+                    const moduleRef = doc(
+                        db,
+                        "onlineCourses",
+                        courseId,
+                        "modules",
+                        classModule.id
+                    );
+                    await updateDoc(moduleRef, { order: newIndex });
+                } catch (error) {
+                    console.error("Error updating module order:", error);
+                }
+            });
+
+            return newModules;
+        });
+    };
+
+    const onDeleteModule = async (moduleId) => {
+        if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
+            await deleteDoc(doc(db, "onlineCourses", courseId, "modules", moduleId));
+            setModules(modules.filter((classModule) => classModule.id !== moduleId));
+        }
+    };
+
+    const onAddClass = async (moduleId) => {
+        const classModule = modules.find((mod) => mod.id === moduleId);
+        const nextOrder = classModule ? classModule.classes.length : 0; // Get the next order based on existing classes
+
+        const newClass = { title: "Nueva Clase", order: nextOrder }; // Set the default order attribute
+        const classRef = await addDoc(
+            collection(db, "onlineCourses", courseId, "modules", moduleId, "classes"),
+            newClass
+        );
+
+        setModules((prevModules) =>
+            prevModules.map((classModule) => {
+                if (classModule.id === moduleId) {
+                    return {
+                        ...classModule,
+                        classes: [...classModule.classes, { id: classRef.id, ...newClass }],
+                    };
+                }
+                return classModule;
+            })
+        );
+    };
+
+    const onMoveClass = async (moduleId, classIndex, direction) => {
+        setModules((prevModules) =>
+            prevModules.map((classModule) => {
+                if (classModule.id === moduleId) {
+                    const newClasses = [...classModule.classes];
+                    const [movedClass] = newClasses.splice(classIndex, 1);
+                    newClasses.splice(classIndex + direction, 0, movedClass);
+
+                    // Update the order in the database
+                    newClasses.forEach(async (cls, newIndex) => {
+                        try {
+                            const classRef = doc(
+                                db,
+                                "onlineCourses",
+                                courseId,
+                                "modules",
+                                moduleId,
+                                "classes",
+                                cls.id
+                            );
+                            await updateDoc(classRef, { order: newIndex });
+                        } catch (error) {
+                            console.error("Error updating class order:", error);
+                        }
+                    });
+
+                    return { ...classModule, classes: newClasses };
+                }
+                return classModule;
+            })
+        );
+    };
+
+    const onToggleClassRestriction = async (moduleId, classId, currentStatus) => {
+        try {
+            const classRef = doc(
+                db,
+                "onlineCourses",
+                courseId,
+                "modules",
+                moduleId,
+                "classes",
+                classId
+            );
+            await updateDoc(classRef, { restricted: !currentStatus });
+
+            // Update local state
+            setModules((prevModules) =>
+                prevModules.map((classModule) => {
+                    if (classModule.id === moduleId) {
+                        return {
+                            ...classModule,
+                            classes: classModule.classes.map((cls) =>
+                                cls.id === classId
+                                    ? { ...cls, restricted: !currentStatus }
+                                    : cls
+                            ),
+                        };
+                    }
+                    return classModule;
+                })
+            );
+        } catch (error) {
+            console.error("Error updating restriction status:", error);
+        }
+    };
+
+    const onClassClick = (moduleId, classId) => {
+        router.push(`/cursos-en-linea/${courseId}/${moduleId}/${classId}`);
+    };
+
+
     return (
         <div className={styles.module}>
             {/* Header del módulo */}

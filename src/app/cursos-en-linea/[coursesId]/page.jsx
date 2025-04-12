@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState, use } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./page.module.css";
+
 import CourseDetails from "@/components/courseDetails/courseDetails";
 import CourseVideo from "@/components/courseVideo/courseVideo";
 import Features from "@/components/features/features";
@@ -39,8 +40,9 @@ const defaultFeatures = [
 ];
 
 const CourseDetail = ({ params }) => {
-    const router = useRouter();
-    const courseId = params.courseId;
+    const searchParams = useSearchParams();
+    const resolvedParams = use(params);
+    const courseId = resolvedParams.coursesId || searchParams.get("courseId");
     const [course, setCourse] = useState({
         title: "Introducción a la Programación con Python",
         description:
@@ -87,65 +89,43 @@ const CourseDetail = ({ params }) => {
     // Fetch course details and modules
     useEffect(() => {
         const fetchCourse = async () => {
-            const docRef = doc(db, "onlineCourses", courseId);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                const fetchedData = docSnap.data();
-
-                // Initialize features with default if empty
-                if (!fetchedData.features || fetchedData.features.length === 0) {
-                    fetchedData.features = defaultFeatures;
-                    await updateDoc(docRef, { features: defaultFeatures }); // Update Firestore
-                }
-
-                setCourse((prevCourse) => ({
-                    ...prevCourse,
-                    ...fetchedData,
-                }));
-                document.title = `${fetchedData.title || "Curso"} - ZETA`;
-            } else {
-                console.error("Course not found");
-                router.push("/cursos-en-linea");
+            if (!courseId) {
+                console.error("courseId is undefined");
+                return;
             }
-        };
 
-        const fetchModules = async () => {
             try {
-                const modulesSnapshot = await getDocs(
-                    collection(db, "onlineCourses", courseId, "modules")
-                );
-                const fetchedModules = await Promise.all(
-                    modulesSnapshot.docs.map(async (moduleDoc) => {
-                        const moduleData = moduleDoc.data();
-                        const classesSnapshot = await getDocs(
-                            collection(
-                                db,
-                                "onlineCourses",
-                                courseId,
-                                "modules",
-                                moduleDoc.id,
-                                "classes"
-                            )
-                        );
-                        const classes = classesSnapshot.docs.map((classDoc) => ({
-                            id: classDoc.id,
-                            ...classDoc.data(),
-                        }));
-                        return {
-                            id: moduleDoc.id,
-                            ...moduleData,
-                            classes,
-                        };
-                    })
-                );
-                setModules(fetchedModules);
+                const docRef = doc(db, "onlineCourses", courseId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const fetchedData = docSnap.data();
+
+                    if (!fetchedData.features || fetchedData.features.length === 0) {
+                        fetchedData.features = defaultFeatures;
+                        await updateDoc(docRef, { features: defaultFeatures }); // Update Firestore
+                    }
+
+                    setCourse((prevCourse) => ({
+                        ...prevCourse,
+                        ...fetchedData,
+                    }));
+                    document.title = `${fetchedData.title || "Curso"} - ZETA`;
+                } else {
+                    console.error("Course not found");
+                    router.push("/cursos-en-linea");
+                }
             } catch (error) {
-                console.error("Error fetching modules:", error);
+                console.error("Error fetching course:", error);
             }
         };
 
         const fetchModulesAndClasses = async () => {
+            if (!courseId) {
+                console.error("courseId is undefined");
+                return;
+            }
+
             try {
                 const modulesSnapshot = await getDocs(
                     collection(db, "onlineCourses", courseId, "modules")
@@ -187,9 +167,29 @@ const CourseDetail = ({ params }) => {
         };
 
         fetchCourse();
-        fetchModules();
         fetchModulesAndClasses();
     }, [courseId]);
+
+    useEffect(() => {
+        const checkEnrollmentStatus = async () => {
+            if (!currentUser) return;
+
+            try {
+                const userRef = doc(db, "users", currentUser.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const enrolledCourses = userData.enrolledCourses || [];
+                    setIsEnrolled(enrolledCourses.includes(courseId));
+                }
+            } catch (error) {
+                console.error("Error checking enrollment status:", error);
+            }
+        };
+
+        checkEnrollmentStatus();
+    }, [currentUser, courseId]);
 
     const handleFieldChange = async (field, value) => {
         const updatedCourse = { ...course, [field]: value };
@@ -209,6 +209,7 @@ const CourseDetail = ({ params }) => {
             { id: moduleRef.id, ...newModule },
         ]);
     };
+
 
     return (
         <div className={styles.container}>
@@ -236,14 +237,7 @@ const CourseDetail = ({ params }) => {
                             totalModules: modules.length,
                         }}
                         isAdmin={isAdmin}
-                        onTitleChange={handleModuleTitleChange}
-                        onMoveModule={moveModule}
-                        onAddClass={addClass}
-                        onDeleteModule={deleteModule}
-                        onMoveClass={moveClass}
-                        onToggleClassRestriction={toggleClassRestriction}
-                        onDeleteClass={deleteItem}
-                        onClassClick={handleClassClick}
+                        collection={'onlineCourses'}
                     />
                 ))
             ) : (

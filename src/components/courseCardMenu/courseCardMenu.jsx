@@ -112,7 +112,7 @@ const CourseCardMenu = ({ course, courseType }) => {
   return (
     <div
       className={styles.courseCard}
-      onClick={() => handleViewCourse(course.id)}
+      onClick={() => handleViewCourse(course)}
     >
       <Image
         src={
