@@ -27,7 +27,7 @@ const ModuleCard = ({
 
     const onDeleteModule = async (moduleId) => {
         if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
-            await deleteDoc(doc(db, "onlineCourses", courseId, "modules", moduleId));
+            await deleteDoc(doc(db, collectionName, courseId, "modules", moduleId));
             setModules(modules.filter((classModule) => classModule.id !== moduleId));
         }
     };
@@ -57,7 +57,7 @@ const ModuleCard = ({
 
         const newClass = { title: "Nueva Clase", order: nextOrder }; // Set the default order attribute
         const classRef = await addDoc(
-            collection(db, "onlineCourses", courseId, "modules", moduleId, "classes"),
+            collection(db, collectionName, courseId, "modules", moduleId, "classes"),
             newClass
         );
 
@@ -79,7 +79,7 @@ const ModuleCard = ({
             await deleteDoc(
                 doc(
                     db,
-                    "onlineCourses",
+                    collectionName,
                     courseId,
                     "modules",
                     moduleId,
@@ -138,7 +138,7 @@ const ModuleCard = ({
         try {
             const classRef = doc(
                 db,
-                "onlineCourses",
+                collectionName,
                 courseId,
                 "modules",
                 moduleId,
