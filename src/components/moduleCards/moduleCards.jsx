@@ -240,7 +240,7 @@ const ModuleCard = ({
                                     <button
                                         onClick={(event) => {
                                             event.stopPropagation();
-                                            onMoveClass(moduleData.id, classIndex, -1);
+                                            onMoveClass(classIndex, -1);
                                         }}
                                         disabled={classIndex === 0}
                                         className={styles.moveButton}
@@ -250,7 +250,7 @@ const ModuleCard = ({
                                     <button
                                         onClick={(event) => {
                                             event.stopPropagation();
-                                            onMoveClass(moduleData.id, classIndex, 1);
+                                            onMoveClass(classIndex, 1);
                                         }}
                                         disabled={classIndex === moduleData.classes.length - 1}
                                         className={styles.moveButton}
