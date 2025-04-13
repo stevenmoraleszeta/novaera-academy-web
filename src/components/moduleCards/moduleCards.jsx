@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { FaArrowUp, FaArrowDown, FaPlus, FaTrash, FaCheck, FaLock, FaLockOpen } from 'react-icons/fa';
 import styles from './moduleCard.module.css';
-import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 
 const ModuleCard = ({
     moduleData,
     collectionName,
     isAdmin,
-    courseId
+    courseId,
+    totalModules,
+    onModulesUpdate,
 }) => {
 
     const [modules, setModules] = useState([]);
@@ -23,36 +25,29 @@ const ModuleCard = ({
         debouncedUpdateModuleTitle(moduleId, newTitle);
     };
 
-    const onMoveModule = async (index, direction) => {
-        setModules((prevModules) => {
-            const newModules = [...prevModules];
-            const [movedModule] = newModules.splice(index, 1);
-            newModules.splice(index + direction, 0, movedModule);
-
-            // Update the order in the database
-            newModules.forEach(async (classModule, newIndex) => {
-                try {
-                    const moduleRef = doc(
-                        db,
-                        "onlineCourses",
-                        courseId,
-                        "modules",
-                        classModule.id
-                    );
-                    await updateDoc(moduleRef, { order: newIndex });
-                } catch (error) {
-                    console.error("Error updating module order:", error);
-                }
-            });
-
-            return newModules;
-        });
-    };
-
     const onDeleteModule = async (moduleId) => {
         if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
             await deleteDoc(doc(db, "onlineCourses", courseId, "modules", moduleId));
             setModules(modules.filter((classModule) => classModule.id !== moduleId));
+        }
+    };
+
+    const onMoveModule = async (index, direction) => {
+        const newModules = [...totalModules];
+        const [movedModule] = newModules.splice(index, 1);
+        newModules.splice(index + direction, 0, movedModule);
+
+        // Update the order in the database
+        try {
+            await Promise.all(
+                newModules.map((classModule, newIndex) => {
+                    const moduleRef = doc(db, collectionName, courseId, "modules", classModule.id);
+                    return updateDoc(moduleRef, { order: newIndex });
+                })
+            );
+            onModulesUpdate(newModules); // Update modules in the parent component
+        } catch (error) {
+            console.error("Error updating module order:", error);
         }
     };
 
@@ -106,37 +101,37 @@ const ModuleCard = ({
         }
     };
 
-    const onMoveClass = async (moduleId, classIndex, direction) => {
-        setModules((prevModules) =>
-            prevModules.map((classModule) => {
-                if (classModule.id === moduleId) {
-                    const newClasses = [...classModule.classes];
-                    const [movedClass] = newClasses.splice(classIndex, 1);
-                    newClasses.splice(classIndex + direction, 0, movedClass);
+    const onMoveClass = async (classIndex, direction) => {
+        const newClasses = [...moduleData.classes];
+        const [movedClass] = newClasses.splice(classIndex, 1);
+        newClasses.splice(classIndex + direction, 0, movedClass);
 
-                    // Update the order in the database
-                    newClasses.forEach(async (cls, newIndex) => {
-                        try {
-                            const classRef = doc(
-                                db,
-                                "onlineCourses",
-                                courseId,
-                                "modules",
-                                moduleId,
-                                "classes",
-                                cls.id
-                            );
-                            await updateDoc(classRef, { order: newIndex });
-                        } catch (error) {
-                            console.error("Error updating class order:", error);
-                        }
-                    });
+        // Actualizar el orden en la base de datos
+        try {
+            await Promise.all(
+                newClasses.map((cls, newIndex) => {
+                    const classRef = doc(
+                        db,
+                        collectionName,
+                        courseId,
+                        "modules",
+                        moduleData.id,
+                        "classes",
+                        cls.id
+                    );
+                    return updateDoc(classRef, { order: newIndex });
+                })
+            );
 
-                    return { ...classModule, classes: newClasses };
-                }
-                return classModule;
-            })
-        );
+            // Llamar a onModulesUpdate para actualizar el estado global
+            onModulesUpdate((prevModules) =>
+                prevModules.map((mod) =>
+                    mod.id === moduleData.id ? { ...mod, classes: newClasses } : mod
+                )
+            );
+        } catch (error) {
+            console.error("Error updating class order:", error);
+        }
     };
 
     const onToggleClassRestriction = async (moduleId, classId, currentStatus) => {

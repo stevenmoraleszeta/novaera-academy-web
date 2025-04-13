@@ -150,7 +150,7 @@ const CourseDetail = ({ params }) => {
                             ...classDoc.data(),
                         }));
 
-                        classes.sort((a, b) => a.order - b.order); // Sort classes by order within the module
+                        classes.sort((a, b) => a.order - b.order);
                         return {
                             id: moduleDoc.id,
                             ...moduleData,
@@ -159,7 +159,7 @@ const CourseDetail = ({ params }) => {
                     })
                 );
 
-                fetchedModules.sort((a, b) => a.order - b.order); // Sort modules by order
+                fetchedModules.sort((a, b) => a.order - b.order);
                 setModules(fetchedModules);
             } catch (error) {
                 console.error("Error fetching modules and classes:", error);
@@ -210,7 +210,6 @@ const CourseDetail = ({ params }) => {
         ]);
     };
 
-
     return (
         <div className={styles.container}>
             <CourseDetails
@@ -234,11 +233,12 @@ const CourseDetail = ({ params }) => {
                         moduleData={{
                             ...classModule,
                             order: moduleIndex,
-                            totalModules: modules.length,
                         }}
+                        totalModules={modules}
                         isAdmin={isAdmin}
                         collectionName={'onlineCourses'}
                         courseId={courseId}
+                        onModulesUpdate={setModules}
                     />
                 ))
             ) : (
