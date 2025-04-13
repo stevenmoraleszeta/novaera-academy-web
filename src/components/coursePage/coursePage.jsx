@@ -13,6 +13,7 @@ import styles from "./coursePage.module.css";
 
 const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
     const { user, isAdmin } = useAuth();
+    const router = useRouter();
     const { courses, minPrice, maxPrice, loading, error } = useFetchCourses(collectionName);
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -77,7 +78,12 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
                 features: [],
                 archived: false,
             });
-            router.push(`/${collectionName}/${docRef.id}`);
+            if (collectionName === 'onlineCourses') {
+                router.push(`cursos-en-linea/${docRef.id}`);
+            } else {
+                router.push(`cursos-en-vivo/${docRef.id}`);
+            }
+
         } catch (error) {
             console.error("Error adding course: ", error);
         }

@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaArrowUp, FaArrowDown, FaPlus, FaTrash, FaCheck, FaLock, FaLockOpen } from 'react-icons/fa';
 import styles from './moduleCard.module.css';
+import { addDoc, collection, deleteDoc, doc } from 'firebase/firestore';
+import { db } from '@/firebase/firebase';
 
 const ModuleCard = ({
     moduleData,
-    collection,
-    isAdmin
+    collectionName,
+    isAdmin,
+    courseId
 }) => {
+
+    const [modules, setModules] = useState([]);
 
 
     const onTitleChange = (moduleId, newTitle) => {
@@ -72,6 +77,33 @@ const ModuleCard = ({
                 return classModule;
             })
         );
+    };
+
+    const onDeleteClass = async (moduleId, classId) => {
+        if (confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
+            await deleteDoc(
+                doc(
+                    db,
+                    "onlineCourses",
+                    courseId,
+                    "modules",
+                    moduleId,
+                    "classes",
+                    classId
+                )
+            );
+            setModules(
+                modules.map((classModule) => {
+                    if (classModule.id === moduleId) {
+                        return {
+                            ...classModule,
+                            classes: classModule.classes.filter((c) => c.id !== classId),
+                        };
+                    }
+                    return classModule;
+                })
+            );
+        }
     };
 
     const onMoveClass = async (moduleId, classIndex, direction) => {

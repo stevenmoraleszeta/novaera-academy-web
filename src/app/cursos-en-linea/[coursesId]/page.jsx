@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./page.module.css";
@@ -237,7 +237,8 @@ const CourseDetail = ({ params }) => {
                             totalModules: modules.length,
                         }}
                         isAdmin={isAdmin}
-                        collection={'onlineCourses'}
+                        collectionName={'onlineCourses'}
+                        courseId={courseId}
                     />
                 ))
             ) : (
