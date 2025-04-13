@@ -112,14 +112,14 @@ const CourseCardMenu = ({ course, courseType }) => {
   return (
     <div
       className={styles.courseCard}
-      onClick={() => handleViewCourse(course)}
+      onClick={() => handleViewCourse(course.id)}
     >
       <Image
         src={
           course.imageUrl ||
           "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"
         }
-        alt={course.title}
+        alt={course.title || "Imagen del curso"}
         className={styles.courseImage}
         width={1000}
         height={1000}
