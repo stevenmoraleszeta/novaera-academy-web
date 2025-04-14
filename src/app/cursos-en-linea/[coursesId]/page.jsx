@@ -211,16 +211,30 @@ const CourseDetail = ({ params }) => {
 
     return (
         <div className={styles.container}>
-            <CourseDetails
-                course={course}
-                isAdmin={isAdmin}
-                isEnrolled={isEnrolled}
-                handleFieldChange={handleFieldChange}
-                handleContactClick={() => { }}
-                openModal={() => { }}
-                openVideoModal={() => { }}
-            />
-            <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
+            {isAdmin ? (
+                <input
+                    type="text"
+                    value={course.title || ""}
+                    onChange={(e) => handleFieldChange("title", e.target.value)}
+                    className={styles.titleInput}
+                />
+            ) : (
+                <span className={styles.titleText}>
+                    {course.title || "Sin título disponible"}
+                </span>
+            )}
+            <div className={styles.courseMainContent}>
+                <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
+                <CourseDetails
+                    course={course}
+                    isAdmin={isAdmin}
+                    isEnrolled={isEnrolled}
+                    handleFieldChange={handleFieldChange}
+                    handleContactClick={() => { }}
+                    openModal={() => { }}
+                    openVideoModal={() => { }}
+                />
+            </div>
             {!isEnrolled && (
                 <Features collectionName={'onlineCourses'} courseId={courseId} course={course} setCourse={setCourse}></Features>
             )}
