@@ -1,17 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaRegImage, FaPencilAlt } from "react-icons/fa";
 import styles from "./CourseDetails.module.css";
+
+import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
+import { db } from "@/firebase/firebase";
+
+
 
 const CourseDetails = ({
     course,
     isAdmin,
     isEnrolled,
     handleFieldChange,
-    handleEnrollClick,
     handleContactClick,
     openModal,
     openVideoModal,
 }) => {
+
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+
+    const handleEnrollClick = async () => {
+        try {
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+                const enrolledCourses = userData.enrolledCourses || [];
+
+                if (!enrolledCourses.includes(course.id)) {
+                    const paymentUrl = `/payment?courseId=${encodeURIComponent(course.id)}`;
+                    router.push(paymentUrl);
+                } else {
+                    setIsEnrolled(true);
+                }
+            } else {
+                const paymentUrl = `/payment?courseId=${encodeURIComponent(course.id)}`;
+                router.push(paymentUrl);
+            }
+        } catch (error) {
+            setIsAlertOpen(true);
+            console.error("Error verificando la inscripción del curso:", error);
+        }
+    };
+
+
     return (
         <div className={styles.courseInfo}>
             {isAdmin ? (

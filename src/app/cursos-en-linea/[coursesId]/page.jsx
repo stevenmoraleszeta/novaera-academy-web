@@ -86,7 +86,6 @@ const CourseDetail = ({ params }) => {
     const { currentUser, isAdmin } = useAuth();
     const [isEnrolled, setIsEnrolled] = useState(false);
 
-    // Fetch course details and modules
     useEffect(() => {
         const fetchCourse = async () => {
             if (!courseId) {
@@ -217,7 +216,6 @@ const CourseDetail = ({ params }) => {
                 isAdmin={isAdmin}
                 isEnrolled={isEnrolled}
                 handleFieldChange={handleFieldChange}
-                handleEnrollClick={() => { }}
                 handleContactClick={() => { }}
                 openModal={() => { }}
                 openVideoModal={() => { }}
