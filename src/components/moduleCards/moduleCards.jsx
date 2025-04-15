@@ -1,8 +1,11 @@
+"use client";
+
 import React, { useState } from 'react';
 import { FaArrowUp, FaArrowDown, FaPlus, FaTrash, FaCheck, FaLock, FaLockOpen } from 'react-icons/fa';
 import styles from './moduleCard.module.css';
 import { addDoc, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
+import { useRouter } from "next/navigation";
 
 const ModuleCard = ({
     moduleData,
@@ -14,6 +17,7 @@ const ModuleCard = ({
 }) => {
 
     const [modules, setModules] = useState([]);
+    const router = useRouter();
 
 
     const onTitleChange = (moduleId, newTitle) => {
