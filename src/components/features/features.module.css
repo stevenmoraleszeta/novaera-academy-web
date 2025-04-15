@@ -2,23 +2,7 @@
     width: 90%;
 }
 
-.container {
-    border-radius: 10px;
-    color: #ffffff;
-    padding: 15px;
-    padding-top: 10px;
-    margin: 0px;
-}
-
 @media (max-width:500px) {
-
-    .container {
-        border-radius: 10px;
-        color: #ffffff;
-        padding: 15px;
-        padding-top: 10px;
-        margin: 0px;
-    }
 
     .descriptionText,
     .descriptionInput {
@@ -138,16 +122,15 @@
 }
 
 /* Remove outline on focus */
-.titleInput:focus,
 .originalPriceInput:focus,
 .discountedPriceInput:focus,
 .featureTitleInput:focus,
 .featureDescriptionInput:focus,
 .descriptionInput:focus,
 .modalInput:focus {
-  outline: none;
-  border: none;
-  box-shadow: none;
+    outline: none;
+    border: none;
+    box-shadow: none;
 }
 
 .moveButton {
@@ -159,8 +142,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  .moveButton:hover {
+}
+
+.moveButton:hover {
     color: var(--color-secondary);
-  }
+}
