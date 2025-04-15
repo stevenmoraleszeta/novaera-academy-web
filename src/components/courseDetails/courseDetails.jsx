@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaRegImage, FaPencilAlt } from "react-icons/fa";
 import styles from "./CourseDetails.module.css";
 
-import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 
