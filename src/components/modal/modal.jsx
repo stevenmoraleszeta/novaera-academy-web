@@ -10,7 +10,9 @@ export function Modal({
     children,
     onClose,
     onSubmit,
-    isOpen = false
+    isOpen = false,
+    resources,
+    setResources
 }) {
     const [modalContent, setModalContent] = useState("");
 
@@ -28,11 +30,19 @@ export function Modal({
             case "notification":
                 setModalContent("notification");
                 break;
+            case "addResources":
+                setModalContent("addResources");
+                break;
             default:
                 setModalContent("");
                 break;
         }
     }, [modalType]);
+
+    const handleSave = () => {
+        // Logic to save resource
+        setIsModalOpen(false);
+    };
 
     if (!isOpen) return null;
 
@@ -70,6 +80,13 @@ export function Modal({
                     <div className={styles.btnsContainer}>
                         {children}
                         <button onClick={onClose}>Entendido</button>
+                    </div>
+                )}
+                {modalContent === "addResources" && (
+                    <div className={styles.btnsContainer}>
+                        {children}
+                        <button onClick={handleSave}>Guardar</button>
+                        <button onClick={onClose}>Cancelar</button>
                     </div>
                 )}
             </div>
