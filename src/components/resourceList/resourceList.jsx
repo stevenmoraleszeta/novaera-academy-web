@@ -1,5 +1,5 @@
 import React from "react";
-import ResourceItem from "./ResourceItem";
+import ResourceItem from "./resourceItem";
 import styles from "./ResourceList.module.css";
 
 const ResourceList = ({ resources, isAdmin, setResources, setIsModalOpen }) => {

@@ -1,12 +1,14 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
-import ResourceList from "@/components/ResourceList";
-import FixedBar from "@/components/FixedBar";
-import RestrictedContent from "@/components/RestrictedContent";
+import ResourceList from "@/components/resourceList/resourceList";
+import FixedBar from "@/components/fixedBarClasses/fixedBar";
+import RestrictedContent from "@/components/restrictedContent/restrictedContent";
 import { Modal } from "@/components/modal/modal";
 
 const ClassDetail = () => {
