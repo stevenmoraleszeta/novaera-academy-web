@@ -12,6 +12,7 @@ import CourseDetails from "@/components/courseDetails/courseDetails";
 import CourseVideo from "@/components/courseVideo/courseVideo";
 import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
+import ProjectsList from "@/components/projects/projects";
 
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
@@ -165,6 +166,18 @@ const CourseDetail = ({ params }) => {
                     Add Module
                 </button>
             )}
+            <ProjectsList
+                isAdmin={isAdmin}
+                isStudentInCourse={isStudentInCourse}
+                projects={projects}
+                studentProjects={studentProjects}
+                courseId={courseId}
+                averageScore={averageScore}
+                handleEditProject={handleEditProject}
+                moveProject={moveProject}
+                deleteProject={deleteProject}
+                addProject={addProject}
+            />
         </div>
     );
 };
