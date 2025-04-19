@@ -15,6 +15,12 @@ const CourseCardMenu = ({ course, courseType }) => {
   const { user, isAdmin } = useAuth();
 
   // Determina la colección y la ruta en función del tipo de curso
+  if (courseType === 'onlineCourses') {
+    courseType = "online";
+  } else {
+    courseType = "live";
+  }
+
   const collectionName =
     courseType === "live" ? "liveCourses" : "onlineCourses";
   const courseRoute =
