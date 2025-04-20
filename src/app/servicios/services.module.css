@@ -1,0 +1,354 @@
+.servicesMainSection {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.elementsContainer {
+    width: 90%;
+    height: auto;
+    max-width: 1200px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.zetaLogoContainer {
+    width: 100%;
+    height: fit-content;
+
+    padding-left: 5vw;
+    display: flex;
+    align-items: end;
+    justify-content: flex-start;
+}
+
+.zetaLogoImg {
+    width: clamp(8.5vw, 340px, 12.75vw);
+    height: clamp(11.05vh, 102px, 19.55vh);
+    object-fit: contain;
+    height: auto;
+}
+
+.servicesContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: start;
+
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.firstMainContainer {
+    height: 100%;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex-direction: column;
+    padding-right: 2vw;
+}
+
+.topContainer {
+    height: 30%;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    flex-direction: row;
+}
+
+.bottomContainer {
+    width: 93%;
+    height: 55%;
+    margin-top: 20px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    flex-direction: row;
+}
+
+.secondMainContainer {
+    height: 100%;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
+.serviceContainer {
+    border-radius: 10px;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.textContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    margin-left: 10%;
+    margin-top: 2%;
+}
+
+.textTitle {
+    width: 70%;
+    font-size: clamp(1.86vw, 23.25px, 2.325vw);
+    margin-top: 5%;
+}
+
+.iconContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    margin-right: 20%;
+    margin-bottom: 5%;
+}
+
+
+.iconImg {
+    width: clamp(6.51vw, 93px, 11.16vw);
+    /* 7% reduction */
+    height: clamp(6.51vh, 74.4px, 11.16vh);
+    /* 7% reduction */
+    object-fit: contain;
+}
+
+#aprendeLinea {
+    background: linear-gradient(90deg, #005F73, #00B3D9);
+
+    width: clamp(18.6vw, 381.3px, 32.55vw);
+    height: clamp(19.902vh, 268.677px, 29.853vh);
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#cursosVivo {
+    background: linear-gradient(220deg, #002128, #00B3D9);
+
+    width: clamp(12.09vw, 381.3px, 15.81vw);
+    height: clamp(19.902vh, 268.677px, 29.853vh);
+    margin-left: 5%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#clasesParticulares {
+    background: linear-gradient(45deg, #00181D, #005F73, #00B3D9);
+
+    width: clamp(19.53vw, 330.15px, 25.11vw);
+    height: clamp(37.2vh, 302.25px, 46.5vh);
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#desarrolloSoftware {
+    background: linear-gradient(45deg, #012F38, #00B3D9);
+
+    width: clamp(23.715vw, 295.647px, 31.62vw);
+    height: clamp(37.2vh, 302.25px, 46.5vh);
+    margin-left: 5%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#elaboracionProyectos {
+    background: linear-gradient(220deg, #000E11, #00657B, #00B3D9);
+
+    width: clamp(13.95vw, 248.31px, 18.6vw);
+    height: clamp(41.85vh, 330.15px, 51.15vh);
+    margin-left: 3%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#otro {
+    background: linear-gradient(320deg, #000E11, #00B3D9);
+
+    width: clamp(12.09vw, 381.3px, 15.81vw);
+    height: clamp(13.95vh, 279px, 27.9vh);
+
+    margin-top: 3%;
+
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconBottomImgs {
+    width: clamp(9vw, 90px, 13.5vw);
+    height: clamp(9.9vh, 72px, 11.7vh);
+    object-fit: contain;
+}
+
+/* On hovered content*/
+
+.linkBtn {
+    border-radius: 3px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    background-color: var(--color-secondary);
+    transition: background-color 0.3s;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: clamp(12px, 4vw, 16px);
+    padding: 8px;
+}
+
+.onHoveredText {
+    font-size: clamp(13px, 3.5vw, 16px);
+    width: 70%;
+}
+
+/* media queries */
+
+
+@media (max-width: 1100px) {
+    .onHoveredText {
+        font-size: clamp(10px, 3vw, 12px);
+        width: 70%;
+    }
+}
+
+@media (max-width: 768px) {
+    .servicesContainer {
+        flex-direction: column;
+    }
+
+    .zetaLogoContainer {
+        padding-left: 2vw;
+    }
+
+    .zetaLogoImg {
+        width: clamp(80px, 25%, 200px);
+    }
+
+    .textTitle {
+        font-size: clamp(18px, 5vw, 22px);
+    }
+
+    #aprendeLinea,
+    #cursosVivo,
+    #clasesParticulares,
+    #desarrolloSoftware,
+    #elaboracionProyectos,
+    #otro {
+        width: 100%;
+        height: auto;
+    }
+
+    .textContainer {
+        margin-left: 5%;
+    }
+
+    .zetaLogoImg {
+        width: 50%;
+    }
+
+    .textTitle {
+        font-size: 16px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .elementsContainer {
+        width: 95%;
+    }
+
+    .servicesContainer {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    #aprendeLinea,
+    #cursosVivo,
+    #clasesParticulares,
+    #desarrolloSoftware,
+    #elaboracionProyectos,
+    #otro {
+        width: 100%;
+        height: auto;
+    }
+
+    .textContainer {
+        margin-left: 5%;
+    }
+
+    .zetaLogoImg {
+        width: 50%;
+    }
+
+    .textTitle {
+        font-size: 16px;
+    }
+}
+
+@media (max-width:1551px) {
+    .onHoveredText {
+        font-size: clamp(10px, 3.5vw, 13px);
+    }
+}
+
+@media (max-width:801px) {
+    .onHoveredText {
+        font-size: clamp(10px, 3.5vw, 13px);
+    }
+}
