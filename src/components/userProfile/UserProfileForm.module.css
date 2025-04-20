@@ -1,0 +1,204 @@
+/* User profile main Containers */
+
+.userProfileContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10vh;
+
+    font-weight: 600;
+}
+
+.userProfileForm {
+    width: 90%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Image and container styling */
+
+.imgContainer {
+    height: 100%;
+    margin-top: 40px;
+    margin-right: 40px;
+    display: flex;
+    align-items: flex-start;
+    align-self: flex-start;
+}
+
+.userImg {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.userInformationContainer {
+    width: 50%;
+    height: fit-content;
+}
+
+/* First user's information container */
+
+.firstContainerInformation {
+    margin: 10px;
+    margin-left: 0px;
+}
+
+.nameInput {
+    border-bottom: 2px solid #005F73;
+    border-radius: 0px;
+
+    outline: none;
+    background-color: transparent;
+    font-size: clamp(2vw, 30px, 5vw);
+    font-weight: 600;
+    color: white;
+
+    margin-bottom: 20px;
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+.nameInput:focus {
+    outline: none;
+    box-shadow: none;
+    border: none;
+    border-bottom: 2px solid #005F73;
+}
+
+.inputNumber {
+    color: white;
+    margin: 10px;
+    margin-left: 0px;
+    font-weight: normal;
+    font-size: clamp(.5vw, 24px, 1.1vw);
+}
+
+.inputLabels {
+    color: #8CB7C0;
+    margin: 15px;
+    margin-left: 0px;
+    font-size: clamp(1.2vw, 16px, 1.5vw);
+}
+
+/* Second user's information container */
+
+.secondContainerInformation {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    margin: 10px;
+    margin-left: 0px;
+}
+
+.countryContainer {
+    width: 30%;
+}
+
+.countrySelect {
+    color: white;
+    font-size: clamp(.5vw, 24px, 1.1vw);
+    background-image: url('../../assets/cursors/selectArrow.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+}
+
+.countrySelect::-ms-expand {
+    display: none;
+}
+
+.ageContainer {
+    margin-left: 20px;
+    width: 20%;
+}
+
+.ageInput {
+    width: 50%;
+    color: white;
+    font-size: clamp(.5vw, 24px, 1.1vw);
+}
+
+.submitButton,
+.logoutButton {
+    font-weight: 600;
+    font-size: clamp(0.395vw, 18.97px, 0.869vw);
+    margin-right: 10px;
+}
+
+/* media queries */
+
+@media (max-width: 768px) {
+    .userProfileForm {
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .imgContainer {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nameInput {
+        font-size: clamp(2vw, 20px, 4vw);
+    }
+
+    .inputLabels {
+        font-size: clamp(2vw, 30px, 3.5vw);
+    }
+
+    .inputNumber {
+        font-size: clamp(3vw, 30px, 3.5vw);
+    }
+
+    /* pais and edad selector */
+
+    .secondContainerInformation {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .countryContainer {
+        width: 100%;
+    }
+
+    .countrySelect {
+        font-size: clamp(3vw, 24px, 3.5vw);
+    }
+
+    .ageContainer {
+        width: 100%;
+        margin-left: 0px;
+    }
+
+    .ageInput {
+        width: 100%;
+        font-size: clamp(2vw, 24px, 3vw);
+    }
+
+    .submitButton,
+    .logoutButton {
+        font-weight: 600;
+        font-size: clamp(2vw, 15px, 3vw);
+    }
+}

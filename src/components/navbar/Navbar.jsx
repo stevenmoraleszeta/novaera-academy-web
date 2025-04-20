@@ -74,7 +74,7 @@ function Navbar() {
                     </Link>
                 )}
                 {currentUser ? (
-                    <Link href="/perfil-usuario" className={styles.profileLink}>
+                    <Link href="/userProfile" className={styles.profileLink}>
                         <Image
                             className={styles.profileImage}
                             src={profileImage || defaultProfileImage}
