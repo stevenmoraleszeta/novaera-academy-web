@@ -138,20 +138,25 @@ const CrudMenu = ({
                 )}
             </section>
             {isModalOpen && (
-                <ModalForm
-                    isOpen={isModalOpen}
-                    item={selectedItem}
-                    editFields={editFields}
+                <Modal
+                    modalType="formModal"
+                    isOpen={isFormOpen}
+                    onClose={handleCloseForm}
+                    onSave={handleSaveItem}
+                    item={currentItem}
+                    editFields={[
+                        { label: "Nombre", field: "name", type: "text" },
+                        { label: "Descripción", field: "description", type: "text" }
+                    ]}
                     isEditMode={isEditMode}
-                    onClose={handleModalClose}
-                    onSave={handleSave}
                 />
             )}
-            <ConfirmationModal
-                isOpen={isConfirmModalOpen}
-                onClose={() => setIsConfirmModalOpen(false)}
-                onConfirm={confirmDelete}
-                message="¿Estás seguro de que quieres eliminar este elemento?"
+            <Modal
+                modalType="confirmation"
+                isOpen={isConfirmationOpen}
+                onClose={handleCloseConfirmation}
+                onConfirm={handleConfirmAction}
+                description="¿Estás seguro de que deseas realizar esta acción?"
             />
         </div>
     );
