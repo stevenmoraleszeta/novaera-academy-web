@@ -12,36 +12,24 @@ export function Modal({
     onSubmit,
     isOpen = false,
     resources,
-    setResources
+    setResources,
+    customContent, // Nuevo prop para contenido personalizado
+    onConfirm, // Para ConfirmationModal
+    item, // Para ModalForm
+    editFields, // Para ModalForm
+    isEditMode, // Para ModalForm
+    onSave // Para ModalForm
 }) {
     const [modalContent, setModalContent] = useState("");
 
     useEffect(() => {
-        switch (modalType) {
-            case "alert":
-                setModalContent("alert");
-                break;
-            case "form":
-                setModalContent("form");
-                break;
-            case "message":
-                setModalContent("message");
-                break;
-            case "notification":
-                setModalContent("notification");
-                break;
-            case "addResources":
-                setModalContent("addResources");
-                break;
-            default:
-                setModalContent("");
-                break;
-        }
+        setModalContent(modalType);
     }, [modalType]);
 
     const handleSave = () => {
-        // Logic to save resource
-        setIsModalOpen(false);
+        // Lógica para guardar recursos
+        setResources([...resources, {}]);
+        onClose();
     };
 
     if (!isOpen) return null;
@@ -69,19 +57,38 @@ export function Modal({
                     </div>
                 )}
 
-                {modalContent === "message" && (
+                {modalContent === "confirmation" && (
                     <div className={styles.btnsContainer}>
-                        {children}
-                        <button onClick={onClose}>Cerrar</button>
+                        <p>{description}</p>
+                        <button onClick={onConfirm} className={styles.confirmButton}>Confirmar</button>
+                        <button onClick={onClose} className={styles.cancelButton}>Cancelar</button>
                     </div>
                 )}
 
-                {modalContent === "notification" && (
-                    <div className={styles.btnsContainer}>
-                        {children}
-                        <button onClick={onClose}>Entendido</button>
+                {modalContent === "formModal" && (
+                    <div className={styles.modalContent}>
+                        <h2>{isEditMode ? "Editar Elemento" : "Agregar Nuevo Elemento"}</h2>
+                        {editFields.map(({ label, field, type }) => (
+                            <div key={field} className={styles.fieldRow}>
+                                <label>{label}</label>
+                                <input
+                                    type={type}
+                                    name={field}
+                                    value={item[field] || ""}
+                                    onChange={(e) => {
+                                        const { name, value } = e.target;
+                                        item[name] = value;
+                                    }}
+                                />
+                            </div>
+                        ))}
+                        <div className={styles.modalButtons}>
+                            <button onClick={() => onSave(item, isEditMode)}>Guardar</button>
+                            <button onClick={onClose}>Cerrar</button>
+                        </div>
                     </div>
                 )}
+
                 {modalContent === "addResources" && (
                     <div className={styles.btnsContainer}>
                         {children}
@@ -89,7 +96,44 @@ export function Modal({
                         <button onClick={onClose}>Cancelar</button>
                     </div>
                 )}
+
+                {customContent && (
+                    <div className={styles.customContent}>
+                        {customContent}
+                    </div>
+                )}
             </div>
         </div>
     );
 }
+
+/* Uso */
+
+/* 
+
+ConfirmationModal
+
+<Modal
+    modalType="confirmation"
+    isOpen={isConfirmationOpen}
+    onClose={handleCloseConfirmation}
+    onConfirm={handleConfirmAction}
+    description="¿Estás seguro de que deseas realizar esta acción?"
+/>
+
+ModalForm
+
+<Modal
+    modalType="formModal"
+    isOpen={isFormOpen}
+    onClose={handleCloseForm}
+    onSave={handleSaveItem}
+    item={currentItem}
+    editFields={[
+        { label: "Nombre", field: "name", type: "text" },
+        { label: "Descripción", field: "description", type: "text" }
+    ]}
+    isEditMode={isEditMode}
+/>
+
+*/
