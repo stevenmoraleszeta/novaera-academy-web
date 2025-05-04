@@ -3,9 +3,6 @@
 import React, { useState, useEffect } from "react";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import useFetchCourses from "@/hooks/useFetchCourses/useFetchCourses";
-
-import { db } from "@/firebase/firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -41,6 +38,9 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
             matchesCategory(course, selectedCategory) &&
             !course.archived
         );
+
+        console.log("Courses originales:", courses);
+
         setFilteredCourses(filtered);
     };
 
@@ -68,28 +68,41 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
 
     const handleAddCourse = async () => {
         try {
-            const docRef = await addDoc(collection(db, collectionName), {
-                title: "",
-                description: "",
-                discountedPrice: 0,
-                originalPrice: 0,
-                category: "",
-                imageUrl: "",
-                features: [],
-                archived: false,
+            const categoryName = collectionName === 'onlineCourses' ? 'online' : 'live';
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/category-name/${categoryName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: "",
+                    description: "",
+                    discountedPrice: 0,
+                    originalPrice: 0,
+                    category: "",
+                    imageUrl: "",
+                    features: [],
+                    archived: false,
+                }),
             });
-            if (collectionName === 'onlineCourses') {
-                router.push(`cursos-en-linea/${docRef.id}`);
-            } else {
-                router.push(`cursos-en-vivo/${docRef.id}`);
+
+            if (!response.ok) {
+                throw new Error('Error al crear el curso');
             }
 
+            const data = await response.json();
+            if (collectionName === 'onlineCourses') {
+                router.push(`cursos-en-linea/${data.id}`);
+            } else {
+                router.push(`cursos-en-vivo/${data.id}`);
+            }
         } catch (error) {
-            console.error("Error adding course: ", error);
+            console.error("Error al agregar curso: ", error);
         }
     };
 
     const categories = ["Programación", "Ofimática"];
+    console.log("Cursos filtrados:", filteredCourses);
 
     return (
         <div className={styles.container}>
@@ -115,15 +128,20 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
                         </button>
                     ))}
                     <div className={styles.sliderContainer}>
-                        <input
-                            type="range"
-                            min={minPrice}
-                            max={maxPrice}
-                            step="10"
-                            value={priceRange}
-                            onChange={handlePriceChange}
-                            className={styles.slider}
-                        />
+                        {!isNaN(minPrice) && !isNaN(maxPrice) && (
+                            <div className={styles.sliderContainer}>
+                                <input
+                                    type="range"
+                                    min={minPrice}
+                                    max={maxPrice}
+                                    step="10"
+                                    value={priceRange}
+                                    onChange={handlePriceChange}
+                                    className={styles.slider}
+                                />
+                                <span>${priceRange}</span>
+                            </div>
+                        )}
                         <span>$</span>
                         <span>{priceRange}</span>
                     </div>
@@ -135,18 +153,22 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
                 )}
             </div>
 
-            {loading && <p>Loading courses...</p>}
+            {loading && <p>Cargando cursos...</p>}
             {error && <p>{error}</p>}
 
             <div className={styles.courseGrid}>
                 {filteredCourses?.length > 0 &&
                     filteredCourses.map((course) => (
                         <CourseCardMenu
-                            key={course.id}
-                            course={course}
+                            key={course.courseid}
+                            course={{
+                                ...course,
+                                id: course.courseid, 
+                            }}
                             courseType={collectionName}
                         />
                     ))}
+
             </div>
 
             <footer className={styles.footer}>

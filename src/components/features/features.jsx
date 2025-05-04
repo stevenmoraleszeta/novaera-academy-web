@@ -10,20 +10,32 @@ import {
     FaArrowUp,
     FaArrowDown,
 } from "react-icons/fa";
-import { arrayUnion, doc, updateDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
 
-const FeaturesProps = {
-    course: '',
-    setCourse: '',
-    courseId: '',
-    collectionName: '',
-}
+const defaultFeatures = [
+    {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de",
+        title: "Curso asincrónico",
+        description: "Aprende cualquier día y hora.",
+    },
+    {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
+        title: "Aprendizaje práctico",
+        description: "Aprende con problemas reales.",
+    },
+    {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
+        title: "Atención personalizada",
+        description: "Consulta al mentor en cualquier momento.",
+    },
+    {
+        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6",
+        title: "Certificado de finalización",
+        description: "Incrementa tu conocimiento.",
+    },
+];
 
-export default function Features(featuresProps = props) {
-
-    const { course, setCourse, courseId, collectionName } = featuresProps;
-    const { currentUser, isAdmin } = useAuth();
+export default function Features({ course, setCourse, courseId, collectionName }) {
+    const { isAdmin } = useAuth();
     const [editingIconIndex, setEditingIconIndex] = useState(null);
     const [newIconUrl, setNewIconUrl] = useState("");
 
@@ -36,98 +48,66 @@ export default function Features(featuresProps = props) {
         setNewIconUrl(e.target.value);
     };
 
-    const saveIconUrl = async (index) => {
+    const saveIconUrl = (index) => {
         const updatedFeatures = [...course.features];
         updatedFeatures[index].iconUrl = newIconUrl;
 
-        try {
-            const courseRef = doc(db, collectionName, courseId);
-            await updateDoc(courseRef, { features: updatedFeatures });
-            setCourse((prev) => ({ ...prev, features: updatedFeatures }));
-            setEditingIconIndex(null);
-        } catch (error) {
-            console.error("Error updating icon URL:", error);
-        }
+        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+        setEditingIconIndex(null);
+
+        // Aquí podrías hacer una petición a tu API (POST/PUT)
     };
 
-    const handleAddFeature = async () => {
-        const newFeature = { title: "test", description: "test", iconUrl: 'https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6' };
-        try {
-            const courseRef = doc(db, collectionName, courseId);
-            await updateDoc(courseRef, {
-                features: arrayUnion(newFeature),
-            });
+    const handleAddFeature = () => {
+        const newFeature = {
+            title: "Nuevo título",
+            description: "Nueva descripción",
+            iconUrl: defaultFeatures[3].iconUrl,
+        };
 
-            setCourse((prev) => ({
-                ...prev,
-                features: [...(prev.features || []), newFeature],
-            }));
+        const updatedFeatures = [...(course.features || []), newFeature];
+        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
 
-            console.log("Característica añadida exitosamente");
-        } catch (error) {
-            console.error("Error al agregar la característica:", error);
-        }
+        // POST a tu API si es necesario
     };
 
-    const handleDeleteFeature = async (index) => {
-        try {
-            const updatedFeatures = [...course.features];
+    const handleDeleteFeature = (index) => {
+        const updatedFeatures = [...course.features];
+        updatedFeatures.splice(index, 1);
 
-            updatedFeatures.splice(index, 1);
+        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
 
-            const courseRef = doc(db, collectionName, courseId);
-            await updateDoc(courseRef, { features: updatedFeatures });
-
-            setCourse((prev) => ({
-                ...prev,
-                features: updatedFeatures,
-            }));
-
-            console.log("Característica eliminada exitosamente");
-        } catch (error) {
-            console.error("Error al eliminar la característica:", error);
-        }
+        // DELETE a tu API si es necesario
     };
 
-    const moveFeature = async (index, direction) => {
-        setCourse((prevCourse) => {
-            const newFeatures = [...prevCourse.features];
-            const [movedFeature] = newFeatures.splice(index, 1);
-            newFeatures.splice(index + direction, 0, movedFeature);
+    const moveFeature = (index, direction) => {
+        const newFeatures = [...course.features];
+        const [movedFeature] = newFeatures.splice(index, 1);
+        newFeatures.splice(index + direction, 0, movedFeature);
 
-            // Update the order in the database
-            newFeatures.forEach(async (feature, newIndex) => {
-                try {
-                    const courseRef = doc(db, collectionName, courseId);
-                    await updateDoc(courseRef, { features: newFeatures });
-                } catch (error) {
-                    console.error("Error updating feature order:", error);
-                }
-            });
+        setCourse((prev) => ({ ...prev, features: newFeatures }));
 
-            return { ...prevCourse, features: newFeatures };
-        });
+        // PUT a tu API si es necesario
     };
 
-    const handleFieldChange = async (field, value) => {
-        const updatedCourse = { ...course, [field]: value };
-        setCourse(updatedCourse);
-        const docRef = doc(db, collectionName, courseId);
-        await updateDoc(docRef, { [field]: value });
+    const handleFieldChange = (index, field, value) => {
+        const updatedFeatures = [...course.features];
+        updatedFeatures[index][field] = value;
+        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+
+        // PUT a tu API si es necesario
     };
 
     return (
         <div className={styles.features}>
             {isAdmin && (
-                <>
-                    <div className={styles.actionBtnsContainer}>
-                        <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
-                            <FaPlus />
-                        </button>
-                    </div>
-                    <div></div>
-                </>
+                <div className={styles.actionBtnsContainer}>
+                    <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
+                        <FaPlus />
+                    </button>
+                </div>
             )}
+
             {(course.features || defaultFeatures).map((feature, index) => (
                 <div key={index} className={styles.feature}>
                     <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
@@ -138,6 +118,7 @@ export default function Features(featuresProps = props) {
                             style={{ objectFit: "contain" }}
                         />
                     </div>
+
                     {editingIconIndex === index && isAdmin && (
                         <div className={styles.iconUrlInputContainer}>
                             <input
@@ -151,26 +132,23 @@ export default function Features(featuresProps = props) {
                             </button>
                         </div>
                     )}
+
                     <div>
                         {isAdmin ? (
                             <>
                                 <input
                                     type="text"
                                     value={feature.title}
-                                    onChange={(e) => {
-                                        const updatedFeatures = [...course.features];
-                                        updatedFeatures[index].title = e.target.value;
-                                        handleFieldChange("features", updatedFeatures);
-                                    }}
+                                    onChange={(e) =>
+                                        handleFieldChange(index, "title", e.target.value)
+                                    }
                                     className={styles.featureTitleInput}
                                 />
                                 <textarea
                                     value={feature.description}
-                                    onChange={(e) => {
-                                        const updatedFeatures = [...course.features];
-                                        updatedFeatures[index].description = e.target.value;
-                                        handleFieldChange("features", updatedFeatures);
-                                    }}
+                                    onChange={(e) =>
+                                        handleFieldChange(index, "description", e.target.value)
+                                    }
                                     className={styles.featureDescriptionInput}
                                 />
                             </>
@@ -184,39 +162,36 @@ export default function Features(featuresProps = props) {
                                 </div>
                             </>
                         )}
+
                         {isAdmin && (
-                            <>
-                                <div className={styles.featuresActionsContainer}>
-                                    <div className={styles.featureActions}>
-                                        <button
-                                            onClick={() => moveFeature(index, -1)}
-                                            disabled={index === 0}
-                                            className={styles.moveButton}
-                                        >
-                                            <FaArrowUp />
-                                        </button>
-                                        <button
-                                            onClick={() => moveFeature(index, 1)}
-                                            disabled={index === course.features.length - 1}
-                                            className={styles.moveButton}
-                                        >
-                                            <FaArrowDown />
-                                        </button>
-                                    </div>
-                                    <div>
-                                        <button
-                                            className={styles.featuresActionsBtn}
-                                            onClick={() => handleDeleteFeature(index)}
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    </div>
+                            <div className={styles.featuresActionsContainer}>
+                                <div className={styles.featureActions}>
+                                    <button
+                                        onClick={() => moveFeature(index, -1)}
+                                        disabled={index === 0}
+                                        className={styles.moveButton}
+                                    >
+                                        <FaArrowUp />
+                                    </button>
+                                    <button
+                                        onClick={() => moveFeature(index, 1)}
+                                        disabled={index === course.features.length - 1}
+                                        className={styles.moveButton}
+                                    >
+                                        <FaArrowDown />
+                                    </button>
                                 </div>
-                            </>
+                                <button
+                                    className={styles.featuresActionsBtn}
+                                    onClick={() => handleDeleteFeature(index)}
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
             ))}
         </div>
-    )
+    );
 }

@@ -1,9 +1,6 @@
 "use client";
-
-import React, { useEffect, useState, use } from "react";
-import { useSearchParams } from "next/navigation";
-import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
+import React, { useEffect, useState } from "react";
+import { useSearchParams,useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
 import styles from "./page.module.css";
@@ -15,56 +12,33 @@ import ModuleCard from "@/components/moduleCards/moduleCards";
 
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
-    const resolvedParams = use(params);
-    const courseId = resolvedParams.coursesId || searchParams.get("courseId");
-    const course = useFetchCourse(courseId, 'onlineCourses');
+    const courseId = params?.coursesId || searchParams.get("courseId");
+
+    const { course, setCourse } = useFetchCourse(courseId);
 
     const [modules, setModules] = useState([]);
-    const { currentUser, isAdmin } = useAuth();
     const [isEnrolled, setIsEnrolled] = useState(false);
+    console.log("try",course)
+    const { currentUser, isAdmin } = useAuth();
 
     useEffect(() => {
         const fetchModulesAndClasses = async () => {
-            if (!courseId) {
-                console.error("courseId is undefined");
-                return;
-            }
+            if (!courseId) return;
 
             try {
-                const modulesSnapshot = await getDocs(
-                    collection(db, "onlineCourses", courseId, "modules")
-                );
+                const response = await fetch(`http://localhost:3000/api/modules/course/${courseId}`);
+                const modulesData = await response.json();
+                console.log(modulesData)
+                const modulesWithSortedClasses = modulesData.map((mod) => ({
+                    ...mod,
+                    classes: Array.isArray(mod.classes)
+                        ? mod.classes.sort((a, b) => a.orderClass - b.orderClass)
+                        : [],
+                }));
 
-                const fetchedModules = await Promise.all(
-                    modulesSnapshot.docs.map(async (moduleDoc) => {
-                        const moduleData = moduleDoc.data();
-                        const classesSnapshot = await getDocs(
-                            collection(
-                                db,
-                                "onlineCourses",
-                                courseId,
-                                "modules",
-                                moduleDoc.id,
-                                "classes"
-                            )
-                        );
 
-                        const classes = classesSnapshot.docs.map((classDoc) => ({
-                            id: classDoc.id,
-                            ...classDoc.data(),
-                        }));
-
-                        classes.sort((a, b) => a.order - b.order);
-                        return {
-                            id: moduleDoc.id,
-                            ...moduleData,
-                            classes,
-                        };
-                    })
-                );
-
-                fetchedModules.sort((a, b) => a.order - b.order);
-                setModules(fetchedModules);
+                modulesWithSortedClasses.sort((a, b) => a.order - b.order);
+                setModules(modulesWithSortedClasses);
             } catch (error) {
                 console.error("Error fetching modules and classes:", error);
             }
@@ -75,17 +49,12 @@ const CourseDetail = ({ params }) => {
 
     useEffect(() => {
         const checkEnrollmentStatus = async () => {
-            if (!currentUser) return;
+            if (!currentUser || !courseId) return;
 
             try {
-                const userRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userRef);
-
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    const enrolledCourses = userData.enrolledCourses || [];
-                    setIsEnrolled(enrolledCourses.includes(courseId));
-                }
+                const res = await fetch(`/api/users/${currentUser.uid}/enrollments`);
+                const data = await res.json();
+                setIsEnrolled(data.includes(courseId));
             } catch (error) {
                 console.error("Error checking enrollment status:", error);
             }
@@ -95,75 +64,111 @@ const CourseDetail = ({ params }) => {
     }, [currentUser, courseId]);
 
     const handleFieldChange = async (field, value) => {
-        const updatedCourse = { ...course, [field]: value };
-        setCourse(updatedCourse);
-        const docRef = doc(db, "onlineCourses", courseId);
-        await updateDoc(docRef, { [field]: value });
+        try {
+            await fetch(`/api/courses/${courseId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ [field]: value }),
+            });
+        } catch (error) {
+            console.error("Error updating course field:", error);
+        }
     };
 
     const addModule = async () => {
-        const newModule = { title: "Nuevo Módulo", classes: [] };
-        const moduleRef = await addDoc(
-            collection(db, "onlineCourses", courseId, "modules"),
-            newModule
-        );
-        setModules((prevModules) => [
-            ...prevModules,
-            { id: moduleRef.id, ...newModule },
-        ]);
+        try {
+            const res = await fetch(`/api/courses/${courseId}/modules`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ title: "Nuevo Módulo" }),
+            });
+
+            const newModule = await res.json();
+
+            setModules((prevModules) => [
+                ...prevModules,
+                { ...newModule, classes: [] },
+            ]);
+        } catch (error) {
+            console.error("Error adding module:", error);
+        }
     };
 
     return (
         <div className={styles.container}>
-            {isAdmin ? (
-                <input
-                    type="text"
-                    value={course.title || ""}
-                    onChange={(e) => handleFieldChange("title", e.target.value)}
-                    className={styles.titleInput}
-                />
+            {!course ? (
+                <p>Cargando curso...</p>
             ) : (
-                <span className={styles.titleText}>
-                    {course.title || "Sin título disponible"}
-                </span>
-            )}
-            <div className={styles.courseMainContent}>
-                <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
-                <CourseDetails
-                    course={course}
-                    isAdmin={isAdmin}
-                    isEnrolled={isEnrolled}
-                    handleFieldChange={handleFieldChange}
-                    handleContactClick={() => { }}
-                    openModal={() => { }}
-                    openVideoModal={() => { }}
-                />
-            </div>
-            {!isEnrolled && (
-                <Features collectionName={'onlineCourses'} courseId={courseId} course={course} setCourse={course}></Features>
-            )}
-            {modules.length > 0 ? (
-                modules.map((classModule, moduleIndex) => (
-                    <ModuleCard
-                        key={classModule.id}
-                        moduleData={{
-                            ...classModule,
-                            order: moduleIndex,
-                        }}
-                        totalModules={modules}
-                        isAdmin={isAdmin}
-                        collectionName={'onlineCourses'}
-                        courseId={courseId}
-                        onModulesUpdate={course}
-                    />
-                ))
-            ) : (
-                <p>No hay módulos disponibles.</p>
-            )}
-            {isAdmin && (
-                <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
-                    Add Module
-                </button>
+                <>
+                    {isAdmin ? (
+                        <input
+                            type="text"
+                            value={course.title || ""}
+                            onChange={(e) => handleFieldChange("title", e.target.value)}
+                            className={styles.titleInput}
+                        />
+                    ) : (
+                        <span className={styles.titleText}>
+                            {course.title || "Sin título disponible"}
+                        </span>
+                    )}
+
+                    <div className={styles.courseMainContent}>
+                        <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
+                        <CourseDetails
+                            course={course}
+                            isAdmin={isAdmin}
+                            isEnrolled={isEnrolled}
+                            handleFieldChange={handleFieldChange}
+                            handleContactClick={() => { }}
+                            openModal={() => { }}
+                            openVideoModal={() => { }}
+                        />
+                    </div>
+
+                    {!isEnrolled && (
+                        <Features
+                            collectionName="onlineCourses"
+                            courseId={courseId}
+                            course={course}
+                            setCourse={() => { }}
+                        />
+                    )}
+
+                    {modules.length > 0 ? (
+                        modules.map((classModule, moduleIndex) => (
+                            <ModuleCard
+                                key={classModule.id}
+                                moduleData={{
+                                    ...classModule,
+                                    order: moduleIndex,
+                                    totalModules: modules.length,
+                                }}
+                                totalModules={modules}
+                                isAdmin={isAdmin}
+                                collectionName="onlineCourses"
+                                courseId={courseId}
+                                onModulesUpdate={setModules}
+                            />
+                        ))
+                    ) : (
+                        <p>No hay módulos disponibles.</p>
+                    )}
+
+                    {isAdmin && (
+                        <button
+                            onClick={addModule}
+                            className={styles.addModuleButton}
+                            title="Añadir Módulo"
+                        >
+                            Añadir Módulo
+                        </button>
+                    )}
+                </>
             )}
         </div>
     );
