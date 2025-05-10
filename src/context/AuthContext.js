@@ -8,6 +8,7 @@ import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWith
 import { doc, getDoc, setDoc, addDoc, collection, query, where, getDocs } from "firebase/firestore"; // Importar funciones de Firestore
 import { db } from "../firebase/firebase";
 import { useRouter } from "next/navigation";
+import axios from 'axios';
 
 
 // Crear el contexto de autenticación
@@ -28,21 +29,32 @@ export function AuthProvider({ children }) {
 
     // Manejar el cambio de estado de autenticación
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setLoading(true); // Indica que la aplicación está cargando
-            if (user) {
-                setIsCheckingUser(true);
-                await checkUserInFirestore(user);
-                setCurrentUser(user);
-                setIsCheckingUser(false);
+        const checkTokenAndFetchUser = async () => {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+
+            if (token) {
+                try {
+                    const response = await axios.get('http://localhost:3001/api/verify-token', {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+
+                    setCurrentUser(response.data.user);
+                } catch (error) {
+                    console.error("Token inválido o expirado", error);
+                    localStorage.removeItem('token');
+                    setCurrentUser(null);
+                }
             } else {
                 setCurrentUser(null);
-                setMissingInfo(null); // Reinicia el estado si no hay usuario
             }
-            setLoading(false);
-        });
 
-        return unsubscribe;
+            setLoading(false);
+        };
+
+        checkTokenAndFetchUser();
     }, []);
 
     // Función para iniciar sesión con Google
@@ -63,11 +75,17 @@ export function AuthProvider({ children }) {
     // **Función para iniciar sesión con email y contraseña**
     const loginWithEmailAndPassword = async (email, password) => {
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            setCurrentUser(userCredential.user);
+            const response = await axios.post('http://localhost:3000/api/login', {
+                email,
+                password
+            });
+
+            const { token, user } = response.data;
+            localStorage.setItem('token', token);
+            setCurrentUser(user);
 
         } catch (error) {
-            console.error("Error al iniciar sesión con email y contraseña:", error.message);
+            console.error("Error al iniciar sesión:", error.response?.data?.error || error.message);
             throw error;
         }
     };
@@ -124,11 +142,23 @@ export function AuthProvider({ children }) {
     // **Función para cerrar sesión**
     const logout = async () => {
         try {
-            await signOut(auth);
+            const token = localStorage.getItem('token');
+
+            const response = await axios.post(
+                'http://localhost:3000/logout',
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            localStorage.removeItem('token');
             setCurrentUser(null);
-            console.log("Sesión cerrada");
+            console.log("Sesión cerrada:", response.data.message);
         } catch (error) {
-            console.error("Error al cerrar sesión:", error.message);
+            console.error("Error al cerrar sesión:", error.response?.data?.error || error.message);
         }
     };
 
