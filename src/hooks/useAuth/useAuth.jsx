@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export function useAuth() {
+export function useAuthenticate() {
   const [user, setUser] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,11 +20,11 @@ export function useAuth() {
 
   const login = async ({ email, password }) => {
     try {
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-            email,
-            password
-        });
-          
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        email,
+        password
+      });
+
 
       const { token, user } = res.data;
 
@@ -33,7 +33,7 @@ export function useAuth() {
 
       setAuthToken(token);
       setUser(user);
-      
+
       return { success: true };
     } catch (error) {
       return {

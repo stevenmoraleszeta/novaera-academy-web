@@ -7,10 +7,11 @@ import Image from "next/image";
 import Head from "next/head";
 import styles from "./page.module.css";
 import { Modal } from "@/components/modal/modal";
+import { useAuthenticate } from "@/hooks/useAuth/useAuth";
 
 
 function UserAndPassword() {
-    const { loginWithEmailAndPassword } = useAuth();
+    const { login } = useAuthenticate()
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -23,7 +24,7 @@ function UserAndPassword() {
         setIsAlertOpen(false);
 
         try {
-            await loginWithEmailAndPassword(email, password);
+            await login(email, password);
             router.push("/");
         } catch (err) {
             const errorMessage = checkError(err.code, err.message);

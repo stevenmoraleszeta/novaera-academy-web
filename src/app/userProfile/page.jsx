@@ -11,10 +11,12 @@ import RequireAuth from "@/features/RequireAuth";
 import UserProfileForm from "@/components/userProfile/userProfile";
 import countries from "@/jsonFiles/paises.json";
 import useFetchUserData from "@/hooks/fetchUserData/fetchUserData";
+import { useAuthenticate } from "@/hooks/useAuth/useAuth";
 
 function UserProfile() {
     const { currentUser, updateCurrentUser } = useAuth();
     const auth = getAuth();
+    const { logout } = useAuthenticate();
     const storage = getStorage();
     const db = getFirestore();
     const router = useRouter();
@@ -24,7 +26,7 @@ function UserProfile() {
 
     const handleLogout = async () => {
         try {
-            await signOut(auth);
+            logout();
             router.push("/");
         } catch (error) {
             console.error("Failed to log out", error);

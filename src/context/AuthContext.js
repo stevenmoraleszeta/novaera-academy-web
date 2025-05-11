@@ -29,33 +29,23 @@ export function AuthProvider({ children }) {
 
     // Manejar el cambio de estado de autenticación
     useEffect(() => {
-        const checkTokenAndFetchUser = async () => {
-            setLoading(true);
-            const token = localStorage.getItem('token');
-
-            if (token) {
-                try {
-                    const response = await axios.get('http://localhost:3001/api/verify-token', {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-
-                    setCurrentUser(response.data.user);
-                } catch (error) {
-                    console.error("Token inválido o expirado", error);
-                    localStorage.removeItem('token');
-                    setCurrentUser(null);
-                }
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true); // Indica que la aplicación está cargando
+            if (user) {
+                setIsCheckingUser(true);
+                await checkUserInFirestore(user);
+                setCurrentUser(user);
+                setIsCheckingUser(false);
             } else {
                 setCurrentUser(null);
+                setMissingInfo(null); // Reinicia el estado si no hay usuario
             }
-
             setLoading(false);
-        };
+        });
 
-        checkTokenAndFetchUser();
+        return unsubscribe;
     }, []);
+
 
     // Función para iniciar sesión con Google
     const loginWithGoogle = async () => {
