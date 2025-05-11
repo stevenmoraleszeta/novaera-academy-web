@@ -25,7 +25,7 @@ const AdminMenu = () => {
                     <AdminButton
                         iconName="AiOutlineProject"
                         text="Proyectos Estudiantes"
-                        path="/admin/students-projects"
+                        path="/admin/student-projects"
                     />
                 </div>
             </div>

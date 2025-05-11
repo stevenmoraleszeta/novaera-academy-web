@@ -1,13 +1,15 @@
+"use client"
+
 import React, { useState, useEffect } from "react";
 import styles from './CrudMenu.module.css';
-import useFetchData from "@/app/hooks/useFetchData";
+import useFetchData from "@/hooks/fetchUserData/fetchUserData";
 import { db } from "@/firebase/firebase";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import SearchBar from './SearchBar';
 import ItemCard from './itemCard';
-import ModalForm from './ModalForm';
-import ConfirmationModal from './ConfirmationModal';
+import axios from "axios";
+
 
 const CrudMenu = ({
     collectionName,
@@ -79,39 +81,45 @@ const CrudMenu = ({
 
     const handleSave = async (item, isEditMode) => {
         try {
-            if (onSave) {
-                await onSave(item, isEditMode);
+            const url = isEditMode ? `/api/${collectionName}/${item.id}` : `/api/${collectionName}`;
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await axios({
+                method,
+                url,
+                data: item,
+            });
+
+            if (isEditMode) {
+                setData((prevData) =>
+                    prevData.map((i) => (i.id === item.id ? response.data : i))
+                );
             } else {
-                if (isEditMode && item.id) {
-                    const itemRef = doc(db, collectionName, item.id);
-                    await updateDoc(itemRef, item);
-                } else {
-                    const docRef = await addDoc(collection(db, collectionName), item);
-                    item.id = docRef.id;
-                }
+                setData((prevData) => [...prevData, response.data]);
             }
+
             handleModalClose();
         } catch (error) {
             console.error("Error al guardar el elemento:", error);
         }
     };
 
-    const handleDeleteItem = (item) => {
+    const handleDeleteItem = async (item) => {
         setItemToDelete(item);
         setIsConfirmModalOpen(true);
     };
 
     const confirmDelete = async () => {
         try {
-            const itemRef = doc(db, collectionName, itemToDelete.id);
-            await deleteDoc(itemRef);
+            const response = await axios.delete(`/api/${collectionName}/${itemToDelete.id}`);
+
             setData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
             setFilteredData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
-        } catch (error) {
-            console.error("Error al eliminar el elemento:", error);
-        } finally {
+
             setIsConfirmModalOpen(false);
             setItemToDelete(null);
+        } catch (error) {
+            console.error("Error al eliminar el elemento:", error);
         }
     };
 

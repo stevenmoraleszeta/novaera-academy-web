@@ -1,37 +1,65 @@
-"use client";
+"use client"
 
-import React from 'react';
-import CrudMenu from '@/components/adminCrudMenu/adminCrudMenu';
+import React from "react";
+import CrudMenu from "@/components/adminCrudMenu/adminCrudMenu";
 
-const studentProjects = () => {
+const ProjectsPage = () => {
+    const collectionName = "projects";
     const displayFields = [
-        { field: 'name', label: 'Nombre' },
-        { field: 'description', label: 'Descripción' },
+        { label: "Title", field: "title" },
+        { label: "Due Date", field: "dueDate" },
+        { label: "File", field: "fileUrl" },
     ];
 
     const editFields = [
-        { field: 'name', label: 'Nombre', type: 'text' },
-        { field: 'description', label: 'Descripción', type: 'text' },
+        { label: "Title", field: "title", type: "text" },
+        { label: "Due Date", field: "dueDate", type: "date" },
+        { label: "File URL", field: "fileUrl", type: "text" },
+        { label: "Order", field: "orderProject", type: "number" },
+        { label: "Course ID", field: "courseId", type: "number" },
+        { label: "Mentor ID", field: "mentorId", type: "number" },
+        { label: "User ID", field: "userId", type: "number" },
     ];
 
     const handleSave = async (item, isEditMode) => {
-        console.log('Guardando elemento:', item, 'Modo edición:', isEditMode);
+        try {
+            const url = isEditMode ? `/api/projects/${item.id}` : `/api/projects`;
+            const method = isEditMode ? "PUT" : "POST";
+
+            const response = await axios({
+                method,
+                url,
+                data: item,
+            });
+            console.log("Elemento guardado:", response.data);
+        } catch (error) {
+            console.error("Error al guardar el proyecto:", error);
+        }
     };
 
     const handleDelete = async (item) => {
-        console.log('Eliminando elemento:', item);
+        try {
+            const response = await axios.delete(`/api/projects/${item.id}`);
+            console.log("Elemento eliminado:", response.data);
+        } catch (error) {
+            console.error("Error al eliminar el proyecto:", error);
+        }
     };
 
     return (
-        <CrudMenu
-            collectionName="miColeccion"
-            displayFields={displayFields}
-            editFields={editFields}
-            pageTitle="Gestión de Elementos"
-            onSave={handleSave}
-            onDelete={handleDelete}
-        />
+        <div>
+            <h1>Gestión de Proyectos</h1>
+            <CrudMenu
+                collectionName={collectionName}
+                displayFields={displayFields}
+                editFields={editFields}
+                pageTitle="Proyectos"
+                onSave={handleSave}
+                onDelete={handleDelete}
+                data={[]}
+            />
+        </div>
     );
 };
 
-export default studentProjects;
+export default ProjectsPage;
