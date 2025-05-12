@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from "react";
 import styles from './CrudMenu.module.css';
 import useFetchData from "@/hooks/useFetchData/useFetchData";
-import { db } from "@/firebase/firebase";
-import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import SearchBar from './SearchBar';
 import ItemCard from './itemCard';
@@ -137,8 +135,8 @@ const CrudMenu = ({
         }
     }
 
-    /*  if (loading) return <p>Cargando datos...</p>;
-     if (error) return <p>Error: {error}</p>; */
+    /* if (loading) return <p>Cargando datos...</p>;
+    if (error) return <p>Error: {error}</p>; */
 
     return (
         <div className={styles.CRUDContainer}>
