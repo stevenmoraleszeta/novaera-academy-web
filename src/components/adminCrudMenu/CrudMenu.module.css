@@ -1,3 +1,46 @@
+.CRUDContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 1vh 5vw;
+}
+
+.CRUDContainer h1 {
+    color: var(--color-lighter);
+}
+
+.topBar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.topBar input {
+    flex: 1;
+    width: 100%;
+    background-color: var(--color-dark);
+    color: var(--color-lighter);
+    padding: 10px;
+    outline: none;
+    transition: border-color 0.3s;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.topBar input:focus {
+    border-color: var(--color-secondary);
+}
+
+.itemsSection {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    justify-content: center;
+    padding-top: 20px;
+}
+
 .itemCard {
     padding: 20px;
     border-radius: 10px;
@@ -21,4 +64,157 @@
     width: 200px;
     border-radius: 10px;
     margin-bottom: 12px;
+}
+
+.fieldRow {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    width: 100%;
+    text-align: left;
+}
+
+.fieldRow label {
+    margin-bottom: 5px;
+    color: var(--color-lighter);
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.fieldRow input,
+.fieldRow select {
+    background-color: var(--color-dark-hover);
+    color: var(--text-color);
+    border-radius: 5px;
+    padding: 10px;
+    outline: none;
+    transition: border-color 0.3s;
+    font-size: 1rem;
+}
+
+.fieldRow input:focus,
+.fieldRow select:focus {
+    border-color: var(--color-secondary);
+}
+
+.iconButtons {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.iconButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+    color: var(--color-lighter);
+    margin: 5px;
+}
+
+.iconButton:hover {
+    background: none;
+    color: var(--color-secondary);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: var(--color-dark);
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    color: var(--text-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    max-height: 80vh;
+    overflow-y: auto;
+    font-size: 1rem;
+}
+
+.modalContent h2 {
+    color: var(--color-primary);
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.cancelButton,
+.closeButton {
+    background-color: var(--color-primary);
+    color: var(--text-color);
+    padding: 10px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.cancelButton:hover,
+.closeButton:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    .itemsSection {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    .itemCard {
+        padding: 15px;
+    }
+
+    .fieldRow input,
+    .fieldRow select {
+        padding: 8px;
+    }
+
+    .confirmButton,
+    .cancelButton,
+    .closeButton {
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .itemsSection {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .modalContent {
+        padding: 20px;
+        max-width: 90vw;
+    }
+
+    .fieldRow input,
+    .fieldRow select {
+        padding: 6px;
+    }
+
+    .confirmButton,
+    .cancelButton,
+    .closeButton {
+        padding: 6px 12px;
+    }
 }

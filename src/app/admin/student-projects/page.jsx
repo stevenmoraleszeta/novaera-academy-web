@@ -48,7 +48,6 @@ const ProjectsPage = () => {
 
     return (
         <div>
-            <h1>Gestión de Proyectos</h1>
             <CrudMenu
                 collectionName={collectionName}
                 displayFields={displayFields}

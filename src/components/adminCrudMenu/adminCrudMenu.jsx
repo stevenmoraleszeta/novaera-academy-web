@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import styles from './CrudMenu.module.css';
-import useFetchData from "@/hooks/fetchUserData/fetchUserData";
+import useFetchData from "@/hooks/useFetchData/useFetchData";
 import { db } from "@/firebase/firebase";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import SearchBar from './SearchBar';
 import ItemCard from './itemCard';
 import axios from "axios";
+import { Modal } from "../modal/modal";
 
 
 const CrudMenu = ({
@@ -123,8 +124,21 @@ const CrudMenu = ({
         }
     };
 
-    if (loading) return <p>Cargando datos...</p>;
-    if (error) return <p>Error: {error}</p>;
+    const handleCloseConfirmation = () => {
+        setIsConfirmModalOpen(false);
+        setItemToDelete(null);
+    }
+
+    const handleConfirmAction = () => {
+        if (itemToDelete) {
+            confirmDelete();
+        } else {
+            handleCloseConfirmation();
+        }
+    }
+
+    /*  if (loading) return <p>Cargando datos...</p>;
+     if (error) return <p>Error: {error}</p>; */
 
     return (
         <div className={styles.CRUDContainer}>
@@ -148,20 +162,17 @@ const CrudMenu = ({
             {isModalOpen && (
                 <Modal
                     modalType="formModal"
-                    isOpen={isFormOpen}
-                    onClose={handleCloseForm}
-                    onSave={handleSaveItem}
-                    item={currentItem}
-                    editFields={[
-                        { label: "Nombre", field: "name", type: "text" },
-                        { label: "Descripción", field: "description", type: "text" }
-                    ]}
+                    isOpen={isModalOpen}
+                    onClose={handleModalClose}
+                    onSave={handleSave}
+                    item={selectedItem}
+                    editFields={editFields}
                     isEditMode={isEditMode}
                 />
             )}
             <Modal
                 modalType="confirmation"
-                isOpen={isConfirmationOpen}
+                isOpen={isConfirmModalOpen}
                 onClose={handleCloseConfirmation}
                 onConfirm={handleConfirmAction}
                 description="¿Estás seguro de que deseas realizar esta acción?"
