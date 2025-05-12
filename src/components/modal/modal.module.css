@@ -75,6 +75,20 @@
     color: #fff;
 }
 
+/* form modal Add ? edit  */
+
+
+.fieldRow input {
+    margin-bottom: 20px;
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
 /* Responsividad */
 @media (max-width: 768px) {
     .modalContentContainer {

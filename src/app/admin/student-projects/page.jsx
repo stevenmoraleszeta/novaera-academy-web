@@ -4,7 +4,7 @@ import React from "react";
 import CrudMenu from "@/components/adminCrudMenu/adminCrudMenu";
 
 const ProjectsPage = () => {
-    const collectionName = "projects";
+    const collectionName = "projects"; // table name in the database
     const displayFields = [
         { label: "Title", field: "title" },
         { label: "Due Date", field: "dueDate" },
