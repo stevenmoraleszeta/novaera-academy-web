@@ -2,14 +2,8 @@
 "use client"; // Indica que este componente se ejecuta en el cliente
 
 import React, { useContext, useState, useEffect, createContext } from "react";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { auth, googleProvider, signInWithPopup } from "../firebase/firebase";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, getDoc, setDoc, addDoc, collection, query, where, getDocs } from "firebase/firestore"; // Importar funciones de Firestore
-import { db } from "../firebase/firebase";
 import { useRouter } from "next/navigation";
-import axios from 'axios';
-
+import axios from "axios";
 
 // Crear el contexto de autenticación
 const AuthContext = createContext();
@@ -23,12 +17,130 @@ export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [missingInfo, setMissingInfo] = useState(null); // Inicializa en null para evitar redirecciones prematuras
-    const [isCheckingUser, setIsCheckingUser] = useState(false); // new information checker 
+    const [missingInfo, setMissingInfo] = useState(null);
     const router = useRouter();
 
-    // Manejar el cambio de estado de autenticación
+    // nuevo manejo del cambio de estado de autenticación
     useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    setCurrentUser(null);
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await axios.get("http://localhost:3000/api/users/profile", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const user = response.data;
+                setCurrentUser(user);
+                setIsAdmin(user.role === "admin");
+                setMissingInfo(!user.country || !user.phone || !user.age);
+            } catch (error) {
+                console.error("Error fetching current user:", error.response?.data?.error || error.message);
+                setCurrentUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCurrentUser();
+    }, []);
+
+    // Función para iniciar sesión con email y contraseña
+    const loginWithEmailAndPassword = async (email, password) => {
+        try {
+            const response = await axios.post("http://localhost:3000/api/login", { email, password });
+            const { token, user } = response.data;
+
+            localStorage.setItem("token", token);
+            setCurrentUser(user);
+            setIsAdmin(user.role === "admin");
+            setMissingInfo(!user.country || !user.phone || !user.age);
+        } catch (error) {
+            console.error("Error al iniciar sesión:", error.response?.data?.error || error.message);
+            throw error;
+        }
+    };
+
+    const registerWithEmailAndPassword = async (email, password, name, profilePicture) => {
+        try {
+            let photoUrl = "";
+
+            if (profilePicture) {
+                const formData = new FormData();
+                formData.append("file", profilePicture);
+
+                const uploadResponse = await axios.post("http://localhost:3000/api/upload", formData);
+                photoUrl = uploadResponse.data.url;
+            }
+
+            const response = await axios.post("http://localhost:3000/api/users", {
+                email,
+                password,
+                firstName: name,
+                photoUrl,
+                roleId: 2, // Asignar un rol student por defecto
+            });
+
+            const { token, user } = response.data;
+
+            localStorage.setItem("token", token);
+            setCurrentUser(user);
+            setIsAdmin(false);
+            setMissingInfo(true);
+        } catch (error) {
+            console.error("Error al registrar usuario:", error.response?.data?.error || error.message);
+            throw error;
+        }
+    };
+
+    const logout = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            await axios.post(
+                "http://localhost:3000/api/logout",
+                {},
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            localStorage.removeItem("token");
+            setCurrentUser(null);
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error.response?.data?.error || error.message);
+        }
+    };
+
+    useEffect(() => {
+        if (!loading && currentUser && missingInfo) {
+            router.push("/completeInfoPage");
+        }
+    }, [currentUser, missingInfo, loading, router]);
+
+    const value = {
+        currentUser,
+        loginWithEmailAndPassword,
+        registerWithEmailAndPassword,
+        logout,
+        updateCurrentUser: setCurrentUser,
+        isAdmin,
+        missingInfo,
+    };
+
+    return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+}
+
+
+
+/* 
+
+useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setLoading(true); // Indica que la aplicación está cargando
             if (user) {
@@ -46,9 +158,7 @@ export function AuthProvider({ children }) {
         return unsubscribe;
     }, []);
 
-
-    // Función para iniciar sesión con Google
-    const loginWithGoogle = async () => {
+const loginWithGoogle = async () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             setCurrentUser(result.user);
@@ -62,180 +172,6 @@ export function AuthProvider({ children }) {
         }
     };
 
-    // **Función para iniciar sesión con email y contraseña**
-    const loginWithEmailAndPassword = async (email, password) => {
-        try {
-            const response = await axios.post('http://localhost:3000/api/login', {
-                email,
-                password
-            });
-
-            const { token, user } = response.data;
-            localStorage.setItem('token', token);
-            setCurrentUser(user);
-
-        } catch (error) {
-            console.error("Error al iniciar sesión:", error.response?.data?.error || error.message);
-            throw error;
-        }
-    };
 
 
-
-
-
-    // Función para crear usuario con email, contraseña y nombre completo
-    const registerWithEmailAndPassword = async (email, password, name, profilePicture) => {
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            let photoURL = "";
-
-            if (profilePicture) {
-                // Subir la imagen a Firebase Storage
-                const storageRef = ref(storage, v4());
-                await uploadBytes(storageRef, profilePicture);
-                photoURL = await getDownloadURL(storageRef); // Obtener la URL de la imagen subida
-            }
-
-            // Actualizar el nombre y la foto en el perfil del usuario
-            await updateProfile(user, { displayName: name, photoURL });
-
-            // Guardar en Firestore
-            const userDocRef = doc(db, "users", user.uid);
-            await setDoc(userDocRef, {
-                displayName: name,
-                email: user.email,
-                photoURL, // URL de la foto de perfil
-                role: "student", // Rol por defecto
-                pais: "",
-                number: "",
-                edad: "",
-            });
-
-            setCurrentUser(user);
-            setIsAdmin(false);
-            setMissingInfo(true); // Se considera que faltan los datos adicionales
-            console.log("Usuario registrado exitosamente con foto de perfil");
-        } catch (error) {
-            console.error("Error al registrar usuario:", error.message);
-            if (error.code === "auth/email-already-in-use") {
-                throw new Error("El correo ya está registrado. Intenta con otro.");
-            } else {
-                throw new Error("Error al registrar usuario. Inténtalo de nuevo.");
-            }
-        }
-    };
-
-
-    // **Función para cerrar sesión**
-    const logout = async () => {
-        try {
-            const token = localStorage.getItem('token');
-
-            const response = await axios.post(
-                'http://localhost:3000/logout',
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            localStorage.removeItem('token');
-            setCurrentUser(null);
-            console.log("Sesión cerrada:", response.data.message);
-        } catch (error) {
-            console.error("Error al cerrar sesión:", error.response?.data?.error || error.message);
-        }
-    };
-
-
-
-
-    const checkUserInFirestore = async (user) => {
-        try {
-            const userDocRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-
-                setIsAdmin(userData.role === "admin");
-                setMissingInfo(
-                    !userData.pais?.trim() || !userData.number?.trim() || !userData.edad?.trim() // makes sure all this data is being store in the DB
-                );
-            } else {
-
-
-                const estudiantesQuery = query(collection(db, "estudiantes"), where("userId", "==", user.uid));
-                const estudiantesSnapshot = await getDocs(estudiantesQuery);
-
-                let estudianteDocRef;
-                if (estudiantesSnapshot.empty) {
-
-                    estudianteDocRef = await addDoc(collection(db, "estudiantes"), {
-                        userId: user.uid,
-                        createdAt: new Date(),
-                        nombreCompleto: "",
-                        edad: "",
-                        number: "",
-                        email: "",
-                        curso: "",
-                        ocupacion: "",
-                        estiloAprendizaje: "",
-                        Intereses: "",
-                        nivelInicial: "",
-                        objetivosIndividuales: "",
-                    });
-                } else {
-                    estudianteDocRef = estudiantesSnapshot.docs[0].ref;
-                }
-
-                await setDoc(userDocRef, {
-                    displayName: user.displayName,
-                    email: user.email,
-                    photoURL: user.photoURL,
-                    role: "student",
-                    pais: "",
-                    number: "",
-                    edad: "",
-                    estudianteId: estudianteDocRef.id,
-                });
-                setIsAdmin(false);
-                setMissingInfo(true);
-                console.log("Usuario agregado a Firestore");
-            }
-        } catch (error) {
-            console.error("Error verificando usuario en Firestore:", error);
-        }
-    };
-
-    // if loading and is checking user is different from true, will push the user to the complete information page 
-    useEffect(() => {
-        if (!loading && !isCheckingUser) {
-            if (currentUser && missingInfo) {
-                router.push("/completeInfoPage");
-            }
-        }
-    }, [currentUser, missingInfo, loading, isCheckingUser, router]);
-
-    const value = {
-        currentUser,
-        loginWithGoogle,
-        loginWithEmailAndPassword,
-        registerWithEmailAndPassword,
-        logout,
-        updateCurrentUser: setCurrentUser,
-        isAdmin,
-        missingInfo,
-    };
-
-    return (
-        <AuthContext.Provider value={value}>
-            {!loading && children}
-        </AuthContext.Provider>
-    );
-}  
+*/

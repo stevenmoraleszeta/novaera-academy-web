@@ -1,36 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
-import { getAuth, updateProfile, updateEmail, signOut } from "firebase/auth";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import RequireAuth from "@/features/RequireAuth";
 import UserProfileForm from "@/components/userProfile/userProfile";
 import countries from "@/jsonFiles/paises.json";
-import useFetchUserData from "@/hooks/fetchUserData/fetchUserData";
-import { useAuthenticate } from "@/hooks/useAuth/useAuth";
+import { useAuth } from "@/context/AuthContext";
 
 function UserProfile() {
     const { currentUser, updateCurrentUser } = useAuth();
-    const auth = getAuth();
-    const { logout } = useAuthenticate();
-    const storage = getStorage();
-    const db = getFirestore();
     const router = useRouter();
 
-    const { userInfo, loading } = useFetchUserData(db, currentUser);
+    const [userInfo, setUserInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [imageFile, setImageFile] = useState(null);
 
-    const handleLogout = async () => {
-        try {
-            logout();
-            router.push("/");
-        } catch (error) {
-            console.error("Failed to log out", error);
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.get("/api/users/profile", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setUserInfo(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching user data", error);
+                router.push("/login");
+            }
+        };
+
+        if (currentUser) {
+            fetchUserData();
+        } else {
+            router.push("/login");
         }
+    }, [currentUser, router]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        updateCurrentUser(null);
+        router.push("/");
     };
 
     const handleFileChange = (e) => {
@@ -42,40 +53,30 @@ function UserProfile() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            let photoURL = userInfo.photoURL;
+            const token = localStorage.getItem("token");
+            let photoUrl = userInfo.photoUrl;
 
             if (imageFile) {
-                const storageRef = ref(
-                    storage,
-                    `profileImages/${currentUser.uid}/${imageFile.name}`
-                );
-                await uploadBytes(storageRef, imageFile);
-                photoURL = await getDownloadURL(storageRef);
-            }
+                const formData = new FormData();
+                formData.append("file", imageFile);
 
-            if (auth.currentUser) {
-                await updateProfile(auth.currentUser, {
-                    displayName: userInfo.displayName,
-                    photoURL: photoURL,
+                const uploadResponse = await axios.post("/api/upload", formData, {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-
-                if (userInfo.email !== auth.currentUser.email) {
-                    await updateEmail(auth.currentUser, userInfo.email);
-                }
-                const userDocRef = doc(db, "users", currentUser.uid);
-                await setDoc(
-                    userDocRef,
-                    {
-                        number: userInfo.number,
-                        edad: userInfo.edad,
-                        pais: userInfo.pais,
-                    },
-                    { merge: true }
-                );
-
-                updateCurrentUser({ ...auth.currentUser, photoURL });
-                router.push("/cursos-en-linea");
+                photoUrl = uploadResponse.data.url;
             }
+
+            const updatedUser = {
+                ...userInfo,
+                photoUrl,
+            };
+
+            await axios.put(`/api/users/${currentUser.id}`, updatedUser, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            updateCurrentUser({ ...currentUser, photoUrl });
+            router.push("/cursos-en-linea");
         } catch (error) {
             console.error("Error updating profile", error);
         }
