@@ -50,7 +50,7 @@ function CreateUser() {
                 formData.name,
                 profilePicture
             );
-            router.push("/completeInfoPage");
+            router.push("/");
         } catch (err) {
             setError(err.message || "Error al registrarse");
         } finally {

@@ -20,7 +20,7 @@ function Login() {
     useEffect(() => {
         if (!loading && !isCheckingUser) {
             if (currentUser && missingInfo) {
-                router.push("/completeInfoPage");
+                router.push("/");
             } else if (currentUser && !missingInfo) {
                 router.push("/");
             }

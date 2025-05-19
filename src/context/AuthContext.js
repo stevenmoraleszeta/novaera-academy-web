@@ -127,7 +127,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         if (!loading && currentUser && missingInfo) {
-            router.push("/completeInfoPage");
+            router.push("/");
         }
     }, [currentUser, missingInfo, loading, router]);
 
