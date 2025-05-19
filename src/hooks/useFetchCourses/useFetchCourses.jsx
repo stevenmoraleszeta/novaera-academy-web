@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
 
 const useFetchCourses = (collectionName) => {
     const [courses, setCourses] = useState([]);
@@ -14,12 +12,22 @@ const useFetchCourses = (collectionName) => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, collectionName));
-                const fetchedCourses = querySnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                const activeCourses = fetchedCourses.filter((course) => !course.archived);
+                
+                const categoryName = collectionName === 'onlineCourses' ? 'online' : 'live';
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/category-name/${categoryName}`);
+                if (!response.ok) {
+                    throw new Error('Error al obtener los cursos');
+                }
+                const data = await response.json();
+                const activeCourses = data
+                    .filter((course) => !course.archived)
+                    .map((course) => ({
+                        ...course,
+                        discountedPrice: Number(course.discountedprice),
+                        originalPrice: Number(course.originalprice),
+                        id: course.courseid,
+                    }));
+
                 const prices = activeCourses.map((course) => course.discountedPrice);
                 const minCoursePrice = Math.floor(Math.min(...prices) / 10) * 10;
                 const maxCoursePrice = Math.ceil(Math.max(...prices) / 10) * 10;
@@ -29,7 +37,7 @@ const useFetchCourses = (collectionName) => {
                 setMaxPrice(maxCoursePrice);
                 setLoading(false);
             } catch (err) {
-                setError("Error fetching courses");
+                setError("Error al cargar los cursos");
                 setLoading(false);
             }
         };

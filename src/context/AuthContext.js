@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
 
                 const user = response.data;
                 setCurrentUser(user);
-                setIsAdmin(user.role === "admin");
+                setIsAdmin(user.role === "Admin");
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
                 console.error("Error fetching current user:", error.response?.data?.error || error.message);
@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
 
             localStorage.setItem("token", token);
             setCurrentUser(user);
-            setIsAdmin(user.role === "admin");
+            setIsAdmin(user.role === "Admin");
             setMissingInfo(!user.country || !user.phone || !user.age);
         } catch (error) {
             console.error("Error al iniciar sesión:", error.response?.data?.error || error.message);

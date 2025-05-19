@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
@@ -17,7 +17,11 @@ const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
     const resolvedParams = use(params);
     const courseId = resolvedParams.coursesId || searchParams.get("courseId");
-    const course = useFetchCourse(courseId, 'onlineCourses');
+    const {course, setCourse} = useFetchCourse(courseId, 'onlineCourses');
+    const router = useRouter();
+
+    console.log("course info:", course); 
+    console.log("courseId recibido en hook:", courseId);
 
     const [modules, setModules] = useState([]);
     const { currentUser, isAdmin } = useAuth();
@@ -25,46 +29,25 @@ const CourseDetail = ({ params }) => {
 
     useEffect(() => {
         const fetchModulesAndClasses = async () => {
-            if (!courseId) {
-                console.error("courseId is undefined");
-                return;
-            }
+            if (!courseId) return;
 
             try {
-                const modulesSnapshot = await getDocs(
-                    collection(db, "onlineCourses", courseId, "modules")
-                );
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modules/course/${courseId}`);
+                const modulesData = await response.json();
+                console.log("Módulos y clases recibidos:", modulesData.moduleid);
+                const modulesWithSortedClasses = modulesData.map((mod, idx) => ({
+                    ...mod,
+                    id: mod.moduleid, // Usa moduleid como id único
+                    classes: Array.isArray(mod.classes)
+                        ? mod.classes.map((cls, cidx) => ({
+                            ...cls,
+                            id: cls.classid || cls._id || `class-${cidx}` // Usa classid para las clases
+                        })).sort((a, b) => a.orderClass - b.orderClass)
+                        : [],
+                }));
 
-                const fetchedModules = await Promise.all(
-                    modulesSnapshot.docs.map(async (moduleDoc) => {
-                        const moduleData = moduleDoc.data();
-                        const classesSnapshot = await getDocs(
-                            collection(
-                                db,
-                                "onlineCourses",
-                                courseId,
-                                "modules",
-                                moduleDoc.id,
-                                "classes"
-                            )
-                        );
-
-                        const classes = classesSnapshot.docs.map((classDoc) => ({
-                            id: classDoc.id,
-                            ...classDoc.data(),
-                        }));
-
-                        classes.sort((a, b) => a.order - b.order);
-                        return {
-                            id: moduleDoc.id,
-                            ...moduleData,
-                            classes,
-                        };
-                    })
-                );
-
-                fetchedModules.sort((a, b) => a.order - b.order);
-                setModules(fetchedModules);
+                modulesWithSortedClasses.sort((a, b) => a.orderModule - b.orderModule);
+                setModules(modulesWithSortedClasses);
             } catch (error) {
                 console.error("Error fetching modules and classes:", error);
             }
@@ -113,6 +96,17 @@ const CourseDetail = ({ params }) => {
         ]);
     };
 
+    const onClassClick = (moduleId, classId) => {
+        console.log("Clase seleccionada:", moduleId, classId);
+        router.push(`/cursos-en-linea/${courseId}/${moduleId}/${classId}`);
+    };
+
+    console.log("modules:", modules);
+
+    if (!course) {
+        return <div>Cargando información del curso...</div>;
+    }
+
     return (
         <div className={styles.container}>
             {isAdmin ? (
@@ -145,7 +139,7 @@ const CourseDetail = ({ params }) => {
             {modules.length > 0 ? (
                 modules.map((classModule, moduleIndex) => (
                     <ModuleCard
-                        key={classModule.id}
+                        key={classModule.id || `module-${moduleIndex}`}
                         moduleData={{
                             ...classModule,
                             order: moduleIndex,
@@ -155,6 +149,7 @@ const CourseDetail = ({ params }) => {
                         collectionName={'onlineCourses'}
                         courseId={courseId}
                         onModulesUpdate={course}
+                        onClassClick={onClassClick}
                     />
                 ))
             ) : (

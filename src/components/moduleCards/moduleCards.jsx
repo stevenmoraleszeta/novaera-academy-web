@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { FaArrowUp, FaArrowDown, FaPlus, FaTrash, FaCheck, FaLock, FaLockOpen } from 'react-icons/fa';
 import styles from './moduleCard.module.css';
 import { addDoc, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
@@ -14,25 +14,32 @@ const ModuleCard = ({
     courseId,
     totalModules,
     onModulesUpdate,
+    onClassClick
 }) => {
 
-    const [modules, setModules] = useState([]);
     const router = useRouter();
 
+    const onTitleChange = async (moduleId, newTitle) => {
+        try {
+            const moduleRef = doc(db, collectionName, courseId, "modules", moduleId);
+            await updateDoc(moduleRef, { title: newTitle });
 
-    const onTitleChange = (moduleId, newTitle) => {
-        setModules((prevModules) =>
-            prevModules.map((classModule) =>
-                classModule.id === moduleId ? { ...classModule, title: newTitle } : classModule
-            )
-        );
-        debouncedUpdateModuleTitle(moduleId, newTitle);
+            onModulesUpdate((prevModules) =>
+                prevModules.map((mod) =>
+                    mod.id === moduleId ? { ...mod, title: newTitle } : mod
+                )
+            );
+        } catch (error) {
+            console.error("Error al actualizar el título del módulo:", error);
+        }
     };
 
     const onDeleteModule = async (moduleId) => {
         if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
             await deleteDoc(doc(db, collectionName, courseId, "modules", moduleId));
-            setModules(modules.filter((classModule) => classModule.id !== moduleId));
+            onModulesUpdate((prevModules) =>
+                prevModules.filter((mod) => mod.id !== moduleId)
+            );
         }
     };
 
@@ -41,66 +48,51 @@ const ModuleCard = ({
         const [movedModule] = newModules.splice(index, 1);
         newModules.splice(index + direction, 0, movedModule);
 
-        // Update the order in the database
         try {
             await Promise.all(
-                newModules.map((classModule, newIndex) => {
-                    const moduleRef = doc(db, collectionName, courseId, "modules", classModule.id);
-                    return updateDoc(moduleRef, { order: newIndex });
+                newModules.map((mod, idx) => {
+                    const moduleRef = doc(db, collectionName, courseId, "modules", mod.id);
+                    return updateDoc(moduleRef, { order: idx });
                 })
             );
-            onModulesUpdate(newModules); // Update modules in the parent component
+            onModulesUpdate(newModules);
         } catch (error) {
-            console.error("Error updating module order:", error);
+            console.error("Error actualizando el orden de los módulos:", error);
         }
     };
 
     const onAddClass = async (moduleId) => {
-        const classModule = modules.find((mod) => mod.id === moduleId);
-        const nextOrder = classModule ? classModule.classes.length : 0; // Get the next order based on existing classes
-
-        const newClass = { title: "Nueva Clase", order: nextOrder }; // Set the default order attribute
+        const newClass = { title: "Nueva Clase", order: moduleData.classes.length || 0 };
         const classRef = await addDoc(
             collection(db, collectionName, courseId, "modules", moduleId, "classes"),
             newClass
         );
 
-        setModules((prevModules) =>
-            prevModules.map((classModule) => {
-                if (classModule.id === moduleId) {
-                    return {
-                        ...classModule,
-                        classes: [...classModule.classes, { id: classRef.id, ...newClass }],
-                    };
-                }
-                return classModule;
-            })
+        onModulesUpdate((prevModules) =>
+            prevModules.map((mod) =>
+                mod.id === moduleId
+                    ? {
+                        ...mod,
+                        classes: [...mod.classes, { id: classRef.id, ...newClass }],
+                    }
+                    : mod
+            )
         );
     };
 
     const onDeleteClass = async (moduleId, classId) => {
         if (confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
-            await deleteDoc(
-                doc(
-                    db,
-                    collectionName,
-                    courseId,
-                    "modules",
-                    moduleId,
-                    "classes",
-                    classId
+            await deleteDoc(doc(db, collectionName, courseId, "modules", moduleId, "classes", classId));
+
+            onModulesUpdate((prevModules) =>
+                prevModules.map((mod) =>
+                    mod.id === moduleId
+                        ? {
+                            ...mod,
+                            classes: mod.classes.filter((c) => c.id !== classId),
+                        }
+                        : mod
                 )
-            );
-            setModules(
-                modules.map((classModule) => {
-                    if (classModule.id === moduleId) {
-                        return {
-                            ...classModule,
-                            classes: classModule.classes.filter((c) => c.id !== classId),
-                        };
-                    }
-                    return classModule;
-                })
             );
         }
     };
@@ -110,76 +102,50 @@ const ModuleCard = ({
         const [movedClass] = newClasses.splice(classIndex, 1);
         newClasses.splice(classIndex + direction, 0, movedClass);
 
-        // Actualizar el orden en la base de datos
         try {
             await Promise.all(
-                newClasses.map((cls, newIndex) => {
-                    const classRef = doc(
-                        db,
-                        collectionName,
-                        courseId,
-                        "modules",
-                        moduleData.id,
-                        "classes",
-                        cls.id
-                    );
-                    return updateDoc(classRef, { order: newIndex });
+                newClasses.map((cls, idx) => {
+                    const classRef = doc(db, collectionName, courseId, "modules", moduleData.id, "classes", cls.id);
+                    return updateDoc(classRef, { order: idx });
                 })
             );
 
-            // Llamar a onModulesUpdate para actualizar el estado global
             onModulesUpdate((prevModules) =>
                 prevModules.map((mod) =>
                     mod.id === moduleData.id ? { ...mod, classes: newClasses } : mod
                 )
             );
         } catch (error) {
-            console.error("Error updating class order:", error);
+            console.error("Error actualizando el orden de las clases:", error);
         }
     };
 
     const onToggleClassRestriction = async (moduleId, classId, currentStatus) => {
         try {
-            const classRef = doc(
-                db,
-                collectionName,
-                courseId,
-                "modules",
-                moduleId,
-                "classes",
-                classId
-            );
+            const classRef = doc(db, collectionName, courseId, "modules", moduleId, "classes", classId);
             await updateDoc(classRef, { restricted: !currentStatus });
 
-            // Update local state
-            setModules((prevModules) =>
-                prevModules.map((classModule) => {
-                    if (classModule.id === moduleId) {
-                        return {
-                            ...classModule,
-                            classes: classModule.classes.map((cls) =>
-                                cls.id === classId
-                                    ? { ...cls, restricted: !currentStatus }
-                                    : cls
+            onModulesUpdate((prevModules) =>
+                prevModules.map((mod) =>
+                    mod.id === moduleId
+                        ? {
+                            ...mod,
+                            classes: mod.classes.map((cls) =>
+                                cls.id === classId ? { ...cls, restricted: !currentStatus } : cls
                             ),
-                        };
-                    }
-                    return classModule;
-                })
+                        }
+                        : mod
+                )
             );
         } catch (error) {
-            console.error("Error updating restriction status:", error);
+            console.error("Error cambiando restricción:", error);
         }
     };
 
-    const onClassClick = (moduleId, classId) => {
-        router.push(`/cursos-en-linea/${courseId}/${moduleId}/${classId}`);
-    };
-
+    console.log("moduleData.classes:", moduleData.classes);
 
     return (
         <div className={styles.module}>
-            {/* Header del módulo */}
             <div className={styles.moduleHeader}>
                 {isAdmin ? (
                     <input
@@ -209,14 +175,12 @@ const ModuleCard = ({
                         </button>
                         <button
                             onClick={() => onAddClass(moduleData.id)}
-                            title="Añadir Clase"
                             className={styles.addClassButton}
                         >
                             <FaPlus />
                         </button>
                         <button
                             onClick={() => onDeleteModule(moduleData.id)}
-                            title="Eliminar Módulo"
                             className={styles.deleteButton}
                         >
                             <FaTrash />
@@ -225,25 +189,25 @@ const ModuleCard = ({
                 )}
             </div>
 
-            {/* Clases dentro del módulo */}
             <div className={styles.classes}>
-                {moduleData.classes && moduleData.classes.length > 0 ? (
+                {moduleData.classes?.length > 0 ? (
                     moduleData.classes.map((cls, classIndex) => (
                         <div
                             key={`${moduleData.id}-${cls.id}`}
-                            className={`${styles.class} ${cls.completed ? styles.completedClass : ''} ${cls.highlight ? styles.highlightClass : ''
-                                }`}
+                            className={`${styles.class} ${cls.completed ? styles.completedClass : ""}`}
                             onClick={() => onClassClick(moduleData.id, cls.id)}
+
                         >
                             <div className={styles.classCircle}>
                                 {cls.completed && <FaCheck />}
                             </div>
                             <span className={styles.classTitle}>{cls.title}</span>
+
                             {isAdmin && (
                                 <div className={styles.moduleActions}>
                                     <button
-                                        onClick={(event) => {
-                                            event.stopPropagation();
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             onMoveClass(classIndex, -1);
                                         }}
                                         disabled={classIndex === 0}
@@ -252,8 +216,8 @@ const ModuleCard = ({
                                         <FaArrowUp />
                                     </button>
                                     <button
-                                        onClick={(event) => {
-                                            event.stopPropagation();
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             onMoveClass(classIndex, 1);
                                         }}
                                         disabled={classIndex === moduleData.classes.length - 1}
@@ -262,18 +226,18 @@ const ModuleCard = ({
                                         <FaArrowDown />
                                     </button>
                                     <button
-                                        onClick={(event) => {
-                                            event.stopPropagation();
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             onToggleClassRestriction(moduleData.id, cls.id, cls.restricted);
                                         }}
                                         className={styles.classAction}
-                                        title={cls.restricted ? 'Desbloquear Clase' : 'Bloquear Clase'}
+                                        title={cls.restricted ? "Desbloquear Clase" : "Bloquear Clase"}
                                     >
                                         {cls.restricted ? <FaLock /> : <FaLockOpen />}
                                     </button>
                                     <button
-                                        onClick={(event) => {
-                                            event.stopPropagation();
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             onDeleteClass(moduleData.id, cls.id);
                                         }}
                                         className={styles.classAction}
@@ -294,35 +258,3 @@ const ModuleCard = ({
 };
 
 export default ModuleCard;
-
-
-{/* <div className={styles.modules}>
-    {modules.length > 0 ? (
-        modules.map((classModule, moduleIndex) => (
-            <ModuleCard
-                key={classModule.id}
-                moduleData={{
-                    ...classModule,
-                    order: moduleIndex,
-                    totalModules: modules.length,
-                }}
-                isAdmin={isAdmin}
-                onTitleChange={handleModuleTitleChange}
-                onMoveModule={moveModule}
-                onAddClass={addClass}
-                onDeleteModule={deleteModule}
-                onMoveClass={moveClass}
-                onToggleClassRestriction={toggleClassRestriction}
-                onDeleteClass={deleteItem}
-                onClassClick={handleClassClick}
-            />
-        ))
-    ) : (
-        <p>No hay módulos disponibles.</p>
-    )}
-    {isAdmin && (
-        <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
-            Add Module
-        </button>
-    )}
-</div>; */}

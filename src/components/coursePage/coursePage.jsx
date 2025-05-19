@@ -1,46 +1,26 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
+import useFetchCourses from "@/hooks/useFetchCourses/useFetchCourses";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 import styles from "./coursePage.module.css";
 
-const CoursesPage = ({ pageTitle, placeholderText }) => {
+const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
     const { user, isAdmin } = useAuth();
     const router = useRouter();
+    const { courses, minPrice, maxPrice, loading, error } = useFetchCourses(collectionName);
 
-    const [courses, setCourses] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredCourses, setFilteredCourses] = useState([]);
-    const [priceRange, setPriceRange] = useState(1000); // Default the max price
+    const [priceRange, setPriceRange] = useState(maxPrice);
     const [selectedCategory, setSelectedCategory] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         document.title = pageTitle;
     }, [pageTitle]);
-
-    // Fetch all courses from the backend
-    const fetchCourses = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get("/api/courses");
-            setCourses(response.data);
-            setFilteredCourses(response.data);
-        } catch (err) {
-            setError(err.response?.data?.error || "Error fetching courses");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCourses();
-    }, []);
 
     const matchesQuery = (course, query) =>
         course?.title?.toLowerCase().includes(query.toLowerCase());
@@ -49,7 +29,7 @@ const CoursesPage = ({ pageTitle, placeholderText }) => {
         course?.discountedPrice <= range;
 
     const matchesCategory = (course, category) =>
-        !category || course?.categoryName === category;
+        !category || course?.category === category;
 
     const handleFilter = () => {
         const filtered = courses.filter((course) =>
@@ -58,6 +38,9 @@ const CoursesPage = ({ pageTitle, placeholderText }) => {
             matchesCategory(course, selectedCategory) &&
             !course.archived
         );
+
+        console.log("Courses originales:", courses);
+
         setFilteredCourses(filtered);
     };
 
@@ -85,30 +68,41 @@ const CoursesPage = ({ pageTitle, placeholderText }) => {
 
     const handleAddCourse = async () => {
         try {
-            const response = await axios.post("/api/courses", {
-                title: "",
-                description: "",
-                discountedPrice: 0,
-                originalPrice: 0,
-                categoryId: 1, // Default category ID
-                mentorId: 1, // Default mentor ID
-                modalityId: 1, // Default modality ID
-                imageUrl: "",
-                courseIcon: "",
-                videoUrl: "",
-                archived: false,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+            const categoryName = collectionName === 'onlineCourses' ? 'online' : 'live';
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/category-name/${categoryName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: "",
+                    description: "",
+                    discountedPrice: 0,
+                    originalPrice: 0,
+                    category: "",
+                    imageUrl: "",
+                    features: [],
+                    archived: false,
+                }),
             });
 
-            const newCourse = response.data;
-            router.push(`/courses/${newCourse.id}`);
+            if (!response.ok) {
+                throw new Error('Error al crear el curso');
+            }
+
+            const data = await response.json();
+            if (collectionName === 'onlineCourses') {
+                router.push(`cursos-en-linea/${data.id}`);
+            } else {
+                router.push(`cursos-en-vivo/${data.id}`);
+            }
         } catch (error) {
-            console.error("Error adding course: ", error.response?.data?.error || error.message);
+            console.error("Error al agregar curso: ", error);
         }
     };
 
-    const categories = ["Programación", "Ofimática"]; // Replace with dynamic categories if needed
+    const categories = ["Programación", "Ofimática"];
+    console.log("Cursos filtrados:", filteredCourses);
 
     return (
         <div className={styles.container}>
@@ -134,15 +128,20 @@ const CoursesPage = ({ pageTitle, placeholderText }) => {
                         </button>
                     ))}
                     <div className={styles.sliderContainer}>
-                        <input
-                            type="range"
-                            min={0}
-                            max={1000} // Adjust based on the data
-                            step="10"
-                            value={priceRange}
-                            onChange={handlePriceChange}
-                            className={styles.slider}
-                        />
+                        {!isNaN(minPrice) && !isNaN(maxPrice) && (
+                            <div className={styles.sliderContainer}>
+                                <input
+                                    type="range"
+                                    min={minPrice}
+                                    max={maxPrice}
+                                    step="10"
+                                    value={priceRange}
+                                    onChange={handlePriceChange}
+                                    className={styles.slider}
+                                />
+                                <span>${priceRange}</span>
+                            </div>
+                        )}
                         <span>$</span>
                         <span>{priceRange}</span>
                     </div>
@@ -154,18 +153,22 @@ const CoursesPage = ({ pageTitle, placeholderText }) => {
                 )}
             </div>
 
-            {loading && <p>Loading courses...</p>}
+            {loading && <p>Cargando cursos...</p>}
             {error && <p>{error}</p>}
 
             <div className={styles.courseGrid}>
                 {filteredCourses?.length > 0 &&
                     filteredCourses.map((course) => (
                         <CourseCardMenu
-                            key={course.id}
-                            course={course}
-                            courseType="online" // Might need to adjust based on the data
+                            key={course.courseid}
+                            course={{
+                                ...course,
+                                id: course.courseid, 
+                            }}
+                            courseType={collectionName}
                         />
                     ))}
+
             </div>
 
             <footer className={styles.footer}>

@@ -14,7 +14,8 @@ import { Modal } from "@/components/modal/modal";
 const ClassDetail = () => {
     const router = useRouter();
     const { currentUser, isAdmin } = useAuth();
-    const { courseId, moduleId, classId } = useParams();
+    const { coursesId, moduleId, classId } = useParams();
+    const courseId = coursesId; // <--- así lo usas igual que en el resto del código
 
     const [classTitle, setClassTitle] = useState("");
     const [resources, setResources] = useState([]);
@@ -26,8 +27,23 @@ const ClassDetail = () => {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
     useEffect(() => {
+        console.log("oaaaa", courseId, moduleId, classId);
         const fetchData = async () => {
-            // Fetch logic here
+            if (!courseId || !moduleId || !classId) return;
+
+            
+            try {
+                const url = `${process.env.NEXT_PUBLIC_API_URL}/class-resources/by-course-module-class/${courseId}/${moduleId}/${classId}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("No se pudo obtener la clase");
+
+                const data = await res.json();
+                setClassTitle(data.title || "");
+                setResources(data.resources || []);
+                setClassesInModule(data.classesInModule || []);
+            } catch (error) {
+                console.error("Error al obtener la clase:", error);
+            }
         };
         fetchData();
     }, [classId, courseId, moduleId, currentUser]);
