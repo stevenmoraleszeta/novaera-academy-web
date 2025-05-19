@@ -7,11 +7,10 @@ import Image from "next/image";
 import Head from "next/head";
 import styles from "./page.module.css";
 import { Modal } from "@/components/modal/modal";
-import { useAuthenticate } from "@/hooks/useAuth/useAuth";
 
 
 function UserAndPassword() {
-    const { login } = useAuthenticate()
+    const { loginWithEmailAndPassword } = useAuth();
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -24,25 +23,11 @@ function UserAndPassword() {
         setIsAlertOpen(false);
 
         try {
-            await login(email, password);
+            await loginWithEmailAndPassword(email, password); // Usa el método del contexto
             router.push("/");
         } catch (err) {
-            const errorMessage = checkError(err.code, err.message);
-            setError(errorMessage);
+            setError("Ocurrió un error al iniciar sesión.");
             setIsAlertOpen(true);
-        }
-    };
-
-    const checkError = (errorType, defaultMessage) => {
-        switch (errorType) {
-            case "auth/invalid-credential":
-                return "Las credenciales proporcionadas no son válidas. Por favor, verifica tu correo electrónico y contraseña.";
-            case "auth/user-not-found":
-                return "No se encontró una cuenta con este correo electrónico.";
-            case "auth/wrong-password":
-                return "La contraseña es incorrecta. Por favor, intenta de nuevo.";
-            default:
-                return defaultMessage || "Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.";
         }
     };
 

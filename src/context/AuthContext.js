@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
                     setLoading(false);
                     return;
                 }
-
+                console.log("Token:", token);
                 const response = await axios.get("http://localhost:3000/api/users/profile", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -53,18 +53,26 @@ export function AuthProvider({ children }) {
     // Función para iniciar sesión con email y contraseña
     const loginWithEmailAndPassword = async (email, password) => {
         try {
-            const response = await axios.post("http://localhost:3000/api/login", { email, password });
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+                email,
+                password,
+            });
+
             const { token, user } = response.data;
 
             localStorage.setItem("token", token);
             setCurrentUser(user);
-            setIsAdmin(user.role === "Admin");
+
+            // Aquí usas namerole, no roleid
+            setIsAdmin(user.namerole === "Admin");
+
             setMissingInfo(!user.country || !user.phone || !user.age);
         } catch (error) {
             console.error("Error al iniciar sesión:", error.response?.data?.error || error.message);
             throw error;
         }
     };
+
 
     const registerWithEmailAndPassword = async (email, password, name, profilePicture) => {
         try {

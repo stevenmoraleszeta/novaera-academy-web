@@ -20,14 +20,20 @@ export function useAuthenticate() {
 
   const login = async ({ email, password }) => {
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        email,
-        password
-      });
+      console.log('Logging in with email:', email);
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        { email, password }
+      );
 
+      if (res.status !== 200 || !res.data.token || !res.data.user) {
+        throw new Error('Credenciales inválidas o respuesta incorrecta');
+      }
 
       const { token, user } = res.data;
+      console.log('Login successful:', token, user);
 
+      
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
@@ -36,9 +42,15 @@ export function useAuthenticate() {
 
       return { success: true };
     } catch (error) {
+      let message = 'Error al iniciar sesión';
+      if (error.response?.data?.error) {
+        message = error.response.data.error;
+      } else if (error.message) {
+        message = error.message;
+      }
       return {
         success: false,
-        message: error.response?.data?.error || 'Error al iniciar sesión'
+        message
       };
     }
   };
