@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
 
                 const user = response.data;
                 setCurrentUser(user);
-                setIsAdmin(user.role === "Admin");
+                setIsAdmin(user.namerole === "Admin");
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
                 console.error("Error fetching current user:", error.response?.data?.error || error.message);
@@ -63,7 +63,6 @@ export function AuthProvider({ children }) {
             localStorage.setItem("token", token);
             setCurrentUser(user);
 
-            // Aquí usas namerole, no roleid
             setIsAdmin(user.namerole === "Admin");
 
             setMissingInfo(!user.country || !user.phone || !user.age);

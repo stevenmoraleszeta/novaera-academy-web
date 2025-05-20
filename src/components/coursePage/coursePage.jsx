@@ -68,21 +68,28 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
 
     const handleAddCourse = async () => {
         try {
-            const categoryName = collectionName === 'onlineCourses' ? 'online' : 'live';
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/category-name/${categoryName}`, {
+            const defaultImageUrl =
+                "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALL·E%202024-09-14%2012.19.23%20-%20An%20epic%20and%20highly%20realistic%20scene%20of%20a%20woman%20learning%20to%20program%20in%20Python%2C%20with%20blue%20and%20yellow%20as%20the%20predominant%20colors.%20The%20woman%2C%20a%20young%20adult%20.webp?alt=media&token=496e97a6-c60f-44f0-8e87-12b0a1f5a755";
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    title: "",
-                    description: "",
-                    discountedPrice: 0,
-                    originalPrice: 0,
-                    category: "",
-                    imageUrl: "",
-                    features: [],
+                    title: "Curso Introducción a la Programación con Python",
+                    description: "Aprende a programar desde cero con Python, el lenguaje de programación más popular del mundo.",
+                    discountedPrice: 29.99,
+                    originalPrice: 39.99,
+                    imageUrl: defaultImageUrl,
+                    courseIcon: '📘',
+                    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
                     archived: false,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    categoryId: 2,
+                    mentorId: 1,
+                    modalityId: 1
                 }),
             });
 
@@ -90,12 +97,7 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
                 throw new Error('Error al crear el curso');
             }
 
-            const data = await response.json();
-            if (collectionName === 'onlineCourses') {
-                router.push(`cursos-en-linea/${data.id}`);
-            } else {
-                router.push(`cursos-en-vivo/${data.id}`);
-            }
+            window.location.reload();
         } catch (error) {
             console.error("Error al agregar curso: ", error);
         }

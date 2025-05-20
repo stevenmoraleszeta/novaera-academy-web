@@ -58,19 +58,23 @@ const CourseDetail = ({ params }) => {
 
     useEffect(() => {
         const checkEnrollmentStatus = async () => {
-            if (!currentUser) return;
+            console.log("currentUser:", currentUser, "courseId:", courseId);
+            if (!currentUser || !currentUser.id || !courseId) return;
 
             try {
-                const userRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userRef);
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.id}`
+                );
 
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    const enrolledCourses = userData.enrolledCourses || [];
-                    setIsEnrolled(enrolledCourses.includes(courseId));
+                if (response.status === 200) {
+                    const data = await response.json();
+                    setIsEnrolled(data && data.length > 0);
+                } else {
+                    setIsEnrolled(false);
                 }
             } catch (error) {
                 console.error("Error checking enrollment status:", error);
+                setIsEnrolled(false);
             }
         };
 
