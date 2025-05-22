@@ -279,6 +279,7 @@ input[type="checkbox"]:checked::after {
   height: 50%;
   width: 100%;
   filter: brightness(0.8);
+  
   /* Reduce exposure */
 }
 
@@ -319,4 +320,225 @@ input[type="checkbox"]:checked::after {
   /* Reduced by 20% */
   font-weight: 500;
   margin: 7px 20px 0;
+}
+
+/* Auth Page Styles */
+.auth-main-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-container {
+    width: 50%;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: linear-gradient(#002128, #00758E);
+    margin-top: 3vh;
+    border-radius: 15px;
+}
+
+.auth-zeta-logo {
+    width: clamp(38vw, 600px, 43vw);
+    height: clamp(12vw, 200px, 22vw);
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.auth-page-text-container { /* Renamed from textContainer to avoid conflict */
+    width: 70%;
+    height: fit-content;
+    text-align: center;
+}
+
+.auth-page-text { /* Renamed from loginText */
+    font-weight: 600;
+    font-size: clamp(1.28vw, 24px, 1.6vw);
+}
+
+.auth-action-button { /* Renamed from googleBtn */
+    display: flex;
+    align-items: center;
+    background-color: #E85D04; /* Taken from login/page.module.css as base */
+    justify-content: start;
+    border-radius: 4px;
+    padding: 0px;
+    font-size: clamp(0.8vw, 17.6px, 1.28vw);
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    width: clamp(20vw, 240px, 25vw);
+    height: clamp(5vh, 54px, 7vh);
+}
+
+.auth-action-button-logo { /* Renamed from googleBtnLogo */
+    width: 3vw;
+    height: 100%;
+    margin-right: 12px;
+    border-radius: 4px 0px 0px 4px;
+    object-fit: cover;
+}
+
+.auth-action-button-text { /* Added from login/page.module.css (originally textLogin) */
+    text-align: start;
+}
+
+.auth-form-container { /* From loginPassword/page.module.css */
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.auth-input-field { /* From loginPassword/page.module.css (originally input) */
+    width: 100%;
+    margin: 5px 0;
+    max-width: 440px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    /* Ensure background and text color are compatible with globals.css theme if necessary */
+    background-color: var(--color-dark); /* From globals.css input style */
+    color: var(--color-lighter); /* From globals.css input style */
+}
+
+.auth-input-field:focus { /* From loginPassword/page.module.css (originally input:focus) */
+    border-color: #E85D04;
+    box-shadow: 0 0 6px rgba(30, 144, 255, 0.4);
+    /* Ensure focus style is compatible */
+    outline: none; /* From globals.css input:focus style */
+    box-shadow: 0 0 0 2px var(--color-dark); /* From globals.css input:focus style */
+    border: solid 1px var(--color-secondary); /* From globals.css input:focus style */
+}
+
+
+.auth-submit-button { /* From loginPassword/page.module.css (originally submitBtn) */
+    background-color: #ff6600;
+    color: white;
+    padding: 10px 0;
+    width: 70%;
+    max-width: 150px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px; /* Added from globals.css button style */
+    margin-bottom: 10px; /* Added from globals.css button style */
+}
+
+.auth-submit-button:hover {  /* Added to match globals.css button style */
+  background-color: var(--color-secondary-hover);
+}
+
+
+.auth-small-text { /* From loginPassword/page.module.css */
+    font-size: 12px;
+    color: #ffffff;
+    margin-top: 8px;
+    text-align: start;
+}
+
+.auth-link { /* From loginPassword/page.module.css */
+    color: orange;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-link:hover { /* From loginPassword/page.module.css */
+    text-decoration: underline;
+}
+
+.auth-forgot-password-link { /* From loginPassword/page.module.css (originally forgetPassword) */
+    font-size: 12px;
+    color: #ffffff;
+    margin-top: 2px;
+    text-align: end;
+}
+
+/* media queries from loginPassword/page.module.css, adapted with new names */
+@media (max-width:900px) {
+    .auth-form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 20px;
+        width: 100%;
+    }
+    /* Specific rule for auth-action-button from login/page.module.css */
+    .auth-action-button {
+        width: clamp(35vw, 250px, 40vw);
+        height: clamp(3vh, 54px, 5vh);
+    }
+    .auth-action-button-logo {
+        width: 5vw;
+        height: 100%;
+    }
+}
+
+@media (max-width:768px) {
+    .auth-action-button { /* Merged from both files */
+        width: clamp(35vw, 250px, 40vw);
+        height: clamp(3vh, 54px, 5vh);
+        font-size: clamp(1.5vw, 22px, 2.5vw);
+    }
+
+    .auth-action-button-logo { /* Merged from both files */
+        width: 5vw;
+        height: 100%;
+    }
+
+    .auth-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .auth-page-text-container {
+        width: 80%;
+    }
+
+    .auth-page-text {
+        font-weight: 600;
+        font-size: clamp(1.5vw, 24px, 2.5vw);
+    }
+}
+
+@media (max-width:500px) {
+    .auth-action-button { /* Merged from both files */
+        width: clamp(35vw, 250px, 40vw);
+        height: clamp(3vh, 54px, 5vh);
+        font-size: clamp(2vw, 22px, 2.8vw);
+    }
+
+    .auth-action-button-logo { /* Merged from both files */
+        width: 5vw;
+        height: 100%;
+    }
+
+    .auth-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .auth-page-text-container {
+        width: 80%;
+    }
+
+    .auth-page-text {
+        font-weight: 600;
+        font-size: clamp(2vw, 24px, 3.5vw);
+    }
+
+    .auth-container {
+        width: 70%;
+    }
 }

@@ -5,9 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Head from "next/head";
-import styles from "./page.module.css";
 import { Modal } from "@/components/modal/modal";
-
 
 function UserAndPassword() {
     const { loginWithEmailAndPassword } = useAuth();
@@ -23,13 +21,15 @@ function UserAndPassword() {
         setIsAlertOpen(false);
 
         try {
-            await loginWithEmailAndPassword(email, password); // Usa el método del contexto
+            await loginWithEmailAndPassword(email, password);
             router.push("/");
         } catch (err) {
             setError("Ocurrió un error al iniciar sesión.");
             setIsAlertOpen(true);
         }
     };
+
+    const onClose = () => setIsAlertOpen(false);
 
     return (
         <>
@@ -42,30 +42,30 @@ function UserAndPassword() {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             </Head>
             <section>
-                <div className={styles.loginMainContainer}>
-                    <div className={styles.loginContainer}>
-                        <div className={styles.imgContainer}>
+                <div className="auth-main-container">
+                    <div className="auth-container">
+                        <div className="imgContainer">
                             <Image
                                 width={500}
                                 height={500}
                                 alt="Logo de ZETA"
                                 src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogoCp.PNG?alt=media&token=4ab20b3d-09e0-403c-851a-154d51af90b6"
-                                className={styles.zetaLogo}
+                                className="auth-zeta-logo"
                                 priority
                             />
                         </div>
-                        <div className={styles.textContainer}>
-                            <p className={styles.loginText}>
+                        <div className="auth-page-text-container">
+                            <p className="auth-page-text">
                                 Inicia sesión o crea tu cuenta para acceder a más funcionalidades.
                             </p>
                         </div>
-                        <form onSubmit={handleSubmit} className={styles.formContainer}>
+                        <form onSubmit={handleSubmit} className="auth-form-container">
                             <input
                                 type="email"
                                 placeholder="Correo electrónico"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className={styles.input}
+                                className="auth-input-field"
                                 required
                             />
                             <input
@@ -73,28 +73,28 @@ function UserAndPassword() {
                                 placeholder="Contraseña"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className={styles.input}
+                                className="auth-input-field"
                                 required
                             />
-                            <p className={styles.forgetPassword}>
-                                <a href="https://wa.link/9vy9v9" className={styles.link}>
+                            <p className="auth-forgot-password-link">
+                                <a href="https://wa.link/9vy9v9" className="auth-link">
                                     ¿Olvidaste tu contraseña?
                                 </a>
                             </p>
-                            <button type="submit" className={styles.submitBtn}>
+                            <button type="submit" className="auth-submit-button">
                                 Iniciar Sesión
                             </button>
-                            <p className={styles.smallText}>
+                            <p className="auth-small-text">
                                 ¿No tienes una cuenta?{" "}
-                                <a href="/createUser" className={styles.link}>
+                                <a href="/createUser" className="auth-link">
                                     Regístrate aquí
                                 </a>
                             </p>
-                            <a href="/login" className={styles.link}>
+                            <a href="/login" className="auth-link">
                                 Volver
                             </a>
                         </form>
-                        {error && <p className={styles.errorText}>{error}</p>}
+                        {error && <p className="auth-error-text">{error}</p>}
                     </div>
                 </div>
                 {isAlertOpen && (
