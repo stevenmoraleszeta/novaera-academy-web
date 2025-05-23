@@ -5,7 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Head from "next/head"; // Para mejorar el SEO
-import styles from "./page.module.css";
 
 function CreateUser() {
     const { registerWithEmailAndPassword } = useAuth();
@@ -69,31 +68,31 @@ function CreateUser() {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             </Head>
             <section>
-                <div className={styles.loginMainContainer}>
-                    <div className={styles.loginContainer}>
-                        <div className={styles.imgContainer}>
+                <div className="create-user-main-container">
+                    <div className="create-user-container">
+                        <div className="create-user-img-container">
                             <Image
                                 width={500}
                                 height={500}
                                 alt="Logo de ZETA"
                                 src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogoCp.PNG?alt=media&token=4ab20b3d-09e0-403c-851a-154d51af90b6"
-                                className={styles.zetaLogo}
-                                priority // Optimiza la carga de la imagen
+                                className="create-user-zeta-logo"
+                                priority
                             />
                         </div>
-                        <div className={styles.textContainer}>
-                            <p className={styles.loginText}>
+                        <div className="create-user-text-container">
+                            <p className="create-user-login-text">
                                 ¡Crea tu cuenta para acceder a más funcionalidades!
                             </p>
                         </div>
-                        <form onSubmit={handleSubmit} className={styles.formContainer}>
+                        <form onSubmit={handleSubmit} className="create-user-form-container">
                             <input
                                 type="text"
                                 name="name"
                                 placeholder="Nombre completo"
                                 value={formData.name}
                                 onChange={handleInputChange}
-                                className={styles.input}
+                                className="create-user-input"
                                 required
                             />
                             <input
@@ -102,7 +101,7 @@ function CreateUser() {
                                 placeholder="Correo electrónico"
                                 value={formData.email}
                                 onChange={handleInputChange}
-                                className={styles.input}
+                                className="create-user-input"
                                 required
                             />
                             <input
@@ -111,7 +110,7 @@ function CreateUser() {
                                 placeholder="Contraseña"
                                 value={formData.password}
                                 onChange={handleInputChange}
-                                className={styles.input}
+                                className="create-user-input"
                                 required
                             />
                             <input
@@ -120,31 +119,31 @@ function CreateUser() {
                                 placeholder="Confirmar contraseña"
                                 value={formData.confirmPassword}
                                 onChange={handleInputChange}
-                                className={styles.input}
+                                className="create-user-input"
                                 required
                             />
                             <input
                                 type="file"
                                 accept="image/*"
                                 onChange={handleFileChange}
-                                className={styles.fileInput}
+                                className="create-user-file-input"
                             />
-                            {error && <p className={styles.errorText}>{error}</p>}
-                            <div className={styles.buttonContainer}>
+                            {error && <p className="create-user-error-text">{error}</p>}
+                            <div className="create-user-button-container">
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className={styles.submitButton}
+                                    className="create-user-submit-btn"
                                 >
                                     {isSubmitting ? "Registrando..." : "Crear cuenta"}
                                 </button>
                             </div>
-                            <p className={styles.loginPrompt}>
+                            <p className="create-user-login-prompt">
                                 ¿Tienes una cuenta?{" "}
                                 <button
                                     type="button"
                                     onClick={() => router.push("/login")}
-                                    className={styles.backButton}
+                                    className="create-user-back-button"
                                 >
                                     Iniciar sesión
                                 </button>
