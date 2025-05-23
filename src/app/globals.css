@@ -618,3 +618,199 @@ input[type="checkbox"]:checked::after {
     padding: 0;
   }
 }
+
+/* Styles for Create User Page */
+.create-user-main-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.create-user-container {
+    width: 50%;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: linear-gradient(#002128, #00758E);
+    margin-top: 3vh;
+    border-radius: 15px;
+}
+
+.create-user-zeta-logo {
+    width: clamp(38vw, 600px, 43vw);
+    height: clamp(12vw, 200px, 22vw);
+}
+
+.create-user-text-container {
+    width: 70%;
+    height: fit-content;
+    text-align: center;
+}
+
+.create-user-login-text {
+    font-weight: 600;
+    font-size: clamp(1.28vw, 24px, 1.6vw);
+}
+
+.create-user-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    width: 100%;
+}
+
+.create-user-input { /* Applied to all input fields in the form */
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    border: none; /* Will inherit from global input or be overridden by global if more specific */
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    /* Ensure background and text color are compatible with globals.css theme if necessary */
+    background-color: var(--color-dark); /* From globals.css input style */
+    color: var(--color-lighter); /* From globals.css input style */
+}
+
+.create-user-input:focus { /* Applied to all input fields in the form */
+    border-color: #E85D04; /* From module, might conflict/override global */
+    box-shadow: 0 0 6px rgba(30, 144, 255, 0.4); /* From module, might conflict/override global */
+     /* Ensure focus style is compatible */
+    outline: none; /* From globals.css input:focus style */
+    box-shadow: 0 0 0 2px var(--color-dark); /* From globals.css input:focus style */
+    border: solid 1px var(--color-secondary); /* From globals.css input:focus style */
+}
+
+.create-user-file-input { /* Specific style for file input, ensure it's distinct if needed */
+    /* Assuming general .create-user-input styles apply, add specifics if any */
+    /* Example: if it had unique styling in the module */
+}
+
+
+.create-user-submit-btn {
+    background-color: #E85D04; /* Potentially var(--color-secondary) from globals */
+    color: white;
+    padding: 10px 0;
+    width: 100%;
+    max-width: 180px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px; /* Added from globals.css button style */
+    margin-bottom: 10px; /* Added from globals.css button style */
+}
+
+.create-user-submit-btn:hover {  /* Added to match globals.css button style */
+  background-color: var(--color-secondary-hover);
+}
+
+.create-user-submit-btn:disabled {
+    background-color: #ddd; /* Consider using a variable, e.g., var(--color-disabled-bg) */
+    cursor: not-allowed;
+    color: #aaa; /* Consider using a variable, e.g., var(--color-disabled-text) */
+}
+
+.create-user-error-text {
+    margin-top: 10px;
+    color: var(--color-secondary);
+    font-size: 1rem;
+    text-align: center;
+}
+
+.create-user-login-prompt {
+    text-align: center;
+    font-size: 14px;
+}
+
+.create-user-login-link {
+    color: var(--color-secondary);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.create-user-login-link:hover {
+    text-decoration: underline;
+}
+
+.create-user-back-button {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: orange; /* Consider var(--color-secondary) or a new variable */
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+}
+
+.create-user-back-button:hover {
+    color: orange; /* Consider var(--color-secondary-hover) or a new variable */
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+/* Media Queries for Create User Page */
+@media (max-width:900px) {
+    .create-user-form-container {
+        padding: 15px;
+    }
+
+    .create-user-input,
+    .create-user-submit-btn {
+        font-size: 0.9rem;
+    }
+
+    .create-user-submit-btn {
+        padding: 10px;
+    }
+}
+
+@media (max-width:768px) {
+    .create-user-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .create-user-text-container {
+        width: 80%;
+    }
+
+    .create-user-login-text {
+        font-weight: 600;
+        font-size: clamp(1.5vw, 24px, 2.5vw);
+    }
+}
+
+@media (max-width:500px) {
+    /* .googleBtn and .googleBtnLogo were in the original CSS but not used in the JSX,
+       so they are not included here. If they were used elsewhere via this module,
+       they would need to be prefixed and added. */
+
+    .create-user-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .create-user-text-container {
+        width: 80%;
+    }
+
+    .create-user-login-text {
+        font-weight: 600;
+        font-size: clamp(2vw, 24px, 3.5vw);
+    }
+
+    .create-user-container {
+        width: 70%;
+    }
+}
