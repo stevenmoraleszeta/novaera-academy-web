@@ -542,3 +542,79 @@ input[type="checkbox"]:checked::after {
         width: 70%;
     }
 }
+
+/* Styles for Course Detail Pages */
+.course-detail-container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+  color: #ffffff;
+  text-align: left;
+}
+
+.course-detail-main-content {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  align-items: flex-start;
+  padding: 10px 0;
+  flex-wrap: nowrap;
+  height: 35vh;
+}
+
+.course-detail-title-text,
+.course-detail-title-input {
+  width: 100%;
+  font-size: 2vw;
+  font-weight: bold;
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  margin: 20px 0 15px 0;
+  padding: 0;
+  text-align: left;
+}
+
+.course-detail-title-input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.course-detail-add-module-button {
+  margin-top: 10vh;
+  width: 100%;
+  background-color: transparent;
+  border: dashed 5px var(--color-secondary);
+}
+
+/* media queries for course detail pages */
+@media (max-width: 768px) {
+  .course-detail-main-content {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    height: 60vh;
+  }
+
+  .course-detail-container {
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 15px;
+    padding-top: 10px;
+    margin: 0px;
+  }
+
+  .course-detail-title-text,
+  .course-detail-title-input {
+    width: 100%;
+    font-size: 4vw;
+    margin: 0px;
+    padding: 0;
+  }
+}
