@@ -6,7 +6,6 @@ import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/fi
 import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
-import styles from "./page.module.css";
 
 import CourseDetails from "@/components/courseDetails/courseDetails";
 import CourseVideo from "@/components/courseVideo/courseVideo";
@@ -115,20 +114,20 @@ const CourseDetail = ({ params }) => {
     };
 
     return (
-        <div className={styles.container}>
+        <div className="course-detail-container">
             {isAdmin ? (
                 <input
                     type="text"
                     value={course.title || ""}
                     onChange={(e) => handleFieldChange("title", e.target.value)}
-                    className={styles.titleInput}
+                    className="course-detail-title-input"
                 />
             ) : (
-                <span className={styles.titleText}>
+                <span className="course-detail-title-text">
                     {course.title || "Sin título disponible"}
                 </span>
             )}
-            <div className={styles.courseMainContent}>
+            <div className="course-detail-main-content">
                 <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
                 <CourseDetails
                     course={course}
@@ -162,7 +161,7 @@ const CourseDetail = ({ params }) => {
                 <p>No hay módulos disponibles.</p>
             )}
             {isAdmin && (
-                <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+                <button onClick={addModule} className="course-detail-add-module-button" title="Añadir Módulo">
                     Add Module
                 </button>
             )}
