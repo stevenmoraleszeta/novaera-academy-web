@@ -17,10 +17,10 @@ const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
     const resolvedParams = use(params);
     const courseId = resolvedParams.coursesId || searchParams.get("courseId");
-    const {course, setCourse} = useFetchCourse(courseId, 'onlineCourses');
+    const { course, setCourse } = useFetchCourse(courseId, 'onlineCourses');
     const router = useRouter();
 
-    console.log("course info:", course); 
+    console.log("course info:", course);
     console.log("courseId recibido en hook:", courseId);
 
     const [modules, setModules] = useState([]);
@@ -84,20 +84,68 @@ const CourseDetail = ({ params }) => {
     const handleFieldChange = async (field, value) => {
         const updatedCourse = { ...course, [field]: value };
         setCourse(updatedCourse);
-        const docRef = doc(db, "onlineCourses", courseId);
-        await updateDoc(docRef, { [field]: value });
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ [field]: value }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error al actualizar el curso");
+            }
+        } catch (error) {
+            console.error("Error al actualizar el curso:", error);
+        }
     };
 
     const addModule = async () => {
-        const newModule = { title: "Nuevo Módulo", classes: [] };
-        const moduleRef = await addDoc(
-            collection(db, "onlineCourses", courseId, "modules"),
-            newModule
-        );
-        setModules((prevModules) => [
-            ...prevModules,
-            { id: moduleRef.id, ...newModule },
-        ]);
+        try {
+            // Calculates the new module order
+            const orderModule = modules.length + 1;
+            const newModule = {
+                title: "Nuevo Módulo",
+                orderModule,
+                courseId,
+            };
+
+            // Call the API to create a new module
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modules`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newModule),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error al crear el módulo");
+            }
+
+            // Refresh the modules list
+            const modulesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modules/course/${courseId}`);
+            const modulesData = await modulesResponse.json();
+
+            // Updates modules states
+            const modulesWithSortedClasses = modulesData.map((mod, idx) => ({
+                ...mod,
+                id: mod.moduleid,
+                classes: Array.isArray(mod.classes)
+                    ? mod.classes.map((cls, cidx) => ({
+                        ...cls,
+                        id: cls.classid || cls._id || `class-${cidx}`
+                    })).sort((a, b) => a.orderClass - b.orderClass)
+                    : [],
+            }));
+
+            modulesWithSortedClasses.sort((a, b) => a.orderModule - b.orderModule);
+            setModules(modulesWithSortedClasses);
+        } catch (error) {
+            console.error("Error al añadir módulo:", error);
+        }
     };
 
     const onClassClick = (moduleId, classId) => {
