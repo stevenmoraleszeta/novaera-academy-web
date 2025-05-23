@@ -26,10 +26,37 @@ export function Modal({
         setModalContent(modalType);
     }, [modalType]);
 
-    const handleSave = () => {
-        // Lógica para guardar recursos
-        setResources([...resources, {}]);
-        onClose();
+    const handleSave = async () => {
+
+        const newResource = {
+            classId: item.classId,
+            contentResource: item.contentResource,
+            typeResource: item.typeResource,
+            orderResource: item.orderResource,
+            startTime: item.startTime || null,
+            endTime: item.endTime || null,
+            width: item.width || null,
+            height: item.height || null,
+        };
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newResource),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error al guardar el recurso");
+            }
+
+            const savedResource = await response.json();
+            setResources([...resources, savedResource.resource]);
+            onClose();
+        } catch (error) {
+            console.error("Error al guardar el recurso:", error);
+        }
     };
 
     if (!isOpen) return null;

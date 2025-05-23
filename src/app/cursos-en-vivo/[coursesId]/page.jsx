@@ -1,24 +1,8 @@
-"use client";
-
-import React, { useEffect, useState, use } from "react";
-import { useSearchParams } from "next/navigation";
-import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
-import { useAuth } from "@/context/AuthContext";
-import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
-import styles from "./page.module.css";
-
-import CourseDetails from "@/components/courseDetails/courseDetails";
-import CourseVideo from "@/components/courseVideo/courseVideo";
-import Features from "@/components/features/features";
-import ModuleCard from "@/components/moduleCards/moduleCards";
-import ProjectsList from "@/components/projects/projects";
-
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
     const resolvedParams = use(params);
     const courseId = resolvedParams.coursesId || searchParams.get("courseId");
-    const course = useFetchCourse(courseId, 'liveCourses');
+    const { course, setCourse } = useFetchCourse(courseId, 'liveCourses');
 
     const [modules, setModules] = useState([]);
     const { currentUser, isAdmin } = useAuth();
@@ -32,40 +16,23 @@ const CourseDetail = ({ params }) => {
             }
 
             try {
-                const modulesSnapshot = await getDocs(
-                    collection(db, "liveCourses", courseId, "modules")
-                );
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modules/course/${courseId}?type=live`);
+                if (!response.ok) throw new Error("No se pudieron obtener los módulos");
+                const modulesData = await response.json();
 
-                const fetchedModules = await Promise.all(
-                    modulesSnapshot.docs.map(async (moduleDoc) => {
-                        const moduleData = moduleDoc.data();
-                        const classesSnapshot = await getDocs(
-                            collection(
-                                db,
-                                "liveCourses",
-                                courseId,
-                                "modules",
-                                moduleDoc.id,
-                                "classes"
-                            )
-                        );
+                const modulesWithSortedClasses = modulesData.map((mod, idx) => ({
+                    ...mod,
+                    id: mod.moduleid,
+                    classes: Array.isArray(mod.classes)
+                        ? mod.classes.map((cls, cidx) => ({
+                            ...cls,
+                            id: cls.classid || cls._id || `class-${cidx}`
+                        })).sort((a, b) => a.orderClass - b.orderClass)
+                        : [],
+                }));
 
-                        const classes = classesSnapshot.docs.map((classDoc) => ({
-                            id: classDoc.id,
-                            ...classDoc.data(),
-                        }));
-
-                        classes.sort((a, b) => a.order - b.order);
-                        return {
-                            id: moduleDoc.id,
-                            ...moduleData,
-                            classes,
-                        };
-                    })
-                );
-
-                fetchedModules.sort((a, b) => a.order - b.order);
-                setModules(fetchedModules);
+                modulesWithSortedClasses.sort((a, b) => a.orderModule - b.orderModule);
+                setModules(modulesWithSortedClasses);
             } catch (error) {
                 console.error("Error fetching modules and classes:", error);
             }
@@ -76,19 +43,21 @@ const CourseDetail = ({ params }) => {
 
     useEffect(() => {
         const checkEnrollmentStatus = async () => {
-            if (!currentUser) return;
+            if (!currentUser || !currentUser.id || !courseId) return;
 
             try {
-                const userRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userRef);
-
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    const enrolledCourses = userData.enrolledCourses || [];
-                    setIsEnrolled(enrolledCourses.includes(courseId));
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.id}`
+                );
+                if (response.status === 200) {
+                    const data = await response.json();
+                    setIsEnrolled(data && data.length > 0);
+                } else {
+                    setIsEnrolled(false);
                 }
             } catch (error) {
                 console.error("Error checking enrollment status:", error);
+                setIsEnrolled(false);
             }
         };
 
@@ -98,20 +67,66 @@ const CourseDetail = ({ params }) => {
     const handleFieldChange = async (field, value) => {
         const updatedCourse = { ...course, [field]: value };
         setCourse(updatedCourse);
-        const docRef = doc(db, "liveCourses", courseId);
-        await updateDoc(docRef, { [field]: value });
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ [field]: value }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error al actualizar el curso");
+            }
+        } catch (error) {
+            console.error("Error al actualizar el curso:", error);
+        }
     };
 
     const addModule = async () => {
-        const newModule = { title: "Nuevo Módulo", classes: [] };
-        const moduleRef = await addDoc(
-            collection(db, "liveCourses", courseId, "modules"),
-            newModule
-        );
-        setModules((prevModules) => [
-            ...prevModules,
-            { id: moduleRef.id, ...newModule },
-        ]);
+        try {
+            const orderModule = modules.length + 1;
+            const newModule = {
+                title: "Nuevo Módulo",
+                orderModule,
+                courseId,
+                type: "live"
+            };
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modules`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newModule),
+            });
+
+            if (!response.ok) {
+                throw new Error("Error al crear el módulo");
+            }
+
+            // refreshes the modules list
+            const modulesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/modules/course/${courseId}?type=live`);
+            const modulesData = await modulesResponse.json();
+
+            const modulesWithSortedClasses = modulesData.map((mod, idx) => ({
+                ...mod,
+                id: mod.moduleid,
+                classes: Array.isArray(mod.classes)
+                    ? mod.classes.map((cls, cidx) => ({
+                        ...cls,
+                        id: cls.classid || cls._id || `class-${cidx}`
+                    })).sort((a, b) => a.orderClass - b.orderClass)
+                    : [],
+            }));
+
+            modulesWithSortedClasses.sort((a, b) => a.orderModule - b.orderModule);
+            setModules(modulesWithSortedClasses);
+        } catch (error) {
+            console.error("Error al añadir módulo:", error);
+        }
     };
 
     return (
@@ -168,15 +183,15 @@ const CourseDetail = ({ params }) => {
             )}
             <ProjectsList
                 isAdmin={isAdmin}
-                isStudentInCourse={isStudentInCourse}
-                projects={projects}
-                studentProjects={studentProjects}
+                isStudentInCourse={isEnrolled}
+                projects={[]} // Cargar projects desde el backend
+                studentProjects={[]} // aqui tambien hay que cargar los projects desde el backend
                 courseId={courseId}
-                averageScore={averageScore}
-                handleEditProject={handleEditProject}
-                moveProject={moveProject}
-                deleteProject={deleteProject}
-                addProject={addProject}
+                averageScore={null}
+                handleEditProject={() => { }}
+                moveProject={() => { }}
+                deleteProject={() => { }}
+                addProject={() => { }}
             />
         </div>
     );

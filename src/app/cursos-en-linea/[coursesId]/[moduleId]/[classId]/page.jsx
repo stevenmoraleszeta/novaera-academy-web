@@ -2,9 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/firebase/firebase";
 import styles from "./page.module.css";
 import ResourceList from "@/components/resourceList/resourceList";
 import FixedBar from "@/components/fixedBarClasses/fixedBar";
@@ -31,7 +29,7 @@ const ClassDetail = () => {
         const fetchData = async () => {
             if (!courseId || !moduleId || !classId) return;
 
-            
+
             try {
                 const url = `${process.env.NEXT_PUBLIC_API_URL}/class-resources/by-course-module-class/${courseId}/${moduleId}/${classId}`;
                 const res = await fetch(url);
@@ -49,7 +47,54 @@ const ClassDetail = () => {
     }, [classId, courseId, moduleId, currentUser]);
 
     const handleCompleteClass = async () => {
-        // Logic for completing classes
+        try {
+            if (!currentUser || !currentUser.id) {
+                console.error("Usuario no autenticado.");
+                return;
+            }
+
+            // Obtain classes progress from the backend
+            const completedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.id}/completed-classes`);
+            if (!completedRes.ok) {
+                console.error("No se pudo obtener el progreso del usuario.");
+                return;
+            }
+            const completedData = await completedRes.json();
+            const completedClasses = completedData.completedClasses || [];
+
+            // Validates if the previous class is completed
+            const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
+            if (currentClassIndex > 0 && !isCompleted) {
+                const previousClassId = classesInModule[currentClassIndex - 1].id;
+                if (!completedClasses.includes(previousClassId)) {
+                    setIsAlertOpen(true);
+                    console.error("La clase anterior no está completada. No puedes completar esta clase.");
+                    return;
+                }
+            }
+
+            // Updates the current class status
+            const newCompletedStatus = !isCompleted;
+            const updatedClasses = newCompletedStatus
+                ? [...completedClasses, classId]
+                : completedClasses.filter(id => id !== classId);
+
+            // Saves the updated classes to the backend
+            const updateRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.id}/completed-classes`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ completedClasses: updatedClasses }),
+            });
+
+            if (!updateRes.ok) {
+                throw new Error("No se pudo actualizar el progreso de la clase.");
+            }
+
+            setIsCompleted(newCompletedStatus);
+            // setCompletedClasses(updatedClasses);
+        } catch (error) {
+            console.error("Error actualizando el estado de la clase:", error);
+        }
     };
 
     const handleBackToSyllabus = () => {
