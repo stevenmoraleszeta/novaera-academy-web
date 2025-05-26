@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+"use client";
+
+import React, { useEffect, useState, use } from "react";
+import { useSearchParams } from "next/navigation";
+import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
+import { db } from "@/firebase/firebase";
+import { useAuth } from "@/context/AuthContext";
+import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
+
+import CourseDetails from "@/components/courseDetails/courseDetails";
+import CourseVideo from "@/components/courseVideo/courseVideo";
+import Features from "@/components/features/features";
+import ModuleCard from "@/components/moduleCards/moduleCards";
+import ProjectsList from "@/components/projects/projects";
+
+>>>>>>> ae81e6d (Merge css from courseId)
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
     const resolvedParams = use(params);
@@ -130,20 +148,20 @@ const CourseDetail = ({ params }) => {
     };
 
     return (
-        <div className={styles.container}>
+        <div className="course-detail-container">
             {isAdmin ? (
                 <input
                     type="text"
                     value={course.title || ""}
                     onChange={(e) => handleFieldChange("title", e.target.value)}
-                    className={styles.titleInput}
+                    className="course-detail-title-input"
                 />
             ) : (
-                <span className={styles.titleText}>
+                <span className="course-detail-title-text">
                     {course.title || "Sin título disponible"}
                 </span>
             )}
-            <div className={styles.courseMainContent}>
+            <div className="course-detail-main-content">
                 <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
                 <CourseDetails
                     course={course}
@@ -177,7 +195,7 @@ const CourseDetail = ({ params }) => {
                 <p>No hay módulos disponibles.</p>
             )}
             {isAdmin && (
-                <button onClick={addModule} className={styles.addModuleButton} title="Añadir Módulo">
+                <button onClick={addModule} className="course-detail-add-module-button" title="Añadir Módulo">
                     Add Module
                 </button>
             )}

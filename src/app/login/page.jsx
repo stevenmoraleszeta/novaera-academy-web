@@ -5,7 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Head from "next/head";
-import styles from "./page.module.css";
 
 function Login() {
     const {
@@ -42,36 +41,36 @@ function Login() {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             </Head>
             <section>
-                <div className={styles.loginMainContainer}>
-                    <div className={styles.loginContainer}>
-                        <div className={styles.imgContainer}>
+                <div className="auth-main-container">
+                    <div className="auth-container">
+                        <div className="imgContainer">
                             <Image
                                 width={500}
                                 height={500}
                                 alt="Logo de ZETA"
                                 src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZetaLogoCp.PNG?alt=media&token=4ab20b3d-09e0-403c-851a-154d51af90b6"
-                                className={styles.zetaLogo}
+                                className="auth-zeta-logo"
                                 priority
                             />
                         </div>
-                        <div className={styles.textContainer}>
-                            <p className={styles.loginText}>
+                        <div className="auth-page-text-container">
+                            <p className="auth-page-text">
                                 Inicia sesión o crea tu cuenta con Google para acceder a más
                                 funcionalidades.
                             </p>
                         </div>
-                        <button className={styles.googleBtn} onClick={loginWithGoogle}>
+                        <button className="auth-action-button" onClick={loginWithGoogle}>
                             <Image
                                 alt="Logo de Google"
                                 width={24}
                                 height={24}
                                 src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FgoogleLogo.jpg?alt=media&token=0acdd2e2-fbcc-4607-ba96-248c94250906"
-                                className={styles.googleBtnLogo}
+                                className="auth-action-button-logo"
                             />
                             <span>Continuar con Google</span>
                         </button>
                         <button
-                            className={styles.googleBtn}
+                            className="auth-action-button"
                             onClick={handleUserPasswordLogin}
                         >
                             <Image
@@ -79,9 +78,9 @@ function Login() {
                                 width={24}
                                 height={24}
                                 src="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FZETA%20White%20Color.png?alt=media&token=b2fce474-4bf7-4815-a9cc-03e939ffeea1"
-                                className={styles.googleBtnLogo}
+                                className="auth-action-button-logo"
                             />
-                            <span className={styles.textLogin}>
+                            <span className="auth-action-button-text">
                                 Continuar con Usuario y Contraseña
                             </span>
                         </button>

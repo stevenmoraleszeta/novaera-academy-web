@@ -279,6 +279,7 @@ input[type="checkbox"]:checked::after {
   height: 50%;
   width: 100%;
   filter: brightness(0.8);
+  
   /* Reduce exposure */
 }
 
@@ -319,4 +320,497 @@ input[type="checkbox"]:checked::after {
   /* Reduced by 20% */
   font-weight: 500;
   margin: 7px 20px 0;
+}
+
+/* Auth Page Styles */
+.auth-main-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-container {
+    width: 50%;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: linear-gradient(#002128, #00758E);
+    margin-top: 3vh;
+    border-radius: 15px;
+}
+
+.auth-zeta-logo {
+    width: clamp(38vw, 600px, 43vw);
+    height: clamp(12vw, 200px, 22vw);
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.auth-page-text-container { /* Renamed from textContainer to avoid conflict */
+    width: 70%;
+    height: fit-content;
+    text-align: center;
+}
+
+.auth-page-text { /* Renamed from loginText */
+    font-weight: 600;
+    font-size: clamp(1.28vw, 24px, 1.6vw);
+}
+
+.auth-action-button { /* Renamed from googleBtn */
+    display: flex;
+    align-items: center;
+    background-color: #E85D04; /* Taken from login/page.module.css as base */
+    justify-content: start;
+    border-radius: 4px;
+    padding: 0px;
+    font-size: clamp(0.8vw, 17.6px, 1.28vw);
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    width: clamp(20vw, 240px, 25vw);
+    height: clamp(5vh, 54px, 7vh);
+}
+
+.auth-action-button-logo { /* Renamed from googleBtnLogo */
+    width: 3vw;
+    height: 100%;
+    margin-right: 12px;
+    border-radius: 4px 0px 0px 4px;
+    object-fit: cover;
+}
+
+.auth-action-button-text { /* Added from login/page.module.css (originally textLogin) */
+    text-align: start;
+}
+
+.auth-form-container { /* From loginPassword/page.module.css */
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.auth-input-field { /* From loginPassword/page.module.css (originally input) */
+    width: 100%;
+    margin: 5px 0;
+    max-width: 440px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    /* Ensure background and text color are compatible with globals.css theme if necessary */
+    background-color: var(--color-dark); /* From globals.css input style */
+    color: var(--color-lighter); /* From globals.css input style */
+}
+
+.auth-input-field:focus { /* From loginPassword/page.module.css (originally input:focus) */
+    border-color: #E85D04;
+    box-shadow: 0 0 6px rgba(30, 144, 255, 0.4);
+    /* Ensure focus style is compatible */
+    outline: none; /* From globals.css input:focus style */
+    box-shadow: 0 0 0 2px var(--color-dark); /* From globals.css input:focus style */
+    border: solid 1px var(--color-secondary); /* From globals.css input:focus style */
+}
+
+
+.auth-submit-button { /* From loginPassword/page.module.css (originally submitBtn) */
+    background-color: #ff6600;
+    color: white;
+    padding: 10px 0;
+    width: 70%;
+    max-width: 150px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px; /* Added from globals.css button style */
+    margin-bottom: 10px; /* Added from globals.css button style */
+}
+
+.auth-submit-button:hover {  /* Added to match globals.css button style */
+  background-color: var(--color-secondary-hover);
+}
+
+
+.auth-small-text { /* From loginPassword/page.module.css */
+    font-size: 12px;
+    color: #ffffff;
+    margin-top: 8px;
+    text-align: start;
+}
+
+.auth-link { /* From loginPassword/page.module.css */
+    color: orange;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-link:hover { /* From loginPassword/page.module.css */
+    text-decoration: underline;
+}
+
+.auth-forgot-password-link { /* From loginPassword/page.module.css (originally forgetPassword) */
+    font-size: 12px;
+    color: #ffffff;
+    margin-top: 2px;
+    text-align: end;
+}
+
+/* media queries from loginPassword/page.module.css, adapted with new names */
+@media (max-width:900px) {
+    .auth-form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 20px;
+        width: 100%;
+    }
+    /* Specific rule for auth-action-button from login/page.module.css */
+    .auth-action-button {
+        width: clamp(35vw, 250px, 40vw);
+        height: clamp(3vh, 54px, 5vh);
+    }
+    .auth-action-button-logo {
+        width: 5vw;
+        height: 100%;
+    }
+}
+
+@media (max-width:768px) {
+    .auth-action-button { /* Merged from both files */
+        width: clamp(35vw, 250px, 40vw);
+        height: clamp(3vh, 54px, 5vh);
+        font-size: clamp(1.5vw, 22px, 2.5vw);
+    }
+
+    .auth-action-button-logo { /* Merged from both files */
+        width: 5vw;
+        height: 100%;
+    }
+
+    .auth-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .auth-page-text-container {
+        width: 80%;
+    }
+
+    .auth-page-text {
+        font-weight: 600;
+        font-size: clamp(1.5vw, 24px, 2.5vw);
+    }
+}
+
+@media (max-width:500px) {
+    .auth-action-button { /* Merged from both files */
+        width: clamp(35vw, 250px, 40vw);
+        height: clamp(3vh, 54px, 5vh);
+        font-size: clamp(2vw, 22px, 2.8vw);
+    }
+
+    .auth-action-button-logo { /* Merged from both files */
+        width: 5vw;
+        height: 100%;
+    }
+
+    .auth-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .auth-page-text-container {
+        width: 80%;
+    }
+
+    .auth-page-text {
+        font-weight: 600;
+        font-size: clamp(2vw, 24px, 3.5vw);
+    }
+
+    .auth-container {
+        width: 70%;
+    }
+}
+
+/* Styles for Course Detail Pages */
+.course-detail-container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+  color: #ffffff;
+  text-align: left;
+}
+
+.course-detail-main-content {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  align-items: flex-start;
+  padding: 10px 0;
+  flex-wrap: nowrap;
+  height: 35vh;
+}
+
+.course-detail-title-text,
+.course-detail-title-input {
+  width: 100%;
+  font-size: 2vw;
+  font-weight: bold;
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  margin: 20px 0 15px 0;
+  padding: 0;
+  text-align: left;
+}
+
+.course-detail-title-input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.course-detail-add-module-button {
+  margin-top: 10vh;
+  width: 100%;
+  background-color: transparent;
+  border: dashed 5px var(--color-secondary);
+}
+
+/* media queries for course detail pages */
+@media (max-width: 768px) {
+  .course-detail-main-content {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    height: 60vh;
+  }
+
+  .course-detail-container {
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 15px;
+    padding-top: 10px;
+    margin: 0px;
+  }
+
+  .course-detail-title-text,
+  .course-detail-title-input {
+    width: 100%;
+    font-size: 4vw;
+    margin: 0px;
+    padding: 0;
+  }
+}
+
+/* Styles for Create User Page */
+.create-user-main-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.create-user-container {
+    width: 50%;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: linear-gradient(#002128, #00758E);
+    margin-top: 3vh;
+    border-radius: 15px;
+}
+
+.create-user-zeta-logo {
+    width: clamp(38vw, 600px, 43vw);
+    height: clamp(12vw, 200px, 22vw);
+}
+
+.create-user-text-container {
+    width: 70%;
+    height: fit-content;
+    text-align: center;
+}
+
+.create-user-login-text {
+    font-weight: 600;
+    font-size: clamp(1.28vw, 24px, 1.6vw);
+}
+
+.create-user-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    width: 100%;
+}
+
+.create-user-input { /* Applied to all input fields in the form */
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    border: none; /* Will inherit from global input or be overridden by global if more specific */
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    /* Ensure background and text color are compatible with globals.css theme if necessary */
+    background-color: var(--color-dark); /* From globals.css input style */
+    color: var(--color-lighter); /* From globals.css input style */
+}
+
+.create-user-input:focus { /* Applied to all input fields in the form */
+    border-color: #E85D04; /* From module, might conflict/override global */
+    box-shadow: 0 0 6px rgba(30, 144, 255, 0.4); /* From module, might conflict/override global */
+     /* Ensure focus style is compatible */
+    outline: none; /* From globals.css input:focus style */
+    box-shadow: 0 0 0 2px var(--color-dark); /* From globals.css input:focus style */
+    border: solid 1px var(--color-secondary); /* From globals.css input:focus style */
+}
+
+.create-user-file-input { /* Specific style for file input, ensure it's distinct if needed */
+    /* Assuming general .create-user-input styles apply, add specifics if any */
+    /* Example: if it had unique styling in the module */
+}
+
+
+.create-user-submit-btn {
+    background-color: #E85D04; /* Potentially var(--color-secondary) from globals */
+    color: white;
+    padding: 10px 0;
+    width: 100%;
+    max-width: 180px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px; /* Added from globals.css button style */
+    margin-bottom: 10px; /* Added from globals.css button style */
+}
+
+.create-user-submit-btn:hover {  /* Added to match globals.css button style */
+  background-color: var(--color-secondary-hover);
+}
+
+.create-user-submit-btn:disabled {
+    background-color: #ddd; /* Consider using a variable, e.g., var(--color-disabled-bg) */
+    cursor: not-allowed;
+    color: #aaa; /* Consider using a variable, e.g., var(--color-disabled-text) */
+}
+
+.create-user-error-text {
+    margin-top: 10px;
+    color: var(--color-secondary);
+    font-size: 1rem;
+    text-align: center;
+}
+
+.create-user-login-prompt {
+    text-align: center;
+    font-size: 14px;
+}
+
+.create-user-login-link {
+    color: var(--color-secondary);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.create-user-login-link:hover {
+    text-decoration: underline;
+}
+
+.create-user-back-button {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: orange; /* Consider var(--color-secondary) or a new variable */
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+}
+
+.create-user-back-button:hover {
+    color: orange; /* Consider var(--color-secondary-hover) or a new variable */
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+/* Media Queries for Create User Page */
+@media (max-width:900px) {
+    .create-user-form-container {
+        padding: 15px;
+    }
+
+    .create-user-input,
+    .create-user-submit-btn {
+        font-size: 0.9rem;
+    }
+
+    .create-user-submit-btn {
+        padding: 10px;
+    }
+}
+
+@media (max-width:768px) {
+    .create-user-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .create-user-text-container {
+        width: 80%;
+    }
+
+    .create-user-login-text {
+        font-weight: 600;
+        font-size: clamp(1.5vw, 24px, 2.5vw);
+    }
+}
+
+@media (max-width:500px) {
+    /* .googleBtn and .googleBtnLogo were in the original CSS but not used in the JSX,
+       so they are not included here. If they were used elsewhere via this module,
+       they would need to be prefixed and added. */
+
+    .create-user-zeta-logo {
+        width: clamp(38vw, 600px, 43vw);
+        height: clamp(7vw, 200px, 17vw);
+    }
+
+    .create-user-text-container {
+        width: 80%;
+    }
+
+    .create-user-login-text {
+        font-weight: 600;
+        font-size: clamp(2vw, 24px, 3.5vw);
+    }
+
+    .create-user-container {
+        width: 70%;
+    }
 }
