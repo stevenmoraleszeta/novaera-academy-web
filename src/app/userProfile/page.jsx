@@ -20,10 +20,20 @@ function UserProfile() {
         const fetchUserData = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await axios.get("http://localhost:3000/api/users/profile", {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setUserInfo(response.data);
+                const apiUser = response.data;
+                setUserInfo({
+                    displayName: apiUser.firstname || '',
+                    number: apiUser.phone || '',
+                    pais: apiUser.country || '',
+                    edad: apiUser.age || '',
+                    email: apiUser.email || '',
+                    photoUrl: apiUser.photourl || '',
+                    userId: apiUser.userid,
+                    roleId: apiUser.roleid,
+                });
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching user data", error);
@@ -50,6 +60,11 @@ function UserProfile() {
         }
     };
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUserInfo((prev) => ({ ...prev, [name]: value }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -60,18 +75,26 @@ function UserProfile() {
                 const formData = new FormData();
                 formData.append("file", imageFile);
 
-                const uploadResponse = await axios.post("/api/upload", formData, {
+                const uploadResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload`, formData, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 photoUrl = uploadResponse.data.url;
             }
 
             const updatedUser = {
-                ...userInfo,
+                firstName: userInfo.displayName,
+                lastName1: "", 
+                lastName2: "", 
+                age: userInfo.edad,
+                email: userInfo.email,
+                phone: userInfo.number,
+                country: userInfo.pais,
                 photoUrl,
+                roleId: userInfo.roleId,
+                updatedAt: new Date()
             };
 
-            await axios.put(`/api/users/${currentUser.id}`, updatedUser, {
+            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/${userInfo.userId}`, updatedUser, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -82,9 +105,13 @@ function UserProfile() {
         }
     };
 
+    // Permitir edición: solo renderizar el formulario si userInfo está definido
     if (!currentUser) {
         router.push("/login");
         return null;
+    }
+    if (!userInfo) {
+        return <div>Cargando...</div>;
     }
 
     return (
@@ -93,6 +120,7 @@ function UserProfile() {
                 currentUser={currentUser}
                 userInfo={userInfo}
                 countries={countries}
+                handleChange={handleChange}
                 handleFileChange={handleFileChange}
                 handleSubmit={handleSubmit}
                 handleLogout={handleLogout}

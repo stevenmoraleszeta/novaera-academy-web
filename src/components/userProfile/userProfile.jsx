@@ -19,14 +19,17 @@ const UserProfileForm = ({
         return <div>Cargando...</div>;
     }
 
+    // Si no se pasa handleChange, los campos serán solo lectura
+    const safeHandleChange = handleChange || (() => {});
+
     return (
         <section className={styles.userProfileContainer}>
             <form onSubmit={handleSubmit} className={styles.userProfileForm}>
                 <div className={styles.imgContainer}>
-                    {userInfo.photoURL && (
+                    {userInfo.photoUrl && (
                         <Image
                             alt="userProfileImage"
-                            src={userInfo.photoURL}
+                            src={userInfo.photoUrl}
                             width={500}
                             height={500}
                             className={styles.userImg}
@@ -39,8 +42,8 @@ const UserProfileForm = ({
                         <input
                             type="text"
                             name="displayName"
-                            value={userInfo.displayName}
-                            onChange={handleChange}
+                            value={userInfo.displayName || ''}
+                            onChange={safeHandleChange}
                             required
                             className={styles.nameInput}
                         />
@@ -48,8 +51,8 @@ const UserProfileForm = ({
                         <input
                             type="text"
                             name="number"
-                            value={userInfo.number}
-                            onChange={handleChange}
+                            value={userInfo.number || ''}
+                            onChange={safeHandleChange}
                             required
                             className={styles.inputNumber}
                         />
@@ -61,11 +64,11 @@ const UserProfileForm = ({
                                 name="pais"
                                 id="countrySelect"
                                 className={styles.countrySelect}
-                                value={userInfo.pais}
-                                onChange={handleChange}
+                                value={userInfo.pais || ''}
+                                onChange={safeHandleChange}
                             >
-                                {countries.map((country) => (
-                                    <option key={country.es} value={country.es}>
+                                {countries.map((country, idx) => (
+                                    <option key={country.es + idx} value={country.es}>
                                         {country.es}
                                     </option>
                                 ))}
@@ -77,9 +80,9 @@ const UserProfileForm = ({
                                 min={0}
                                 type="number"
                                 name="edad"
-                                value={userInfo.edad}
+                                value={userInfo.edad || ''}
                                 required
-                                onChange={handleChange}
+                                onChange={safeHandleChange}
                                 className={styles.ageInput}
                             />
                         </div>
