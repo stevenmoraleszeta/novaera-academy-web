@@ -1,10 +1,13 @@
 "use client"
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CrudMenu from "@/components/adminCrudMenu/adminCrudMenu";
+import axios from "axios";
 
 const ProjectsPage = () => {
-    const collectionName = "projects"; // table name in the database
+    const collectionName = "student-Projects"; // table name in the database
+    const [data, setData] = useState([]);
+
     const displayFields = [
         { label: "Title", field: "title" },
         { label: "Due Date", field: "dueDate" },
@@ -21,9 +24,23 @@ const ProjectsPage = () => {
         { label: "User ID", field: "userId", type: "number" },
     ];
 
+    useEffect(() => {
+        const fetchStudentProjects = async () => {
+            try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`);
+                setData(response.data);
+            } catch (error) {
+                console.error("Error al cargar los studentProjects:", error);
+            }
+        };
+        fetchStudentProjects();
+    }, []);
+
     const handleSave = async (item, isEditMode) => {
         try {
-            const url = isEditMode ? `/api/projects/${item.id}` : `/api/projects`;
+            const url = isEditMode 
+                ? `${process.env.NEXT_PUBLIC_API_URL}/student-projects/${item.studentProjectId}` 
+                : `${process.env.NEXT_PUBLIC_API_URL}/student-projects`;
             const method = isEditMode ? "PUT" : "POST";
 
             const response = await axios({
@@ -32,17 +49,21 @@ const ProjectsPage = () => {
                 data: item,
             });
             console.log("Elemento guardado:", response.data);
+            // Refrescar datos después de guardar
+            const updated = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`);
+            setData(updated.data);
         } catch (error) {
-            console.error("Error al guardar el proyecto:", error);
+            console.error("Error al guardar el studentProject:", error);
         }
     };
 
     const handleDelete = async (item) => {
         try {
-            const response = await axios.delete(`/api/projects/${item.id}`);
-            console.log("Elemento eliminado:", response.data);
+            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/student-projects/${item.studentProjectId}`);
+            const updated = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`);
+            setData(updated.data);
         } catch (error) {
-            console.error("Error al eliminar el proyecto:", error);
+            console.error("Error al eliminar el studentProject:", error);
         }
     };
 
@@ -52,10 +73,10 @@ const ProjectsPage = () => {
                 collectionName={collectionName}
                 displayFields={displayFields}
                 editFields={editFields}
-                pageTitle="Proyectos"
+                pageTitle="Student Projects"
                 onSave={handleSave}
                 onDelete={handleDelete}
-                data={[]}
+                data={data}
             />
         </div>
     );

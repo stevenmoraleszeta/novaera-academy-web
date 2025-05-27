@@ -80,7 +80,15 @@ const CrudMenu = ({
 
     const handleSave = async (item, isEditMode) => {
         try {
-            const url = isEditMode ? `/api/${collectionName}/${item.id}` : `/api/${collectionName}`;
+            // Usar el onSave del padre si existe (para integración con API externa)
+            if (onSave) {
+                await onSave(item, isEditMode);
+                handleModalClose();
+                return;
+            }
+            // Si no, fallback local (no recomendado para API externa)
+            const idField = item.studentProjectId ? 'studentProjectId' : 'id';
+            const url = isEditMode ? `/api/${collectionName}/${item[idField]}` : `/api/${collectionName}`;
             const method = isEditMode ? 'PUT' : 'POST';
 
             const response = await axios({
@@ -91,7 +99,7 @@ const CrudMenu = ({
 
             if (isEditMode) {
                 setData((prevData) =>
-                    prevData.map((i) => (i.id === item.id ? response.data : i))
+                    prevData.map((i) => (i[idField] === item[idField] ? response.data : i))
                 );
             } else {
                 setData((prevData) => [...prevData, response.data]);
@@ -110,10 +118,19 @@ const CrudMenu = ({
 
     const confirmDelete = async () => {
         try {
-            const response = await axios.delete(`/api/${collectionName}/${itemToDelete.id}`);
+            // Usar el onDelete del padre si existe (para integración con API externa)
+            if (onDelete) {
+                await onDelete(itemToDelete);
+                setIsConfirmModalOpen(false);
+                setItemToDelete(null);
+                return;
+            }
+            // Si no, fallback local (no recomendado para API externa)
+            const idField = itemToDelete.studentProjectId ? 'studentProjectId' : 'id';
+            await axios.delete(`/api/${collectionName}/${itemToDelete[idField]}`);
 
-            setData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
-            setFilteredData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
+            setData((prevData) => prevData.filter((i) => i[idField] !== itemToDelete[idField]));
+            setFilteredData((prevData) => prevData.filter((i) => i[idField] !== itemToDelete[idField]));
 
             setIsConfirmModalOpen(false);
             setItemToDelete(null);

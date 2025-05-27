@@ -30,8 +30,8 @@ export function AuthProvider({ children }) {
                     setLoading(false);
                     return;
                 }
-                console.log("Token:", token);
-                const response = await axios.get("http://localhost:3000/api/users/profile", {
+                // Usar la API externa y pasar el token correctamente
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -40,7 +40,8 @@ export function AuthProvider({ children }) {
                 setIsAdmin(user.namerole === "Admin");
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
-                console.error("Error fetching current user:", error.response?.data?.error || error.message);
+                // Si el token es inválido, limpiar sesión
+                localStorage.removeItem("token");
                 setCurrentUser(null);
             } finally {
                 setLoading(false);
