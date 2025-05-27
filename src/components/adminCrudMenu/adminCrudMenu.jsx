@@ -80,13 +80,16 @@ const CrudMenu = ({
 
     const handleSave = async (item, isEditMode) => {
         try {
-            const url = isEditMode ? `/api/${collectionName}/${item.id}` : `/api/${collectionName}`;
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+            const token = localStorage.getItem("token");
+            const url = isEditMode ? `${apiUrl}/${collectionName}/${item.id}` : `${apiUrl}/${collectionName}`;
             const method = isEditMode ? 'PUT' : 'POST';
 
             const response = await axios({
                 method,
                 url,
                 data: item,
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
 
             if (isEditMode) {
