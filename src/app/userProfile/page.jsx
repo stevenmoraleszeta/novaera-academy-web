@@ -69,7 +69,7 @@ function UserProfile() {
         e.preventDefault();
         try {
             const token = localStorage.getItem("token");
-            let photoUrl = userInfo.photoUrl;
+            let photoUrl = userInfo.photourl;
 
             if (imageFile) {
                 const formData = new FormData();
@@ -79,6 +79,16 @@ function UserProfile() {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 photoUrl = uploadResponse.data.url;
+            }
+
+            const userId =
+                currentUser?.userid ||
+                userInfo?.userid ||
+                currentUser?.id ||
+                userInfo?.id;
+
+            if (!userId) {
+                throw new Error("No se encontró el ID del usuario.");
             }
 
             const updatedUser = {
@@ -98,7 +108,7 @@ function UserProfile() {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            updateCurrentUser({ ...currentUser, photoUrl });
+            updateCurrentUser({ ...currentUser, photourl: photoUrl });
             router.push("/cursos-en-linea");
         } catch (error) {
             console.error("Error updating profile", error);

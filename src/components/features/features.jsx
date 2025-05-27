@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import styles from "./features.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
     FaTrash,
@@ -10,25 +10,26 @@ import {
     FaArrowUp,
     FaArrowDown,
 } from "react-icons/fa";
+import axios from "axios";
 
 const defaultFeatures = [
     {
-        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de",
+        iconurl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FReloj%20Icon.png?alt=media&token=d323e959-9e9a-493c-a697-3b40799f94de",
         title: "Curso asincrónico",
         description: "Aprende cualquier día y hora.",
     },
     {
-        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
+        iconurl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FIdea%20Icon.png?alt=media&token=38c0b934-1b7c-45ac-b665-26205af181a7",
         title: "Aprendizaje práctico",
         description: "Aprende con problemas reales.",
     },
     {
-        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
+        iconurl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FPerson%20Notify%20Icon.png?alt=media&token=c37120e9-371b-45c9-b24e-5bc891fbfde3",
         title: "Atención personalizada",
         description: "Consulta al mentor en cualquier momento.",
     },
     {
-        iconUrl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6",
+        iconurl: "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FCertificado%20Icon.png?alt=media&token=608dc368-d510-4276-a551-f50cdcb4b7e6",
         title: "Certificado de finalización",
         description: "Incrementa tu conocimiento.",
     },
@@ -39,80 +40,126 @@ export default function Features({ course, setCourse, courseId, collectionName }
     const [editingIconIndex, setEditingIconIndex] = useState(null);
     const [newIconUrl, setNewIconUrl] = useState("");
 
+    const fetchFeatures = async () => {
+        try {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/features`);
+            setCourse((prev) => ({ ...prev, features: data }));
+        } catch (error) {
+            console.error("Error al cargar features:", error);
+        }
+    };
     const handleIconClick = (index) => {
         setEditingIconIndex(index);
-        setNewIconUrl(course.features[index].iconUrl);
+        setNewIconUrl(course.features[index].iconurl);
     };
 
     const handleIconFeatureChange = (e) => {
         setNewIconUrl(e.target.value);
     };
 
-    const saveIconUrl = (index) => {
+    const saveIconUrl = async (index) => {
         const updatedFeatures = [...course.features];
-        updatedFeatures[index].iconUrl = newIconUrl;
-
+        updatedFeatures[index].iconurl = newIconUrl;
         setCourse((prev) => ({ ...prev, features: updatedFeatures }));
         setEditingIconIndex(null);
 
-        // Aquí podrías hacer una petición a tu API (POST/PUT)
+        const feature = updatedFeatures[index];
+        if (!feature.featureid) return;
+
+        try {
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/features/${feature.featureid}`,
+                {
+                    title: feature.title,
+                    description: feature.description,
+                    iconurl: feature.iconurl,
+                }
+            );
+        } catch (error) {
+            console.error("Error al actualizar icono:", error);
+        }
     };
 
-    const handleAddFeature = () => {
+    const handleAddFeature = async () => {
         const newFeature = {
             title: "Nuevo título",
             description: "Nueva descripción",
-            iconUrl: defaultFeatures[3].iconUrl,
+            iconurl: defaultFeatures[3].iconurl,
         };
 
-        const updatedFeatures = [...(course.features || []), newFeature];
-        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
-
-        // POST a tu API si es necesario
+        try {
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/features`,
+                newFeature
+            );
+            fetchFeatures();
+        } catch (error) {
+            console.error("Error al agregar feature:", error);
+        }
     };
 
-    const handleDeleteFeature = (index) => {
-        const updatedFeatures = [...course.features];
-        updatedFeatures.splice(index, 1);
-
-        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
-
-        // DELETE a tu API si es necesario
+    const handleDeleteFeature = async (index) => {
+        const feature = course.features[index];
+        if (!feature.featureid) {
+            const updatedFeatures = [...course.features];
+            updatedFeatures.splice(index, 1);
+            setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+            return;
+        }
+        try {
+            await axios.delete(
+                `${process.env.NEXT_PUBLIC_API_URL}/features/${feature.featureid}`
+            );
+            fetchFeatures();
+        } catch (error) {
+            console.error("Error al eliminar feature:", error);
+        }
     };
 
     const moveFeature = (index, direction) => {
         const newFeatures = [...course.features];
         const [movedFeature] = newFeatures.splice(index, 1);
         newFeatures.splice(index + direction, 0, movedFeature);
-
         setCourse((prev) => ({ ...prev, features: newFeatures }));
-
-        // PUT a tu API si es necesario
     };
 
-    const handleFieldChange = (index, field, value) => {
+    const handleFieldChange = async (index, field, value) => {
         const updatedFeatures = [...course.features];
         updatedFeatures[index][field] = value;
         setCourse((prev) => ({ ...prev, features: updatedFeatures }));
 
-        // PUT a tu API si es necesario
+        const feature = updatedFeatures[index];
+        if (!feature.featureid) return;
+
+        try {
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/features/${feature.featureid}`,
+                {
+                    title: feature.title,
+                    description: feature.description,
+                    iconurl: feature.iconurl,
+                }
+            );
+        } catch (error) {
+            console.error("Error al actualizar feature:", error);
+        }
     };
 
     return (
         <div className={styles.features}>
             {isAdmin && (
                 <div className={styles.actionBtnsContainer}>
-                    <button onClick={handleAddFeature} className={styles.featuresActionsBtn}>
+                    <button onClick={handleAddFeature} className={styles.featuresActionsBtn} type="button">
                         <FaPlus />
                     </button>
                 </div>
             )}
 
             {(course.features || defaultFeatures).map((feature, index) => (
-                <div key={index} className={styles.feature}>
+                <div key={feature.featureid || index} className={styles.feature}>
                     <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
                         <Image
-                            src={feature.iconUrl}
+                            src={feature.iconurl}
                             alt={`Icono de ${feature.title}`}
                             fill
                             style={{ objectFit: "contain" }}
@@ -127,7 +174,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                 onChange={handleIconFeatureChange}
                                 className={styles.iconUrlInput}
                             />
-                            <button onClick={() => saveIconUrl(index)} className={styles.saveButton}>
+                            <button onClick={() => saveIconUrl(index)} className={styles.saveButton} type="button">
                                 Guardar
                             </button>
                         </div>
@@ -170,6 +217,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                         onClick={() => moveFeature(index, -1)}
                                         disabled={index === 0}
                                         className={styles.moveButton}
+                                        type="button"
                                     >
                                         <FaArrowUp />
                                     </button>
@@ -177,6 +225,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                         onClick={() => moveFeature(index, 1)}
                                         disabled={index === course.features.length - 1}
                                         className={styles.moveButton}
+                                        type="button"
                                     >
                                         <FaArrowDown />
                                     </button>
@@ -184,6 +233,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                 <button
                                     className={styles.featuresActionsBtn}
                                     onClick={() => handleDeleteFeature(index)}
+                                    type="button"
                                 >
                                     <FaTrash />
                                 </button>

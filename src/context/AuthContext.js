@@ -30,8 +30,8 @@ export function AuthProvider({ children }) {
                     setLoading(false);
                     return;
                 }
-                // Usar la API externa y pasar el token correctamente
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
+                console.log("Token:", token);
+                const response = await axios.get("http://localhost:4000/api/users/profile", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -40,8 +40,7 @@ export function AuthProvider({ children }) {
                 setIsAdmin(user.namerole === "Admin");
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
-                // Si el token es inválido, limpiar sesión
-                localStorage.removeItem("token");
+                console.error("Error fetching current user:", error.response?.data?.error || error.message);
                 setCurrentUser(null);
             } finally {
                 setLoading(false);
@@ -82,11 +81,11 @@ export function AuthProvider({ children }) {
                 const formData = new FormData();
                 formData.append("file", profilePicture);
 
-                const uploadResponse = await axios.post("http://localhost:3000/api/upload", formData);
+                const uploadResponse = await axios.post("http://localhost:4000/api/upload", formData);
                 photoUrl = uploadResponse.data.url;
             }
 
-            const response = await axios.post("http://localhost:3000/api/users", {
+            const response = await axios.post("http://localhost:4000/api/users", {
                 email,
                 password,
                 firstName: name,
@@ -111,7 +110,7 @@ export function AuthProvider({ children }) {
             const token = localStorage.getItem("token");
 
             await axios.post(
-                "http://localhost:3000/api/logout",
+                "http://localhost:4000/api/logout",
                 {},
                 {
                     headers: { Authorization: `Bearer ${token}` },

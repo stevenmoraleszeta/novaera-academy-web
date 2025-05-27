@@ -9,8 +9,8 @@ const useFetchData = (endpoint) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`);
-                setData(response.data); 
+                const response = await axios.get(`/api/${endpoint}`);
+                setData(response.data); // Asume que la respuesta es el array de datos
             } catch (err) {
                 setError(err.message);
             } finally {

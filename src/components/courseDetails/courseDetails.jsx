@@ -6,7 +6,6 @@ import styles from "./CourseDetails.module.css";
 import { useRouter } from "next/navigation";
 
 const CourseDetails = ({
-    
     course,
     isAdmin,
     isEnrolled,
@@ -17,7 +16,7 @@ const CourseDetails = ({
 }) => {
     const router = useRouter();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
-    console.log("hola",course)
+
     const handleEnrollClick = async () => {
         try {
             const paymentUrl = `/payment?courseId=${encodeURIComponent(course.courseid || course.id)}`;
@@ -27,12 +26,10 @@ const CourseDetails = ({
             console.error("Error verificando la inscripción del curso:", error);
         }
     };
+
     if (!course) {
         return <div className={styles.loading}>Cargando...</div>;
     }
-   
-    
-   
 
     return (
         <div className={styles.courseInfo}>
@@ -86,12 +83,15 @@ const CourseDetails = ({
             </div>
 
             <div className={styles.buttonContainer}>
-                <button
-                    className={`${styles.enrollButton} ${isEnrolled ? styles.enrolledButton : ""}`}
-                    onClick={handleEnrollClick}
-                >
-                    {isEnrolled ? "Inscrito" : "Inscríbete"}
-                </button>
+                {!isAdmin && (
+                    <button
+                        className={`${styles.enrollButton} ${isEnrolled ? styles.enrolledButton : ""}`}
+                        onClick={handleEnrollClick}
+                        disabled={isEnrolled}
+                    >
+                        {isEnrolled ? "Inscrito" : "Inscríbete"}
+                    </button>
+                )}
                 <button className={styles.contactButton} onClick={handleContactClick}>
                     Contáctanos
                 </button>
