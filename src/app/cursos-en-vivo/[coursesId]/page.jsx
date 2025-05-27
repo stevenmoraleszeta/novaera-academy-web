@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState, use } from "react";
@@ -14,7 +13,6 @@ import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
 import ProjectsList from "@/components/projects/projects";
 
-
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
     const resolvedParams = use(params);
@@ -24,6 +22,9 @@ const CourseDetail = ({ params }) => {
     const [modules, setModules] = useState([]);
     const { currentUser, isAdmin } = useAuth();
     const [isEnrolled, setIsEnrolled] = useState(false);
+
+    const [projects, setProjects] = useState([]);
+    const [studentProjects, setStudentProjects] = useState([]);
 
     useEffect(() => {
         const fetchModulesAndClasses = async () => {
@@ -80,6 +81,86 @@ const CourseDetail = ({ params }) => {
 
         checkEnrollmentStatus();
     }, [currentUser, courseId]);
+
+    // NUEVO: Cargar proyectos del curso
+    useEffect(() => {
+        if (!courseId) return;
+        const fetchProjects = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+                if (!res.ok) throw new Error("No se pudieron obtener los proyectos");
+                const data = await res.json();
+                setProjects(data);
+            } catch (err) {
+                console.error("Error al obtener proyectos:", err);
+            }
+        };
+        fetchProjects();
+    }, [courseId]);
+
+    // Cargar proyectos del estudiante
+    useEffect(() => {
+        if (!courseId || !currentUser?.id) return;
+        const fetchStudentProjects = async () => {
+            try {
+
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects?courseId=${courseId}&userId=${currentUser.id}`);
+                if (!res.ok) throw new Error("No se pudieron obtener los proyectos del estudiante");
+                const data = await res.json();
+                setStudentProjects(data);
+            } catch (err) {
+                console.error("Error al obtener proyectos del estudiante:", err);
+            }
+        };
+        fetchStudentProjects();
+    }, [courseId, currentUser]);
+
+    //Handlers para proyectos
+    const addProject = async (projectData) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(projectData),
+            });
+            if (!res.ok) throw new Error("Error al crear el proyecto");
+            await res.json();
+
+            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            setProjects(await updated.json());
+        } catch (err) {
+            console.error("Error al añadir proyecto:", err);
+        }
+    };
+
+    const handleEditProject = async (projectId, updatedData) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedData),
+            });
+            if (!res.ok) throw new Error("Error al editar el proyecto");
+            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            setProjects(await updated.json());
+        } catch (err) {
+            console.error("Error al editar proyecto:", err);
+        }
+    };
+
+    const deleteProject = async (projectId) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
+                method: "DELETE",
+            });
+            if (!res.ok) throw new Error("Error al eliminar el proyecto");
+
+            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            setProjects(await updated.json());
+        } catch (err) {
+            console.error("Error al eliminar proyecto:", err);
+        }
+    };
 
     const handleFieldChange = async (field, value) => {
         const updatedCourse = { ...course, [field]: value };
@@ -173,7 +254,7 @@ const CourseDetail = ({ params }) => {
                 />
             </div>
             {!isEnrolled && (
-                <Features collectionName={'liveCourses'} courseId={courseId} course={course} setCourse={course}></Features>
+                <Features collectionName={'liveCourses'} courseId={courseId} course={course} setCourse={setCourse}></Features>
             )}
             {modules.length > 0 ? (
                 modules.map((classModule, moduleIndex) => (
@@ -201,14 +282,14 @@ const CourseDetail = ({ params }) => {
             <ProjectsList
                 isAdmin={isAdmin}
                 isStudentInCourse={isEnrolled}
-                projects={[]} // Cargar projects desde el backend
-                studentProjects={[]} // aqui tambien hay que cargar los projects desde el backend
+                projects={projects}
+                studentProjects={studentProjects}
                 courseId={courseId}
                 averageScore={null}
-                handleEditProject={() => { }}
+                handleEditProject={handleEditProject}
                 moveProject={() => { }}
-                deleteProject={() => { }}
-                addProject={() => { }}
+                deleteProject={deleteProject}
+                addProject={addProject}
             />
         </div>
     );
