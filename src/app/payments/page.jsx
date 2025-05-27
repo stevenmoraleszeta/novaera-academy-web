@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { Modal } from "@/components/modal/modal";
 import styles from "./page.module.css";
@@ -34,47 +32,39 @@ const PaymentPage = () => {
     }, [customPayment]);
 
     useEffect(() => {
+        setShowLoginModal(!currentUser);
+    }, [currentUser]);
+
+    useEffect(() => {
         const checkEnrollment = async () => {
             if (!currentUser || !courseId) return;
 
             try {
-                const userRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userRef);
-
-                if (userSnap.exists()) {
-                    const enrolledCourses = userSnap.data().enrolledCourses || [];
-                    if (enrolledCourses.includes(courseId)) {
-                        setIsAlreadyEnrolled(true);
-                    }
+                const { data } = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.id}`
+                );
+                if (data && data.length > 0) {
+                    setIsAlreadyEnrolled(true);
                 }
             } catch (error) {
-                console.error("Error verificando la inscripción:", error);
+                console.error("Error al verificar inscripción:", error);
             }
         };
 
         checkEnrollment();
     }, [currentUser, courseId]);
 
-    useEffect(() => {
-        setShowLoginModal(!currentUser);
-    }, [currentUser]);
 
     useEffect(() => {
         const fetchCourseDetails = async () => {
             if (!courseId) return;
 
             try {
-                const courseRef = doc(db, "onlineCourses", courseId);
-                const courseSnap = await getDoc(courseRef);
-
-                if (courseSnap.exists()) {
-                    setCourse(courseSnap.data());
-                } else {
-                    setNoCourse(true);
-                    router.push("/payment");
-                }
+                const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`);
+                setCourse(data);
             } catch (error) {
-                console.error("Error al cargar detalles del curso:", error);
+                setNoCourse(true);
+                router.push("/payment");
             }
         };
 
@@ -91,22 +81,19 @@ const PaymentPage = () => {
                 description: customPaymentRef.current.description,
                 amount: courseId ? course.discountedPrice : customPaymentRef.current.amount,
                 courseId: courseId || null,
-                userId: currentUser ? currentUser.uid : null,
+                userId: currentUser ? currentUser.id : null,
                 date: new Date().toISOString(),
                 courseName: course?.title,
                 receiptNumber,
             };
 
-            if (currentUser && courseId) {
-                const userRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userRef);
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payments`, paymentData);
 
-                if (userSnap.exists()) {
-                    const enrolledCourses = userSnap.data().enrolledCourses || [];
-                    if (!enrolledCourses.includes(courseId)) {
-                        await updateDoc(userRef, { enrolledCourses: arrayUnion(courseId) });
-                    }
-                }
+            if (currentUser && courseId) {
+                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/student-courses`, {
+                    userId: currentUser.id,
+                    courseId,
+                });
             }
 
             setPaymentReceipt(paymentData);
@@ -142,15 +129,7 @@ const PaymentPage = () => {
 
         try {
             const finalAmount = courseId ? course.discountedPrice : Number(amount);
-            const response = await fetch("/api/create-order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: finalAmount }),
-            });
-
-            if (!response.ok) throw new Error("Error al crear la orden");
-
-            const data = await response.json();
+            const { data } = await axios.post("/api/create-order", { amount: finalAmount });
             return data.id;
         } catch (error) {
             console.error("Error al crear la orden:", error);

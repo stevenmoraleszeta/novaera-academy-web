@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-=======
+
 "use client";
 
 import React, { useEffect, useState, use } from "react";
@@ -15,7 +14,7 @@ import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
 import ProjectsList from "@/components/projects/projects";
 
->>>>>>> ae81e6d (Merge css from courseId)
+
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
     const resolvedParams = use(params);
