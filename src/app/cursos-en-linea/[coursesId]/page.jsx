@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState, use } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
 

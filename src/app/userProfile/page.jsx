@@ -20,7 +20,7 @@ function UserProfile() {
         const fetchUserData = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await axios.get("http://localhost:3000/api/users/profile", {
+                const response = await axios.get("http://localhost:4000/api/users/profile", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUserInfo(response.data);
@@ -54,28 +54,42 @@ function UserProfile() {
         e.preventDefault();
         try {
             const token = localStorage.getItem("token");
-            let photoUrl = userInfo.photoUrl;
+            let photoUrl = userInfo.photourl;
 
             if (imageFile) {
                 const formData = new FormData();
                 formData.append("file", imageFile);
 
-                const uploadResponse = await axios.post("/api/upload", formData, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const uploadResponse = await axios.post(
+                    `${process.env.NEXT_PUBLIC_API_URL}/upload`,
+                    formData,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
                 photoUrl = uploadResponse.data.url;
+            }
+
+            const userId =
+                currentUser?.userid ||
+                userInfo?.userid ||
+                currentUser?.id ||
+                userInfo?.id;
+
+            if (!userId) {
+                throw new Error("No se encontró el ID del usuario.");
             }
 
             const updatedUser = {
                 ...userInfo,
-                photoUrl,
+                photourl: photoUrl,
             };
 
-            await axios.put(`/api/users/${currentUser.id}`, updatedUser, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
+                updatedUser,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
 
-            updateCurrentUser({ ...currentUser, photoUrl });
+            updateCurrentUser({ ...currentUser, photourl: photoUrl });
             router.push("/cursos-en-linea");
         } catch (error) {
             console.error("Error updating profile", error);
