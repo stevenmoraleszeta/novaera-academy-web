@@ -25,14 +25,14 @@ function UserProfile() {
                 });
                 const apiUser = response.data;
                 setUserInfo({
-                    displayName: apiUser.firstname || '',
-                    number: apiUser.phone || '',
-                    pais: apiUser.country || '',
-                    edad: apiUser.age || '',
+                    firstname: apiUser.firstname || '',
+                    phone: apiUser.phone || '',
+                    country: apiUser.country || '',
+                    age: apiUser.age || '',
                     email: apiUser.email || '',
-                    photoUrl: apiUser.photourl || '',
-                    userId: apiUser.userid,
-                    roleId: apiUser.roleid,
+                    photourl: apiUser.photourl || '',
+                    userid: apiUser.userid,
+                    roleid: apiUser.roleid,
                 });
                 setLoading(false);
             } catch (error) {
