@@ -79,7 +79,7 @@ const UserProfileForm = ({
                                 name="age"
                                 value={userInfo.age}
                                 required
-                                onChange={safeHandleChange}
+                                onChange={handleChange}
                                 className={styles.ageInput}
                             />
                         </div>
