@@ -64,8 +64,8 @@ const UserProfileForm = ({
                                 value={userInfo.country}
                                 onChange={handleChange}
                             >
-                                {countries.map((country) => (
-                                    <option key={country.es} value={country.es}>
+                                {countries.map((country, idx) => (
+                                    <option key={country.es + idx} value={country.es}>
                                         {country.es}
                                     </option>
                                 ))}
@@ -79,7 +79,7 @@ const UserProfileForm = ({
                                 name="age"
                                 value={userInfo.age}
                                 required
-                                onChange={handleChange}
+                                onChange={safeHandleChange}
                                 className={styles.ageInput}
                             />
                         </div>

@@ -23,7 +23,17 @@ function UserProfile() {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setUserInfo(response.data);
+                const apiUser = response.data;
+                setUserInfo({
+                    displayName: apiUser.firstname || '',
+                    number: apiUser.phone || '',
+                    pais: apiUser.country || '',
+                    edad: apiUser.age || '',
+                    email: apiUser.email || '',
+                    photoUrl: apiUser.photourl || '',
+                    userId: apiUser.userid,
+                    roleId: apiUser.roleid,
+                });
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching user data", error);
@@ -112,6 +122,7 @@ function UserProfile() {
         }
     };
 
+    // Permitir edición: solo renderizar el formulario si userInfo está definido
     if (!currentUser) {
         router.push("/login");
         return null;
@@ -125,11 +136,11 @@ function UserProfile() {
                 currentUser={currentUser}
                 userInfo={userInfo}
                 countries={countries}
+                handleChange={handleChange}
                 handleFileChange={handleFileChange}
                 handleSubmit={handleSubmit}
                 handleLogout={handleLogout}
                 loading={loading}
-                handleChange={handleChange}
             />
         </RequireAuth>
     );

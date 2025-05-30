@@ -9,7 +9,11 @@ const useFetchData = (endpoint) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`/api/${endpoint}`);
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+                const token = localStorage.getItem("token");
+                const response = await axios.get(`${apiUrl}/${endpoint}`,
+                    token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+                );
                 setData(response.data); // Asume que la respuesta es el array de datos
             } catch (err) {
                 setError(err.message);

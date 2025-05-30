@@ -31,7 +31,8 @@ export function AuthProvider({ children }) {
                     return;
                 }
                 console.log("Token:", token);
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+                const response = await axios.get(`${apiUrl}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -40,12 +41,12 @@ export function AuthProvider({ children }) {
                 setIsAdmin(user.namerole === "Admin");
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
-                const errorMsg = error.response?.data?.error || error.message;
-                console.error("Error fetching current user:", errorMsg);
-                if (errorMsg === "jwt expired" || errorMsg === "jwt malformed") {
+                // Si el error es 401 (token inválido o expirado), limpiar sesión
+                if (error.response && error.response.status === 401) {
                     localStorage.removeItem("token");
+                    setCurrentUser(null);
                 }
-                setCurrentUser(null);
+                console.error("Error fetching current user:", error.response?.data?.error || error.message);
             } finally {
                 setLoading(false);
             }

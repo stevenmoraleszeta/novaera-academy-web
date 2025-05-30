@@ -1,0 +1,49 @@
+.studentPageContainer {
+    width: 100%;
+    height: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.studentInformation {
+    width: 80%;
+    height: auto;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+
+    gap: 1vw;
+}
+
+.assignmentsMainContainer {
+
+    width: 100%;
+    height: auto;
+    gap: 10vw;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.assignmentsContainer {
+    width: 100%;
+    height: auto;
+}
+
+.adminActionsContainer {
+    width: 30%;
+
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actionBtn {
+    margin: 5px;
+}
