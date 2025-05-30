@@ -20,7 +20,7 @@ function UserProfile() {
         const fetchUserData = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await axios.get("http://localhost:4000/api/users/profile", {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUserInfo(response.data);
@@ -50,11 +50,19 @@ function UserProfile() {
         }
     };
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUserInfo((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem("token");
-            let photoUrl = userInfo.photourl;
+            let photourl = userInfo.photourl ?? "";
 
             if (imageFile) {
                 const formData = new FormData();
@@ -65,7 +73,7 @@ function UserProfile() {
                     formData,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
-                photoUrl = uploadResponse.data.url;
+                photourl = uploadResponse.data.url;
             }
 
             const userId =
@@ -79,8 +87,16 @@ function UserProfile() {
             }
 
             const updatedUser = {
-                ...userInfo,
-                photourl: photoUrl,
+                firstname: userInfo.firstname ?? "",
+                lastname1: userInfo.lastname1 ?? "",
+                lastname2: userInfo.lastname2 ?? "",
+                age: userInfo.age ?? "",
+                email: userInfo.email ?? "",
+                phone: userInfo.phone ?? "",
+                country: userInfo.country ?? "",
+                photoUrl: photourl ?? "",
+                roleId: userInfo.roleid ?? 2,
+                updatedAt: new Date().toISOString(),
             };
 
             await axios.put(
@@ -89,7 +105,7 @@ function UserProfile() {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            updateCurrentUser({ ...currentUser, photourl: photoUrl });
+            updateCurrentUser({ ...currentUser, photourl });
             router.push("/cursos-en-linea");
         } catch (error) {
             console.error("Error updating profile", error);
@@ -101,6 +117,8 @@ function UserProfile() {
         return null;
     }
 
+    console.log("User: ", userInfo)
+
     return (
         <RequireAuth>
             <UserProfileForm
@@ -111,6 +129,7 @@ function UserProfile() {
                 handleSubmit={handleSubmit}
                 handleLogout={handleLogout}
                 loading={loading}
+                handleChange={handleChange}
             />
         </RequireAuth>
     );

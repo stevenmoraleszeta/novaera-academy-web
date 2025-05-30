@@ -23,10 +23,10 @@ const UserProfileForm = ({
         <section className={styles.userProfileContainer}>
             <form onSubmit={handleSubmit} className={styles.userProfileForm}>
                 <div className={styles.imgContainer}>
-                    {userInfo.photoURL && (
+                    {userInfo.photourl && (
                         <Image
-                            alt="userProfileImage"
-                            src={userInfo.photoURL}
+                            alt="photourl"
+                            src={userInfo.photourl}
                             width={500}
                             height={500}
                             className={styles.userImg}
@@ -38,8 +38,8 @@ const UserProfileForm = ({
                     <div className={styles.firstContainerInformation}>
                         <input
                             type="text"
-                            name="displayName"
-                            value={userInfo.displayName}
+                            name="firstname"
+                            value={userInfo.firstname}
                             onChange={handleChange}
                             required
                             className={styles.nameInput}
@@ -47,8 +47,8 @@ const UserProfileForm = ({
                         <p className={styles.inputLabels}>Número telefónico</p>
                         <input
                             type="text"
-                            name="number"
-                            value={userInfo.number}
+                            name="phone"
+                            value={userInfo.phone}
                             onChange={handleChange}
                             required
                             className={styles.inputNumber}
@@ -58,10 +58,10 @@ const UserProfileForm = ({
                         <div className={styles.countryContainer}>
                             <p className={styles.inputLabels}>País</p>
                             <select
-                                name="pais"
+                                name="country"
                                 id="countrySelect"
                                 className={styles.countrySelect}
-                                value={userInfo.pais}
+                                value={userInfo.country}
                                 onChange={handleChange}
                             >
                                 {countries.map((country) => (
@@ -76,8 +76,8 @@ const UserProfileForm = ({
                             <input
                                 min={0}
                                 type="number"
-                                name="edad"
-                                value={userInfo.edad}
+                                name="age"
+                                value={userInfo.age}
                                 required
                                 onChange={handleChange}
                                 className={styles.ageInput}

@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
                     return;
                 }
                 console.log("Token:", token);
-                const response = await axios.get("http://localhost:4000/api/users/profile", {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -40,7 +40,11 @@ export function AuthProvider({ children }) {
                 setIsAdmin(user.namerole === "Admin");
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
-                console.error("Error fetching current user:", error.response?.data?.error || error.message);
+                const errorMsg = error.response?.data?.error || error.message;
+                console.error("Error fetching current user:", errorMsg);
+                if (errorMsg === "jwt expired" || errorMsg === "jwt malformed") {
+                    localStorage.removeItem("token");
+                }
                 setCurrentUser(null);
             } finally {
                 setLoading(false);
@@ -81,11 +85,11 @@ export function AuthProvider({ children }) {
                 const formData = new FormData();
                 formData.append("file", profilePicture);
 
-                const uploadResponse = await axios.post("http://localhost:4000/api/upload", formData);
+                const uploadResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload`, formData);
                 photoUrl = uploadResponse.data.url;
             }
 
-            const response = await axios.post("http://localhost:4000/api/users", {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
                 email,
                 password,
                 firstName: name,
@@ -110,7 +114,7 @@ export function AuthProvider({ children }) {
             const token = localStorage.getItem("token");
 
             await axios.post(
-                "http://localhost:4000/api/logout",
+                `${process.env.NEXT_PUBLIC_API_URL}/logout`,
                 {},
                 {
                     headers: { Authorization: `Bearer ${token}` },
@@ -142,43 +146,3 @@ export function AuthProvider({ children }) {
 
     return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 }
-
-
-
-/* 
-
-useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setLoading(true); // Indica que la aplicación está cargando
-            if (user) {
-                setIsCheckingUser(true);
-                await checkUserInFirestore(user);
-                setCurrentUser(user);
-                setIsCheckingUser(false);
-            } else {
-                setCurrentUser(null);
-                setMissingInfo(null); // Reinicia el estado si no hay usuario
-            }
-            setLoading(false);
-        });
-
-        return unsubscribe;
-    }, []);
-
-const loginWithGoogle = async () => {
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            setCurrentUser(result.user);
-            console.log("Usuario autenticado:");
-
-            setIsCheckingUser(true);
-            await checkUserInFirestore(result.user);
-            setIsCheckingUser(false);
-        } catch (error) {
-            console.error("Error al iniciar sesión con Google:", error);
-        }
-    };
-
-
-
-*/
