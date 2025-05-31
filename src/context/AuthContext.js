@@ -25,7 +25,8 @@ export function AuthProvider({ children }) {
         const fetchCurrentUser = async () => {
             try {
                 const token = localStorage.getItem("token");
-                if (!token) {
+                if (!token || token === "undefined" || token === "null" || token.trim() === "") {
+                    localStorage.removeItem("token");
                     setCurrentUser(null);
                     setLoading(false);
                     return;
@@ -38,7 +39,7 @@ export function AuthProvider({ children }) {
 
                 const user = response.data;
                 setCurrentUser(user);
-                setIsAdmin(user.namerole === "Admin");
+                setIsAdmin(user.roleid === 1); // asume que el rol de admin tiene roleid 1
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
                 // Si el error es 401 (token inválido o expirado), limpiar sesión

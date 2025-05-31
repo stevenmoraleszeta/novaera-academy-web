@@ -100,14 +100,16 @@ function UserProfile() {
                 firstname: userInfo.firstname ?? "",
                 lastname1: userInfo.lastname1 ?? "",
                 lastname2: userInfo.lastname2 ?? "",
-                age: userInfo.age ?? "",
+                age: userInfo.age ? Number(userInfo.age) : null,
                 email: userInfo.email ?? "",
                 phone: userInfo.phone ?? "",
                 country: userInfo.country ?? "",
-                photoUrl: photourl ?? "",
-                roleId: userInfo.roleid ?? 2,
+                photourl: photourl ?? "",
+                roleId: isNaN(Number(userInfo.roleId)) ? 2 : Number(userInfo.roleId),
                 updatedAt: new Date().toISOString(),
             };
+
+            console.log("Usuario: ", updatedUser)
 
             await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
