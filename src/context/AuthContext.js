@@ -132,7 +132,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         if (!loading && currentUser && missingInfo) {
-            router.push("/");
+            router.push("/completeInfo");
         }
     }, [currentUser, missingInfo, loading, router]);
 

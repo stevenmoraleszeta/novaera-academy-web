@@ -1,0 +1,125 @@
+.completeInfoMainSection {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.formContainer {
+    width: 35%;
+    height: 85%;
+    border-radius: 15px;
+
+    background: linear-gradient(#002128, #00758E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 3vh;
+}
+
+.form {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.instructionsContainer {
+    width: 85%;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.instructions {
+    color: white;
+    font-size: clamp(1vw, 20px, 1.7vw);
+    font-weight: 600;
+    margin: 0px;
+}
+
+.zetaImgLogo {
+    width: 20vw;
+    height: auto;
+    margin: 0px;
+}
+
+.firstFieldsContainer {
+    width: 85%;
+}
+
+.formLabelTxt {
+    color: #8CB7C0;
+    font-weight: 600;
+    font-size: clamp(1.2vw, 17px, 1.8vw);
+    margin-bottom: 0;
+}
+
+.firstFieldsContainer input {
+    color: white;
+    font-size: clamp(1.2vw, 17px, 1.8vw);
+}
+
+.secondFieldsContainer input {
+    color: white;
+}
+
+.secondFieldsContainer {
+    width: 80%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+
+    margin-bottom: 20px;
+}
+
+.countryContainer {
+    width: 70%;
+    margin-top: 10px;
+    margin-right: 5px;
+}
+
+.ageContainer {
+    margin-top: 10px;
+    margin-left: 5px;
+}
+
+.countryContainer select {
+    width: 100%;
+    color: white;
+    font-size: clamp(1.1vw, 17px, 1.6vw);
+    background-image: url('../../assets/cursors/selectArrow.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+}
+
+.countryContainer select::-ms-expand {
+    display: none;
+}
+
+.ageContainer input {
+    width: 40%;
+    color: white;
+    font-size: clamp(1.1vw, 17px, 1.6vw);
+}
+
+.completeBtn {
+    width: 30%;
+    font-weight: 600;
+    font-size: clamp(.5vw, 24px, 1.1vw);
+    margin-bottom: 5vh;
+}
