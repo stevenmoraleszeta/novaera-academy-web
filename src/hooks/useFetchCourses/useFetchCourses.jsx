@@ -12,7 +12,7 @@ const useFetchCourses = (collectionName) => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                
+
                 const categoryName = collectionName === 'onlineCourses' ? 'online' : 'live';
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/category-name/${categoryName}`);
                 if (!response.ok) {
@@ -20,7 +20,7 @@ const useFetchCourses = (collectionName) => {
                 }
                 const data = await response.json();
                 const activeCourses = data
-                    .filter((course) => !course.archived)
+                    .filter((course) => !(course.archived === true || course.archived === "true"))
                     .map((course) => ({
                         ...course,
                         discountedPrice: Number(course.discountedprice),

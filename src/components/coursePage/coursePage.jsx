@@ -33,7 +33,13 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
         !category || course?.category === category;
 
     const handleFilter = () => {
-        const filtered = courses.filter((course) =>
+
+        const normalizedCourses = courses.map(course => ({
+            ...course,
+            archived: Boolean(course.archived),
+        }));
+
+        const filtered = normalizedCourses.filter((course) =>
             matchesQuery(course, searchQuery) &&
             withinPriceRange(course, priceRange) &&
             matchesCategory(course, selectedCategory) &&

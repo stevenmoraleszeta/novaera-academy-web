@@ -79,8 +79,44 @@ const CourseDetail = ({ params }) => {
     }, [currentUser, courseId]);
 
     const handleFieldChange = async (field, value) => {
-        const updatedCourse = { ...course, [field]: value };
-        setCourse(updatedCourse);
+        const fieldMap = {
+            discountedprice: "discountedPrice",
+            originalprice: "originalPrice",
+            description: "description",
+            title: "title",
+        };
+        const backendField = fieldMap[field] || field;
+
+        const normalizedCourse = {
+            ...course,
+            discountedPrice: course.discountedPrice ?? course.discountedprice,
+            originalPrice: course.originalPrice ?? course.originalprice,
+            imageUrl: course.imageUrl ?? course.imageurl,
+            courseIcon: course.courseIcon ?? course.courseicon,
+            videoUrl: course.videoUrl ?? course.videourl,
+            categoryId: course.categoryId ?? course.categoryid,
+            mentorId: course.mentorId ?? course.mentorid,
+            modalityId: course.modalityId ?? course.modalityid,
+        };
+
+        normalizedCourse[backendField] = value;
+        setCourse(normalizedCourse);
+
+        const backendCourse = {
+            courseId,
+            title: normalizedCourse.title,
+            description: normalizedCourse.description,
+            discountedPrice: normalizedCourse.discountedPrice,
+            originalPrice: normalizedCourse.originalPrice,
+            imageUrl: normalizedCourse.imageUrl,
+            courseIcon: normalizedCourse.courseIcon,
+            videoUrl: normalizedCourse.videoUrl,
+            archived: false,
+            updatedAt: new Date().toISOString(),
+            categoryId: normalizedCourse.categoryId,
+            mentorId: normalizedCourse.mentorId,
+            modalityId: normalizedCourse.modalityId,
+        };
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
@@ -88,7 +124,7 @@ const CourseDetail = ({ params }) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ [field]: value }),
+                body: JSON.stringify(backendCourse),
             });
 
             if (!response.ok) {

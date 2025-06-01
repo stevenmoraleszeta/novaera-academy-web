@@ -42,6 +42,8 @@ const useFetchCourse = (courseId) => {
                 const data = await res.json();
                 console.log("data recibida:", data);
 
+                data.archived = Boolean(data.archived);
+
                 data.features = defaultFeatures;
                 setCourse(data);
                 document.title = `${data.title} - ZETA`;
