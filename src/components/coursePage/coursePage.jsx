@@ -109,6 +109,28 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
                 throw new Error('Error al crear el curso');
             }
 
+            // Obtener el ID del curso recién creado
+            const newCourse = await response.json();
+            const courseId = newCourse.courseid || newCourse.id;
+
+            // Agregar features por defecto (IDs 1, 2, 3, 4)
+            const featuresToAdd = [1, 2, 3, 4];
+            await Promise.all(
+                featuresToAdd.map(async (featureId, idx) => {
+                    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/course-features`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            courseid: courseId,
+                            featureid: featureId,
+                            order: idx + 1
+                        }),
+                    });
+                })
+            );
+
             window.location.reload();
         } catch (error) {
             console.error("Error al agregar curso: ", error);

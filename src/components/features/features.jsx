@@ -39,15 +39,26 @@ export default function Features({ course, setCourse, courseId, collectionName }
     const { isAdmin } = useAuth();
     const [editingIconIndex, setEditingIconIndex] = useState(null);
     const [newIconUrl, setNewIconUrl] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const fetchFeatures = async () => {
+    // Cargar features del curso desde la relación course_features
+    const fetchCourseFeatures = async () => {
+        if (!courseId) return;
+        setLoading(true);
         try {
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/features`);
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course-features/by-course/${courseId}`);
             setCourse((prev) => ({ ...prev, features: data }));
         } catch (error) {
-            console.error("Error al cargar features:", error);
+            console.error("Error al cargar course features:", error);
+        } finally {
+            setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchCourseFeatures();
+    }, [courseId]);
+
     const handleIconClick = (index) => {
         setEditingIconIndex(index);
         setNewIconUrl(course.features[index].iconurl);
@@ -57,6 +68,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
         setNewIconUrl(e.target.value);
     };
 
+    // Guardar el nuevo icono (actualiza el feature)
     const saveIconUrl = async (index) => {
         const updatedFeatures = [...course.features];
         updatedFeatures[index].iconurl = newIconUrl;
@@ -75,32 +87,42 @@ export default function Features({ course, setCourse, courseId, collectionName }
                     iconurl: feature.iconurl,
                 }
             );
+            fetchCourseFeatures();
         } catch (error) {
             console.error("Error al actualizar icono:", error);
         }
     };
 
     const handleAddFeature = async () => {
-        const newFeature = {
-            title: "Nuevo título",
-            description: "Nueva descripción",
-            iconurl: defaultFeatures[3].iconurl,
-        };
-
         try {
-            await axios.post(
+            const newFeature = {
+                title: "Nuevo título",
+                description: "Nueva descripción",
+                iconurl: defaultFeatures[3].iconurl,
+            };
+            const { data: createdFeature } = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/features`,
                 newFeature
             );
-            fetchFeatures();
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/course-features`,
+                {
+                    courseId: courseId,
+                    featureId: createdFeature.featureid || createdFeature.id,
+                    order: (course.features?.length || 0) + 1
+                }
+            );
+            fetchCourseFeatures();
         } catch (error) {
             console.error("Error al agregar feature:", error);
         }
     };
 
+    // Eliminar la relación course-feature (no el feature en sí)
     const handleDeleteFeature = async (index) => {
         const feature = course.features[index];
-        if (!feature.featureid) {
+        if (!feature.coursefeatureid) {
+            // Si no tiene relación, solo lo quitamos localmente
             const updatedFeatures = [...course.features];
             updatedFeatures.splice(index, 1);
             setCourse((prev) => ({ ...prev, features: updatedFeatures }));
@@ -108,21 +130,40 @@ export default function Features({ course, setCourse, courseId, collectionName }
         }
         try {
             await axios.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/features/${feature.featureid}`
+                `${process.env.NEXT_PUBLIC_API_URL}/course-features/${feature.coursefeatureid}`
             );
-            fetchFeatures();
+            fetchCourseFeatures();
         } catch (error) {
-            console.error("Error al eliminar feature:", error);
+            console.error("Error al eliminar feature del curso:", error);
         }
     };
 
-    const moveFeature = (index, direction) => {
+    // Cambiar el orden de los features (actualiza la relación)
+    const moveFeature = async (index, direction) => {
         const newFeatures = [...course.features];
         const [movedFeature] = newFeatures.splice(index, 1);
         newFeatures.splice(index + direction, 0, movedFeature);
         setCourse((prev) => ({ ...prev, features: newFeatures }));
+        try {
+            await Promise.all(
+                newFeatures.map((feature, i) => {
+                    if (!feature.coursefeatureid) {
+                        console.warn('No coursefeatureid para feature', feature);
+                        return null;
+                    }
+                    return axios.put(
+                        `${process.env.NEXT_PUBLIC_API_URL}/course-features/order/${feature.coursefeatureid}`,
+                        { order: i + 1 }
+                    );
+                })
+            );
+            fetchCourseFeatures();
+        } catch (error) {
+            console.error("Error al actualizar el orden de las características:", error);
+        }
     };
 
+    // Editar los datos del feature (title, description, iconurl)
     const handleFieldChange = async (index, field, value) => {
         const updatedFeatures = [...course.features];
         updatedFeatures[index][field] = value;
@@ -140,10 +181,13 @@ export default function Features({ course, setCourse, courseId, collectionName }
                     iconurl: feature.iconurl,
                 }
             );
+            fetchCourseFeatures();
         } catch (error) {
             console.error("Error al actualizar feature:", error);
         }
     };
+
+    if (loading) return <div>Cargando características...</div>;
 
     return (
         <div className={styles.features}>
@@ -155,18 +199,25 @@ export default function Features({ course, setCourse, courseId, collectionName }
                 </div>
             )}
 
-            {(course.features || defaultFeatures).map((feature, index) => (
-                <div key={feature.featureid || index} className={styles.feature}>
-                    <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
-                        <Image
-                            src={feature.iconurl}
-                            alt={`Icono de ${feature.title}`}
-                            fill
-                            style={{ objectFit: "contain" }}
-                        />
-                    </div>
+            {(
+                (course.features || defaultFeatures)
+                    .slice()
+                    .sort((a, b) => (a.order ?? a.orderFeature ?? 0) - (b.order ?? b.orderFeature ?? 0))
+            ).map((feature, index) => (
+                <div key={feature.coursefeatureid || feature.featureid || index} className={styles.feature}>
+                    {/* Solo renderiza imagen si hay iconurl */}
+                    {feature.iconurl ? (
+                        <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
+                            <Image
+                                src={feature.iconurl}
+                                alt={`Icono de ${feature.title}`}
+                                fill
+                                style={{ objectFit: "contain" }}
+                            />
+                        </div>
+                    ) : null}
 
-                    {editingIconIndex === index && isAdmin && (
+                    {editingIconIndex === index && isAdmin && feature.coursefeatureid && (
                         <div className={styles.iconUrlInputContainer}>
                             <input
                                 type="text"
@@ -190,6 +241,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                         handleFieldChange(index, "title", e.target.value)
                                     }
                                     className={styles.featureTitleInput}
+                                    // Quitar disabled para permitir edición visual
                                 />
                                 <textarea
                                     value={feature.description}
@@ -197,6 +249,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                         handleFieldChange(index, "description", e.target.value)
                                     }
                                     className={styles.featureDescriptionInput}
+                                    // Quitar disabled para permitir edición visual
                                 />
                             </>
                         ) : (
@@ -210,6 +263,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                             </>
                         )}
 
+                        {/* Mostrar acciones de mover para todos los features, pero solo permitir si tienen coursefeatureid */}
                         {isAdmin && (
                             <div className={styles.featuresActionsContainer}>
                                 <div className={styles.featureActions}>
@@ -230,13 +284,16 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                         <FaArrowDown />
                                     </button>
                                 </div>
-                                <button
-                                    className={styles.featuresActionsBtn}
-                                    onClick={() => handleDeleteFeature(index)}
-                                    type="button"
-                                >
-                                    <FaTrash />
-                                </button>
+                                {/* Eliminar solo si tiene coursefeatureid */}
+                                {feature.coursefeatureid && (
+                                    <button
+                                        className={styles.featuresActionsBtn}
+                                        onClick={() => handleDeleteFeature(index)}
+                                        type="button"
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
