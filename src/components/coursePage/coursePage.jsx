@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import useFetchCourses from "@/hooks/useFetchCourses/useFetchCourses";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 import styles from "./coursePage.module.css";
@@ -11,6 +11,7 @@ import styles from "./coursePage.module.css";
 const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
     const { user, isAdmin } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const { courses, minPrice, maxPrice, loading, error } = useFetchCourses(collectionName);
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -71,6 +72,11 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
             const defaultImageUrl =
                 "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALL·E%202024-09-14%2012.19.23%20-%20An%20epic%20and%20highly%20realistic%20scene%20of%20a%20woman%20learning%20to%20program%20in%20Python%2C%20with%20blue%20and%20yellow%20as%20the%20predominant%20colors.%20The%20woman%2C%20a%20young%20adult%20.webp?alt=media&token=496e97a6-c60f-44f0-8e87-12b0a1f5a755";
 
+            let categoryId = 1;
+            if (pathname.startsWith("/cursos-en-vivo")) {
+                categoryId = 2;
+            }
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses`, {
                 method: 'POST',
                 headers: {
@@ -87,7 +93,7 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
                     archived: false,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
-                    categoryId: 2,
+                    categoryId,
                     mentorId: 1,
                     modalityId: 1
                 }),
@@ -165,7 +171,7 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
                             key={course.courseid}
                             course={{
                                 ...course,
-                                id: course.courseid, 
+                                id: course.courseid,
                             }}
                             courseType={collectionName}
                         />
