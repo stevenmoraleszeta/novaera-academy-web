@@ -35,7 +35,7 @@ const defaultFeatures = [
     },
 ];
 
-export default function Features({ course, setCourse, courseId, collectionName }) {
+export default function Features({ course, setCourse, courseId }) {
     const { isAdmin } = useAuth();
     const [editingIconIndex, setEditingIconIndex] = useState(null);
     const [newIconUrl, setNewIconUrl] = useState("");
@@ -241,7 +241,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                         handleFieldChange(index, "title", e.target.value)
                                     }
                                     className={styles.featureTitleInput}
-                                    // Quitar disabled para permitir edición visual
+                                // Quitar disabled para permitir edición visual
                                 />
                                 <textarea
                                     value={feature.description}
@@ -249,7 +249,7 @@ export default function Features({ course, setCourse, courseId, collectionName }
                                         handleFieldChange(index, "description", e.target.value)
                                     }
                                     className={styles.featureDescriptionInput}
-                                    // Quitar disabled para permitir edición visual
+                                // Quitar disabled para permitir edición visual
                                 />
                             </>
                         ) : (
