@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 
 import styles from "./coursePage.module.css";
 
-const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
+const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType }) => {
     const { user, isAdmin } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
@@ -179,7 +179,8 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText }) => {
                                 ...course,
                                 id: course.courseid,
                             }}
-                            courseType={collectionName}
+                            courseType={courseType}
+                            collectionName={collectionName}
                         />
                     ))}
 

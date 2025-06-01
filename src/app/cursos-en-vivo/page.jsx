@@ -4,6 +4,7 @@ const OnlineCourses = () => {
     return (
         <CoursesPage
             collectionName="liveCourses"
+            courseType="live"
             pageTitle="Cursos en Vivo - ZETA"
             placeholderText="Python, SQL, Excel..."
         />

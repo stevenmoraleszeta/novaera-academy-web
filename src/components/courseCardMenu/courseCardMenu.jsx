@@ -1,22 +1,17 @@
-// File: src/components/CourseCardMenu.jsx
 import React, { useState } from "react";
 import { FaArchive, FaCopy } from "react-icons/fa";
 import styles from "./courseCardMenu.module.css";
 import { useRouter } from "next/navigation";
-import { doc, updateDoc, addDoc, collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/firebase";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import axios from "axios";
 
-
-const CourseCardMenu = ({ course, courseType }) => {
+const CourseCardMenu = ({ course, courseType, collectionName }) => {
   const router = useRouter();
-  const [isArchived, setIsArchived] = useState(course.archived); // Estado local para controlar el archivado
-  const { user, isAdmin } = useAuth();
+  const [isArchived, setIsArchived] = useState(course.archived);
+  const { isAdmin } = useAuth();
 
-  // Determina la colección y la ruta en función del tipo de curso
-  const collectionName =
-    courseType === "live" ? "liveCourses" : "onlineCourses";
+  // Determina la ruta en función del tipo de curso
   const courseRoute =
     courseType === "live" ? "/cursos-en-vivo" : "/cursos-en-linea";
 
@@ -30,89 +25,57 @@ const CourseCardMenu = ({ course, courseType }) => {
     );
     if (!confirmArchive) return;
 
-    const docRef = doc(db, collectionName, courseId); // Usa la colección correcta
     try {
-      await updateDoc(docRef, { archived: true });
-      setIsArchived(true); // Actualiza el estado local para reflejar el cambio
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`,
+        {
+          ...course,
+          archived: true,
+          updatedAt: new Date().toISOString(),
+        }
+      );
+      setIsArchived(true);
+      window.location.reload();
     } catch (error) {
       console.error("Error archiving course: ", error);
     }
   };
 
+  // Duplicar curso usando el backend
   const handleDuplicateCourse = async (course) => {
-    const collectionChoice = window.confirm(
-      "¿Deseas duplicar este curso en liveCourses? (Cancel para onlineCourses)"
-    )
-      ? "liveCourses"
-      : "onlineCourses";
+    const confirmDuplicate = window.confirm(
+      "¿Deseas duplicar este curso?"
+    );
+    if (!confirmDuplicate) return;
 
     try {
-      // Duplicar el curso principal
       const newCourse = {
         ...course,
         title: `${course.title} (Copy)`,
         archived: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
-      delete newCourse.id; // Eliminar id para evitar conflictos
-      const docRef = await addDoc(collection(db, collectionChoice), newCourse);
+      delete newCourse.courseid;
+      delete newCourse.id;
 
-      // Obtener y duplicar módulos del curso original
-      const modulesSnapshot = await getDocs(
-        collection(db, `${collectionName}/${course.id}/modules`)
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/courses`,
+        newCourse
       );
-
-      const modulePromises = modulesSnapshot.docs.map(async (moduleDoc) => {
-        const moduleData = moduleDoc.data();
-        delete moduleData.id;
-
-        // Crear nuevo módulo en el curso duplicado
-        const newModuleRef = await addDoc(
-          collection(db, `${collectionChoice}/${docRef.id}/modules`),
-          moduleData
-        );
-
-        // Obtener y duplicar clases para este módulo
-        const classesSnapshot = await getDocs(
-          collection(
-            db,
-            `${collectionName}/${course.id}/modules/${moduleDoc.id}/classes`
-          )
-        );
-
-        const classPromises = classesSnapshot.docs.map((classDoc) => {
-          const classData = classDoc.data();
-          delete classData.id;
-
-          return addDoc(
-            collection(db, `${collectionChoice}/${docRef.id}/modules/${newModuleRef.id}/classes`),
-            classData
-          );
-        });
-
-        // Esperar a que se dupliquen todas las clases
-        await Promise.all(classPromises);
-      });
-
-      // Esperar a que se dupliquen todos los módulos
-      await Promise.all(modulePromises);
-
-      router.push(
-        `/${collectionChoice === "liveCourses" ? "cursos-en-vivo" : "cursos-en-linea"}/${docRef.id}`
-      );
-      window.location.reload(); // Recarga la página después de duplicar el curso
+      // Redirige al nuevo curso si tienes el id, si no, recarga
+      window.location.reload();
     } catch (error) {
       console.error("Error duplicating course: ", error);
     }
   };
 
-
-  // No renderiza el curso si está archivado
-  /* if (isArchived) return null; */
+  if (isArchived) return null;
 
   return (
     <div
       className={styles.courseCard}
-      onClick={() => handleViewCourse(course.id)}
+      onClick={() => handleViewCourse(course.courseid || course.id)}
     >
       <Image
         src={
@@ -135,7 +98,10 @@ const CourseCardMenu = ({ course, courseType }) => {
         </div>
         <button
           className={styles.infoButton}
-          onClick={() => handleViewCourse(course.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleViewCourse(course.courseid || course.id);
+          }}
         >
           Ver Información
         </button>
@@ -145,8 +111,8 @@ const CourseCardMenu = ({ course, courseType }) => {
             <button
               className={styles.duplicateButton}
               onClick={(e) => {
-                e.stopPropagation(); // Prevent navigation on button click
-                handleDuplicateCourse(course); // Llama a la función de duplicar
+                e.stopPropagation();
+                handleDuplicateCourse(course);
               }}
               title="Duplicar curso"
             >
@@ -155,8 +121,8 @@ const CourseCardMenu = ({ course, courseType }) => {
             <button
               className={styles.archiveButton}
               onClick={(e) => {
-                e.stopPropagation(); // Prevent navigation on button click
-                handleArchiveCourse(course.id);
+                e.stopPropagation();
+                handleArchiveCourse(course.courseid || course.id);
               }}
               title="Archivar curso"
             >
