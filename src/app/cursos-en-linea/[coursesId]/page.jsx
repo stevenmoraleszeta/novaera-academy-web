@@ -183,7 +183,7 @@ const CourseDetail = ({ params }) => {
                 />
             </div>
             {!isEnrolled && (
-                <Features collectionName={'onlineCourses'} courseId={courseId} course={course} setCourse={course}></Features>
+                <Features collectionName={'onlineCourses'} courseId={courseId} course={course} setCourse={setCourse}></Features>
             )}
             {modules.length > 0 ? (
                 modules.map((classModule, moduleIndex) => (
@@ -197,7 +197,7 @@ const CourseDetail = ({ params }) => {
                         isAdmin={isAdmin}
                         collectionName={'onlineCourses'}
                         courseId={courseId}
-                        onModulesUpdate={course}
+                        onModulesUpdate={setModules}
                         onClassClick={onClassClick}
                     />
                 ))
