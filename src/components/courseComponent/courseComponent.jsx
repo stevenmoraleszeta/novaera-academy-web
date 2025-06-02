@@ -10,7 +10,7 @@ import CourseVideo from "@/components/courseVideo/courseVideo";
 import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
 import { Modal } from "@/components/modal/modal";
-import ProjectsList from "@/components/projects/projects"; // Asegúrate de tener este componente
+import ProjectsList from "@/components/projects/projects";
 
 const CourseDetail = ({
     params,
