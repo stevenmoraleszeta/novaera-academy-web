@@ -29,7 +29,7 @@ const CourseDetail = ({ params }) => {
     const [videoUrl, setVideoUrl] = useState(course?.videoUrl || "");
 
     const openVideoModal = () => {
-        setVideoUrl(course?.videoUrl || "https://www.youtube.com/watch?v=zLRCwQS7XAM");
+        setVideoUrl(course?.videourl || "https://www.youtube.com/watch?v=zLRCwQS7XAM");
         setIsVideoModalOpen(true);
     };
 
@@ -199,6 +199,12 @@ const CourseDetail = ({ params }) => {
         await handleFieldChange("videoUrl", videoUrl);
         setIsVideoModalOpen(false);
     };
+
+    useEffect(() => {
+        setVideoUrl(course?.videoUrl || "");
+    }, [course?.videoUrl]);
+
+
 
     if (!course) {
         return <div>Cargando información del curso...</div>;
