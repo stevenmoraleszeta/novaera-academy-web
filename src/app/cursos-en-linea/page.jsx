@@ -4,7 +4,7 @@ const OnlineCourses = () => {
     return (
         <CoursesPage
             collectionName="onlineCourses"
-            courseType={"online"}
+            courseType="online"
             pageTitle="Cursos en Linea - ZETA"
             placeholderText="Python, SQL, Excel..."
         />
