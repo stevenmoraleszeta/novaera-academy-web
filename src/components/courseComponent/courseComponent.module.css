@@ -1,0 +1,93 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: var(--color-dark-hover);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 650px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    animation: fadeIn 0.3s ease;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: var(--color-dark-hover);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 650px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    animation: fadeIn 0.3s ease;
+}
+
+.modalContent::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+    background: var(--color-dark);
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-hover);
+}
+
+.modalContent h3 {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.modalContent label {
+    color: var(--text-color);
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.modalContent input,
+.modalContent select,
+.modalContent textarea {
+    margin-bottom: 20px;
+}

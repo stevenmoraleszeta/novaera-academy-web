@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaRegImage } from "react-icons/fa";
+import { FaRegImage, FaUser } from "react-icons/fa";
 import styles from "./CourseDetails.module.css";
 import { useRouter } from "next/navigation";
 
@@ -12,7 +12,8 @@ const CourseDetails = ({
     handleFieldChange,
     handleContactClick,
     openModal,
-    openVideoModal,
+    openGroupModal,
+    isLiveCourse
 }) => {
     const router = useRouter();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -98,6 +99,12 @@ const CourseDetails = ({
                 {isAdmin && (
                     <div className={styles.iconWrapper} onClick={openModal}>
                         <FaRegImage className={styles.editIcon} />
+                    </div>
+                )}
+
+                {isAdmin && isLiveCourse && (
+                    <div className={styles.iconWrapper} onClick={openGroupModal} title="Asignar Mentor y Estudiantes">
+                        <FaUser className={styles.editIcon} />
                     </div>
                 )}
             </div>

@@ -12,6 +12,9 @@ import ModuleCard from "@/components/moduleCards/moduleCards";
 import { Modal } from "@/components/modal/modal";
 import ProjectsList from "@/components/projects/projects";
 
+import { FaPlus, FaTrash } from "react-icons/fa";
+import styles from "./courseComponent.module.css";
+
 const CourseDetail = ({
     params,
     isLiveCourse = false,
@@ -30,6 +33,94 @@ const CourseDetail = ({
 
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
     const [videoUrl, setVideoUrl] = useState(course?.videoUrl || "");
+
+    const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+    const [selectedMentor, setSelectedMentor] = useState("");
+    const [adminUsers, setAdminUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
+    const [students, setStudents] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchEmail, setSearchEmail] = useState("");
+
+    const filteredStudents = allUsers.filter(
+        (user) =>
+            (user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) || !searchTerm) &&
+            (user.email?.toLowerCase().includes(searchEmail.toLowerCase()) || !searchEmail)
+    );
+
+    useEffect(() => {
+        if (!isLiveCourse || !isAdmin) return;
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`)
+            .then(res => res.json())
+            .then(data => {
+                setAllUsers(data);
+                setAdminUsers(data.filter(u => u.role === "admin" || u.role === "mentor"));
+            });
+
+        // Traer los estudiantes inscritos en el curso
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`)
+            .then(res => res.json())
+            .then(data => {
+                setStudents(data.map(sc => sc.userid));
+            });
+    }, [isLiveCourse, isAdmin, courseId]);
+
+    const openGroupModal = async () => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`);
+            const data = await res.json();
+            setSelectedMentor(data.mentorid || "");
+        } catch (e) {
+            setSelectedMentor("");
+        }
+        setIsGroupModalOpen(true);
+    };
+
+    const assignMentor = async (mentorId) => {
+        try {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...course, mentorId }),
+            });
+            setSelectedMentor(mentorId);
+        } catch (e) {
+            console.error("Error al asignar mentor:", e);
+        }
+    };
+
+    const handleAddStudent = async (studentId) => {
+        if (!studentId) return;
+        try {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: studentId,
+                    courseId,
+                    enrollmentDate: new Date().toISOString(),
+                }),
+            });
+            setStudents([...students, studentId]);
+        } catch (e) {
+            console.error("Error al agregar estudiante:", e);
+        }
+    };
+
+    const handleRemoveStudent = async (studentId) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`);
+            const data = await res.json();
+            const studentCourse = data.find(sc => sc.userid === studentId);
+            if (studentCourse) {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/${studentCourse.id}`, {
+                    method: "DELETE",
+                });
+                setStudents(students.filter(id => id !== studentId));
+            }
+        } catch (e) { }
+    };
 
     const openVideoModal = () => {
         setVideoUrl(course?.videoUrl || "https://www.youtube.com/watch?v=zLRCwQS7XAM");
@@ -293,8 +384,9 @@ const CourseDetail = ({
                     isEnrolled={isEnrolled}
                     handleFieldChange={handleFieldChange}
                     handleContactClick={() => { }}
-                    openModal={() => { }}
+                    openGroupModal={openGroupModal}
                     openVideoModal={openVideoModal}
+                    isLiveCourse={isLiveCourse}
                 />
             </div>
             {!isEnrolled && (
@@ -361,6 +453,86 @@ const CourseDetail = ({
                         </div>
                     </div>
                 </Modal>
+            )}
+            {isGroupModalOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <h3>Asignar Mentor</h3>
+                        <select
+                            value={selectedMentor || ""}
+                            onChange={async (e) => {
+                                const mentorId = e.target.value;
+                                setSelectedMentor(mentorId);
+                                if (mentorId) {
+                                    await assignMentor(mentorId);
+                                }
+                            }}
+                        >
+                            <option value="">Selecciona un mentor</option>
+                            {adminUsers.map(user => (
+                                <option key={user.id} value={user.id}>
+                                    {user.displayName || "Nombre no disponible"}
+                                </option>
+                            ))}
+                        </select>
+                        <h3>Asignar Estudiantes</h3>
+                        <input
+                            type="text"
+                            placeholder="Buscar estudiante por nombre"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className={styles.searchInput}
+                        />
+                        <input
+                            type="email"
+                            placeholder="Buscar estudiante por email"
+                            value={searchEmail}
+                            onChange={(e) => setSearchEmail(e.target.value)}
+                            className={styles.searchInput}
+                        />
+                        <div className={styles.buttonContainer}>
+                            <select id="studentSelect">
+                                <option value="">Selecciona un estudiante</option>
+                                {filteredStudents.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.displayName || "Nombre no disponible"} - {user.email}
+                                    </option>
+                                ))}
+                            </select>
+                            <button onClick={() => handleAddStudent(document.getElementById('studentSelect').value)}>
+                                <FaPlus />
+                            </button>
+                        </div>
+                        <table className={styles.studentTable}>
+                            <thead>
+                                <tr>
+                                    <th>Estudiantes</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {students.map(studentId => {
+                                    const student = allUsers.find(user => user.id === studentId);
+                                    return (
+                                        <tr key={studentId}>
+                                            <td>{student ? student.displayName : "Nombre no disponible"}</td>
+                                            <td>
+                                                <button onClick={() => handleRemoveStudent(studentId)}>
+                                                    <FaTrash />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                        <div className={styles.buttonContainer}>
+                            <button onClick={() => setIsGroupModalOpen(false)} className={styles.secondaryButton}>
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
