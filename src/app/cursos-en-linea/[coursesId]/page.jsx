@@ -9,6 +9,7 @@ import CourseDetails from "@/components/courseDetails/courseDetails";
 import CourseVideo from "@/components/courseVideo/courseVideo";
 import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
+import { Modal } from "@/components/modal/modal";
 
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
@@ -23,6 +24,14 @@ const CourseDetail = ({ params }) => {
     const [modules, setModules] = useState([]);
     const { currentUser, isAdmin } = useAuth();
     const [isEnrolled, setIsEnrolled] = useState(false);
+
+    const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+    const [videoUrl, setVideoUrl] = useState(course?.videoUrl || "");
+
+    const openVideoModal = () => {
+        setVideoUrl(course?.videoUrl || "https://www.youtube.com/watch?v=zLRCwQS7XAM");
+        setIsVideoModalOpen(true);
+    };
 
     useEffect(() => {
         const fetchModulesAndClasses = async () => {
@@ -186,7 +195,10 @@ const CourseDetail = ({ params }) => {
         router.push(`/cursos-en-linea/${courseId}/${moduleId}/${classId}`);
     };
 
-    console.log("modules:", modules);
+    const handleSaveVideoUrl = async () => {
+        await handleFieldChange("videoUrl", videoUrl);
+        setIsVideoModalOpen(false);
+    };
 
     if (!course) {
         return <div>Cargando información del curso...</div>;
@@ -207,7 +219,7 @@ const CourseDetail = ({ params }) => {
                 </span>
             )}
             <div className="course-detail-main-content">
-                <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
+                <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={openVideoModal} />
                 <CourseDetails
                     course={course}
                     isAdmin={isAdmin}
@@ -215,7 +227,7 @@ const CourseDetail = ({ params }) => {
                     handleFieldChange={handleFieldChange}
                     handleContactClick={() => { }}
                     openModal={() => { }}
-                    openVideoModal={() => { }}
+                    openVideoModal={openVideoModal}
                 />
             </div>
             {!isEnrolled && (
@@ -244,6 +256,28 @@ const CourseDetail = ({ params }) => {
                 <button onClick={addModule} className="course-detail-add-module-button" title="Añadir Módulo">
                     Add Module
                 </button>
+            )}
+
+            {isVideoModalOpen && (
+                <Modal isOpen={isVideoModalOpen}
+                    onClose={() => setIsVideoModalOpen(false)}
+                    title="Editar enlace del video"
+                    modalType="customContent">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <input
+                            type="text"
+                            name="videoUrl"
+                            value={videoUrl}
+                            onChange={e => setVideoUrl(e.target.value)}
+                            placeholder="Pega el enlace del video"
+                            style={{ width: "100%" }}
+                        />
+                        <div style={{ display: "flex", gap: 8 }}>
+                            <button onClick={handleSaveVideoUrl}>Guardar</button>
+                            <button onClick={() => setIsVideoModalOpen(false)}>Cancelar</button>
+                        </div>
+                    </div>
+                </Modal>
             )}
         </div>
     );
