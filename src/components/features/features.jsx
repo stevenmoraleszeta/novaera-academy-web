@@ -100,6 +100,7 @@ export default function Features({ course, setCourse, courseId }) {
                 description: "Nueva descripción",
                 iconurl: defaultFeatures[3].iconurl,
             };
+            console.log("Enviando a /features:", newFeature);
             const { data: createdFeature } = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/features`,
                 newFeature

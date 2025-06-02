@@ -91,18 +91,19 @@ const CourseDetail = ({
     };
 
     const handleAddStudent = async (studentId) => {
-        if (!studentId) return;
+        const numericId = Number(studentId);
+        if (!numericId) return;
         try {
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: studentId,
+                    userId: numericId,
                     courseId,
                     enrollmentDate: new Date().toISOString(),
                 }),
             });
-            setStudents([...students, studentId]);
+            setStudents([...students, numericId]);
         } catch (e) {
             console.error("Error al agregar estudiante:", e);
         }
@@ -206,13 +207,17 @@ const CourseDetail = ({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(projectData),
             });
-            if (!res.ok) throw new Error("Error al crear el proyecto");
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error("Error al crear el proyecto: " + errorText);
+            }
             await res.json();
 
             const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
             setProjects(await updated.json());
         } catch (err) {
             console.error("Error al añadir proyecto:", err);
+            alert(err.message);
         }
     };
 
@@ -358,6 +363,7 @@ const CourseDetail = ({
         setVideoUrl(course?.videoUrl || "");
     }, [course?.videoUrl]);
 
+
     if (!course) {
         return <div>Cargando información del curso...</div>;
     }
@@ -430,6 +436,7 @@ const CourseDetail = ({
                     moveProject={() => { }}
                     deleteProject={deleteProject}
                     addProject={addProject}
+                    students={students}
                 />
             )}
 

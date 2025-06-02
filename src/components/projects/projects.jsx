@@ -1,6 +1,7 @@
 import React from "react";
 import { FaArrowUp, FaArrowDown, FaTrash } from "react-icons/fa";
 import styles from "./ProjectsList.module.css";
+import { useAuth } from "@/context/AuthContext";
 
 const ProjectsList = ({
     isAdmin,
@@ -13,7 +14,9 @@ const ProjectsList = ({
     moveProject,
     deleteProject,
     addProject,
+    students,
 }) => {
+    const { currentUser } = useAuth();
     if (!isStudentInCourse && !isAdmin) return null;
 
     const renderProjectActions = (project, index) => (
@@ -93,7 +96,18 @@ const ProjectsList = ({
                     )}
                 </div>
                 {isAdmin && (
-                    <button onClick={addProject} className={styles.addProjectButton}>
+                    <button
+                        onClick={() => addProject({
+                            title: "Nuevo Proyecto",
+                            dueDate: new Date().toISOString().slice(0, 10),
+                            fileUrl: "",
+                            orderProject: projects.length + 1,
+                            courseId,
+                            mentorId: currentUser?.userid,
+                            userId: students && students.length > 0 ? Number(students[0]) : null,
+                        })}
+                        className={styles.addProjectButton}
+                    >
                         Añadir Proyecto
                     </button>
                 )}
