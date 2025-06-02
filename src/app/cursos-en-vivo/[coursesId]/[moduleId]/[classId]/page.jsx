@@ -16,7 +16,7 @@ const Page = () => {
             classId={classId}
             currentUser={currentUser}
             isAdmin={isAdmin}
-            onBackToSyllabus={() => router.push(`/cursos-en-linea/${coursesId}`)}
+            onBackToSyllabus={() => router.push(`/cursos-en-vivo/${coursesId}`)}
         />
     );
 };

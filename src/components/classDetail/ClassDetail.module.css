@@ -1,0 +1,599 @@
+/* General Container for Class Detail */
+.classDetailContainer {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 10px;
+    color: #ffffff;
+    text-align: center;
+}
+
+
+.titleContainer {
+    margin-bottom: 20px;
+}
+
+.titleInput {
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    font-weight: bold;
+    font-size: 2rem;
+    padding: 0;
+    margin: 10px 0 7px 0;
+    text-align: center;
+}
+
+.titleInput:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
+
+
+/* Block Container */
+.elementsContainer {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.block {
+    position: relative;
+    padding: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.resourceActions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    height: 100%;
+}
+
+.icon {
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.icon:hover {
+    color: var(--color-secondary);
+}
+
+
+/* Input, TextArea, and Link Styling */
+.input,
+.modalInput,
+.textArea {
+    width: 100%;
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    font-size: 1rem;
+    padding: 5px;
+}
+
+.textArea {
+    height: 60px;
+    resize: vertical;
+}
+
+.videoWrapper {
+    position: relative;
+    width: 50vw;
+    height: auto;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.videoFrame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+    object-fit: cover;
+}
+
+/* Restart Button below the iframe */
+.restartButton {
+    padding: 10px 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: var(--color-secondary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Button hover effect */
+.restartButton:hover {
+    background-color: var(--color-secondary-hover);
+    transform: scale(1.05);
+}
+
+
+
+/* Image Preview */
+.imagePreview {
+    width: 100%;
+    /* Asegura que la imagen ocupe el 100% del ancho del contenedor */
+    height: auto;
+    /* Mantiene la proporción de la imagen */
+    max-width: 100%;
+    /* Evita que la imagen exceda el ancho del contenedor */
+    object-fit: contain;
+    /* Asegura que la imagen se ajuste dentro del contenedor sin recortarse */
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* General styling for link and PDF resource blocks */
+.resourceButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    /* Light text color */
+    background-color: var(--color-primary);
+    /* Background color similar to image */
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    width: fit-content;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Hover effect for interactive feedback */
+.resourceButton:hover {
+    background-color: var(--color-primary-hover);
+    /* Darker shade for hover */
+}
+
+/* Icon styles inside resource button */
+.resourceButtonIcon {
+    font-size: 1.2rem;
+    /* Slightly larger for visual emphasis */
+}
+
+
+/* Title Resource */
+.titleResource {
+    width: 100%;
+    background: transparent;
+    color: var(--color-lighter);
+    border: none;
+    outline: none;
+    padding: 0;
+    resize: none;
+    font-size: 1.6vw;
+    font-weight: bold;
+    margin-bottom: 0;
+    text-align: center;
+}
+
+/* Text Resource */
+.textResource {
+    width: 80%;
+    background: transparent;
+    color: var(--color-light-active);
+    border: none;
+    outline: none;
+    padding: 0;
+    resize: none;
+    text-align: center;
+    font-size: 1.1vw;
+    line-height: 1.2;
+    color: var(--text-color);
+    margin-top: 5px;
+    margin-bottom: 5px;
+    justify-self: center;
+}
+
+.resourceCode {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    border: 1px solid #3c3c3c;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+    height: 300px;
+    resize: none;
+    line-height: 1.5;
+    overflow: auto;
+}
+
+.resourceCode:focus {
+    outline: 2px solid #007acc;
+}
+
+/* Botón personalizado para Enviar Proyecto */
+.sendProjectButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 22px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: var(--color-secondary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    text-decoration: none;
+    width: fit-content;
+    align-self: center;
+    margin: 0 auto;
+}
+
+/* Efecto hover para el botón */
+.sendProjectButton:hover {
+    background-color: var(--color-secondary-hover);
+    /* Naranja más vivo */
+    transform: scale(1.1);
+    /* Aumentar tamaño al pasar el mouse */
+}
+
+/* Ícono personalizado para Enviar Proyecto */
+.sendProjectIcon {
+    font-size: 2rem;
+    /* Tamaño del ícono */
+    margin-right: 8px;
+    /* Espaciado entre el ícono y el texto */
+}
+
+
+.addButton {
+    margin-top: 10vh;
+    width: 100%;
+    background-color: transparent;
+    border: dashed 5px var(--color-secondary);
+}
+
+
+/* Modal Overlay - Semi-transparent background with centered modal */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    /* Darker background for better focus */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Content - Container with rounded corners, shadow, and padding */
+.modalContent {
+    background: var(--color-dark-hover);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 650px;
+    width: 100%;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    animation: fadeIn 0.3s ease;
+    /* Fade-in animation */
+}
+
+.textEditorButtons {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.styleButton {
+    background-color: var(--color-primary);
+    color: var(--text-color);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.styleButton:hover {
+    background-color: var(--color-primary-active);
+}
+
+
+/* Fade-in animation for the modal */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Title */
+
+.modalContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalContent h3 {
+    color: var(--color-primary);
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.modalContent p {
+    font-weight: bold;
+    text-align: center;
+}
+
+.modalButton {
+    height: 80%;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+/* Modal Labels - consistent spacing */
+.modalContent div {
+    width: 100%;
+    font-size: 1rem;
+    color: var(--color-light-active);
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Modal Input Fields */
+.modalInput,
+.modalSelect,
+.textArea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    background-color: var(--color-black);
+    color: var(--text-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Focused Input and Select Styles */
+.modalInput:focus,
+.modalSelect:focus,
+.textArea:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* Modal Actions - Buttons aligned to the left with improved styling */
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    /* Align buttons to the left */
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.modalActions button {
+    padding: 10px 15px;
+    /* Adjust padding for a more compact look */
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: fit-content;
+    /* Ensure button width fits content */
+    transition: background-color 0.2s ease;
+    margin-right: 10px;
+}
+
+.modalActions button:first-child {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    /* Ensure text color contrasts with primary button color */
+}
+
+.modalActions button:last-child {
+    background-color: var(--color-secondary);
+    color: #ffffff;
+    /* Ensure text color contrasts with secondary button color */
+}
+
+/* Hover Effects for Modal Buttons */
+.modalActions button:hover {
+    opacity: 0.9;
+}
+
+/* Enhanced Modal Select with custom dropdown arrow */
+.modalSelect {
+    width: 100%;
+    padding: 8px;
+    background-color: var(--color-black);
+    color: var(--text-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+
+/* Focused Select Styles */
+.modalSelect:focus {
+    outline: none;
+    box-shadow: none;
+    border: none;
+}
+
+.modalOverlay textarea {
+    resize: vertical;
+    height: 7vh;
+}
+
+/* Improve visibility and style of select and input placeholders */
+.modalInput::placeholder,
+.modalSelect::placeholder,
+.modalOverlay textArea::placeholder {
+    color: var(--color-lighter);
+    font-weight: normal;
+}
+
+
+
+/* Fixed Bar at the Bottom */
+.fixedBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 15px;
+    padding: 0 10vw 0 5vw;
+    background: linear-gradient(to top, var(--color-primary-active), var(--color-dark), var(--color-black));
+    /* Updated gradient direction */
+    z-index: 100;
+    justify-content: center;
+
+}
+
+/* General Button Styles */
+.fixedBar button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Specific Button Styles */
+.syllabusButton {
+    background-color: var(--color-primary-active);
+}
+
+.backButton {
+    background-color: var(--color-primary);
+}
+
+.completeButton {
+    background-color: var(--color-secondary);
+    /* Orange color for "Complete Class" button */
+}
+
+/* Style for the completed button */
+.completedButton {
+    background-color: var(--color-primary);
+    /* Change to primary color */
+}
+
+
+.nextButton {
+    background-color: var(--color-primary);
+}
+
+/* Hover Effects */
+.fixedBar button:hover {
+    opacity: 0.9;
+}
+
+
+/* media queries */
+@media (max-width: 768px) {
+
+    /* fixed control bar */
+
+    .fixedBar button {
+        width: 20vw;
+        font-size: clamp(1.5vw, 15px, 2.5vw);
+    }
+
+    .btnIcon {
+        display: none;
+    }
+
+    /* module page */
+
+    .block {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        width: 100%;
+    }
+
+    .videoWrapper {
+        width: 100%;
+        gap: 0px;
+        display: inline;
+    }
+
+    .resourceActions {
+        position: unset;
+        margin: 15px;
+        display: flex;
+        align-self: start;
+    }
+
+    .restartButton {
+        font-size: clamp(2vw, 30px, 3vw);
+    }
+
+    .titleResource {
+        font-size: clamp(4vw, 25px, 5vw);
+    }
+
+    .textResource {
+        font-size: clamp(3vw, 20px, 4vw);
+    }
+
+    .imagePreview,
+    .resourceButton {
+        display: flex;
+        align-self: baseline;
+    }
+
+    .sendProjectButton {
+        font-size: 3vw;
+    }
+}

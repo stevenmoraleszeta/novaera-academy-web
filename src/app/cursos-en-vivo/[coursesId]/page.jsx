@@ -11,10 +11,12 @@ import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
 import ProjectsList from "@/components/projects/projects";
 import { Modal } from "@/components/modal/modal";
+import { useRouter } from "next/navigation";
 
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
     const resolvedParams = use(params);
+    const router = useRouter();
     const courseId = resolvedParams.coursesId || searchParams.get("courseId");
     const { course, setCourse } = useFetchCourse(courseId, 'liveCourses');
 
@@ -271,6 +273,11 @@ const CourseDetail = ({ params }) => {
         }
     };
 
+    const onClassClick = (moduleId, classId) => {
+        console.log("Clase seleccionada:", moduleId, classId);
+        router.push(`/cursos-en-vivo/${courseId}/${moduleId}/${classId}`);
+    };
+
     const handleSaveVideoUrl = async () => {
         await handleFieldChange("videoUrl", videoUrl);
         setIsVideoModalOpen(false);
@@ -322,6 +329,7 @@ const CourseDetail = ({ params }) => {
                         collectionName={'liveCourses'}
                         courseId={courseId}
                         onModulesUpdate={course}
+                        onClassClick={onClassClick}
                     />
                 ))
             ) : (
