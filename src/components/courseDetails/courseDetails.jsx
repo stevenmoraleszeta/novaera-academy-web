@@ -19,12 +19,19 @@ const CourseDetails = ({
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
     const handleEnrollClick = async () => {
-        try {
-            const paymentUrl = `/payment?courseId=${encodeURIComponent(course.courseid || course.id)}`;
-            router.push(paymentUrl);
-        } catch (error) {
-            setIsAlertOpen(true);
-            console.error("Error verificando la inscripción del curso:", error);
+        if (isLiveCourse) {
+            const phoneNumber = "+50661304830";
+            const message = `Hola, estoy interesado/a en inscribirme al curso en vivo ${course.title}.`;
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, "_blank");
+        } else {
+            try {
+                const paymentUrl = `/payment?courseId=${encodeURIComponent(course.courseid || course.id)}`;
+                router.push(paymentUrl);
+            } catch (error) {
+                setIsAlertOpen(true);
+                console.error("Error verificando la inscripción del curso:", error);
+            }
         }
     };
 
