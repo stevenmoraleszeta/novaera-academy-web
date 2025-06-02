@@ -27,21 +27,25 @@ const ClassDetail = ({
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!courseId || !moduleId || !classId) return;
+            if (!classId || !courseId || !moduleId) return;
             try {
-                const url = `${process.env.NEXT_PUBLIC_API_URL}/class-resources/by-course-module-class/${courseId}/${moduleId}/${classId}`;
+                const url = `${process.env.NEXT_PUBLIC_API_URL}/classes/${classId}`;
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("No se pudo obtener la clase");
                 const data = await res.json();
                 setClassTitle(data.title || "");
-                setResources(data.resources || []);
-                setClassesInModule(data.classesInModule || []);
+
+                const resourcesUrl = `${process.env.NEXT_PUBLIC_API_URL}/class-resources/by-course-module-class/${courseId}/${moduleId}/${classId}`;
+                const resourcesRes = await fetch(resourcesUrl);
+                if (!resourcesRes.ok) throw new Error("No se pudieron obtener los recursos");
+                const resourcesData = await resourcesRes.json();
+                setResources(resourcesData || []);
             } catch (error) {
-                console.error("Error al obtener la clase:", error);
+                console.error("Error al obtener la clase o recursos:", error);
             }
         };
         fetchData();
-    }, [classId, courseId, moduleId, currentUser]);
+    }, [classId, courseId, moduleId]);
 
     const handleCompleteClass = async () => {
         try {
