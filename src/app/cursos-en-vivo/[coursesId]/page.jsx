@@ -316,6 +316,7 @@ const CourseDetail = ({ params }) => {
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                         <input
                             type="text"
+                            name="videoUrl"
                             value={videoUrl}
                             onChange={e => setVideoUrl(e.target.value)}
                             placeholder="Pega el enlace del video"
