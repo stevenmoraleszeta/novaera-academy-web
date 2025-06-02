@@ -124,9 +124,9 @@ export function Modal({
                     </div>
                 )}
 
-                {customContent && (
+                {modalContent === "customContent" && (
                     <div className={styles.customContent}>
-                        {customContent}
+                        {children}
                     </div>
                 )}
             </div>

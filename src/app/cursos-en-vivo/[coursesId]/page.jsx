@@ -10,6 +10,7 @@ import CourseVideo from "@/components/courseVideo/courseVideo";
 import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
 import ProjectsList from "@/components/projects/projects";
+import { Modal } from "@/components/modal/modal";
 
 const CourseDetail = ({ params }) => {
     const searchParams = useSearchParams();
@@ -23,6 +24,14 @@ const CourseDetail = ({ params }) => {
 
     const [projects, setProjects] = useState([]);
     const [studentProjects, setStudentProjects] = useState([]);
+
+    const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+    const [videoUrl, setVideoUrl] = useState(course?.videoUrl || "");
+
+    const openVideoModal = () => {
+        setVideoUrl(course?.videoUrl || "");
+        setIsVideoModalOpen(true);
+    };
 
     useEffect(() => {
         const fetchModulesAndClasses = async () => {
@@ -225,6 +234,11 @@ const CourseDetail = ({ params }) => {
         }
     };
 
+    const handleSaveVideoUrl = async () => {
+        await handleFieldChange("videoUrl", videoUrl);
+        setIsVideoModalOpen(false);
+    };
+
     return (
         <div className="course-detail-container">
             {isAdmin ? (
@@ -240,7 +254,11 @@ const CourseDetail = ({ params }) => {
                 </span>
             )}
             <div className="course-detail-main-content">
-                <CourseVideo course={course} isAdmin={isAdmin} openVideoModal={() => { }} />
+                <CourseVideo
+                    course={course}
+                    isAdmin={isAdmin}
+                    openVideoModal={openVideoModal}
+                />
                 <CourseDetails
                     course={course}
                     isAdmin={isAdmin}
@@ -248,7 +266,7 @@ const CourseDetail = ({ params }) => {
                     handleFieldChange={handleFieldChange}
                     handleContactClick={() => { }}
                     openModal={() => { }}
-                    openVideoModal={() => { }}
+                    openVideoModal={openVideoModal}
                 />
             </div>
             {!isEnrolled && (
@@ -289,6 +307,27 @@ const CourseDetail = ({ params }) => {
                 deleteProject={deleteProject}
                 addProject={addProject}
             />
+
+            {isVideoModalOpen && (
+                <Modal isOpen={isVideoModalOpen}
+                    onClose={() => setIsVideoModalOpen(false)}
+                    title="Editar enlace del video"
+                    modalType="customContent">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <input
+                            type="text"
+                            value={videoUrl}
+                            onChange={e => setVideoUrl(e.target.value)}
+                            placeholder="Pega el enlace del video"
+                            style={{ width: "100%" }}
+                        />
+                        <div style={{ display: "flex", gap: 8 }}>
+                            <button onClick={handleSaveVideoUrl}>Guardar</button>
+                            <button onClick={() => setIsVideoModalOpen(false)}>Cancelar</button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 };
