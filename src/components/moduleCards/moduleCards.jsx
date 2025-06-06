@@ -87,7 +87,7 @@ const ModuleCard = ({
                 courseId,
                 moduleId,
                 title: "Nueva Clase",
-                orderClass: moduleData.classes.length || 0,
+                orderClass: moduleData.classes.length + 1,
                 restricted: false
             };
             const res = await axios.post(

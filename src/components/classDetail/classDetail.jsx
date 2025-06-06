@@ -25,6 +25,9 @@ const ClassDetail = ({
     const [isRestricted, setIsRestricted] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
+    const [orderClass, setOrderClass] = useState(1);
+    const [restricted, setRestricted] = useState(false);
+
     useEffect(() => {
         const fetchData = async () => {
             if (!classId || !courseId || !moduleId) return;
@@ -34,6 +37,8 @@ const ClassDetail = ({
                 if (!res.ok) throw new Error("No se pudo obtener la clase");
                 const data = await res.json();
                 setClassTitle(data.title || "");
+                setOrderClass(Number(data.orderClass || data.orderclass));
+                setRestricted(data.restricted ?? false);
 
                 const resourcesUrl = `${process.env.NEXT_PUBLIC_API_URL}/class-resources/by-course-module-class/${courseId}/${moduleId}/${classId}`;
                 const resourcesRes = await fetch(resourcesUrl);
@@ -99,6 +104,31 @@ const ClassDetail = ({
         window.open(whatsappUrl, "_blank");
     };
 
+    const handleSaveTitle = async () => {
+        const payload = {
+            title: classTitle,
+            courseId,
+            moduleId,
+            orderClass,
+            restricted
+        };
+        console.log("Payload enviado al backend:", payload);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/classes/${classId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.log("Respuesta del backend:", errorData);
+                throw new Error("No se pudo actualizar el título");
+            }
+        } catch (error) {
+            console.error("Error al actualizar el título:", error);
+        }
+    };
+
     return (
         <div>
             {isRestricted ? (
@@ -115,6 +145,7 @@ const ClassDetail = ({
                                 type="text"
                                 value={classTitle}
                                 onChange={(e) => setClassTitle(e.target.value)}
+                                onBlur={handleSaveTitle}
                                 className={styles.titleInput}
                             />
                         ) : (
