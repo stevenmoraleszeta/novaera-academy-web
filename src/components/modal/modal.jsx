@@ -20,6 +20,14 @@ export function Modal({
     isEditMode, // Para ModalForm
     onSave // Para ModalForm
 }) {
+
+    const [typeResource, setTypeResource] = useState("text");
+    const [contentResource, setContentResource] = useState("");
+    const [titleResource, setTitleResource] = useState("");
+    const [width, setWidth] = useState(null);
+    const [height, setHeight] = useState(null);
+    const [startTime, setStartTime] = useState(null);
+    const [endTime, setEndTime] = useState(null);
     const [modalContent, setModalContent] = useState("");
 
     useEffect(() => {
@@ -29,14 +37,16 @@ export function Modal({
     const handleSave = async () => {
 
         const newResource = {
+            type: typeResource,
+            content: contentResource,
+            title: titleResource,
+            width: width || null,
+            height: height || null,
+            start: startTime || null,
+            end: endTime || null,
             classId: item.classId,
-            contentResource: item.contentResource,
-            typeResource: item.typeResource,
-            orderResource: item.orderResource,
-            startTime: item.startTime || null,
-            endTime: item.endTime || null,
-            width: item.width || null,
-            height: item.height || null,
+            moduleId: item.moduleId,
+            courseId: item.courseId,
         };
 
         try {
@@ -117,10 +127,60 @@ export function Modal({
                 )}
 
                 {modalContent === "addResources" && (
-                    <div className={styles.btnsContainer}>
-                        {children}
-                        <button onClick={handleSave}>Guardar</button>
-                        <button onClick={onClose}>Cancelar</button>
+                    <div className={styles.modalForm}>
+                        <div className={styles.fieldRow}>
+                            <label>Tipo de recurso</label>
+                            <select value={typeResource} onChange={(e) => setTypeResource(e.target.value)}>
+                                <option value="text">Texto</option>
+                                <option value="imageUrl">Imagen</option>
+                                <option value="videoUrl">Video</option>
+                                <option value="pdfUrl">PDF</option>
+                                <option value="title">Título</option>
+                            </select>
+                        </div>
+
+                        <div className={styles.fieldRow}>
+                            <label>Contenido</label>
+                            <input type="text" value={contentResource} onChange={(e) => setContentResource(e.target.value)} />
+                        </div>
+
+                        {typeResource === "title" && (
+                            <div className={styles.fieldRow}>
+                                <label>Título</label>
+                                <input type="text" value={titleResource} onChange={(e) => setTitleResource(e.target.value)} />
+                            </div>
+                        )}
+
+                        {typeResource === "imageUrl" && (
+                            <>
+                                <div className={styles.fieldRow}>
+                                    <label>Ancho</label>
+                                    <input type="number" value={width || ""} onChange={(e) => setWidth(parseInt(e.target.value))} />
+                                </div>
+                                <div className={styles.fieldRow}>
+                                    <label>Alto</label>
+                                    <input type="number" value={height || ""} onChange={(e) => setHeight(parseInt(e.target.value))} />
+                                </div>
+                            </>
+                        )}
+
+                        {typeResource === "videoUrl" && (
+                            <>
+                                <div className={styles.fieldRow}>
+                                    <label>Inicio (segundos)</label>
+                                    <input type="number" value={startTime || ""} onChange={(e) => setStartTime(parseInt(e.target.value))} />
+                                </div>
+                                <div className={styles.fieldRow}>
+                                    <label>Fin (segundos)</label>
+                                    <input type="number" value={endTime || ""} onChange={(e) => setEndTime(parseInt(e.target.value))} />
+                                </div>
+                            </>
+                        )}
+
+                        <div className={styles.btnsContainer}>
+                            <button onClick={handleSave}>Guardar</button>
+                            <button onClick={onClose}>Cancelar</button>
+                        </div>
                     </div>
                 )}
 
