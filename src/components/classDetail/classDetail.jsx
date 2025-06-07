@@ -28,6 +28,17 @@ const ClassDetail = ({
     const [orderClass, setOrderClass] = useState(1);
     const [restricted, setRestricted] = useState(false);
 
+    const [newResourceType, setNewResourceType] = useState("");
+    const [newResourceContent, setNewResourceContent] = useState("");
+    const [newResourceTitle, setNewResourceTitle] = useState("");
+    const [videoStart, setVideoStart] = useState("");
+    const [videoEnd, setVideoEnd] = useState("");
+    const [editingIndex, setEditingIndex] = useState(null);
+    const [newResourceWidth, setNewResourceWidth] = useState("");
+    const [newResourceHeight, setNewResourceHeight] = useState("");
+    const [historyIndex, setHistoryIndex] = useState(0);
+    const [history, setHistory] = useState([""]);
+
     useEffect(() => {
         const fetchData = async () => {
             if (!classId || !courseId || !moduleId) return;
@@ -51,6 +62,18 @@ const ClassDetail = ({
         };
         fetchData();
     }, [classId, courseId, moduleId]);
+
+    const openModal = () => {
+        setIsModalOpen(true);
+        setNewResourceType("");
+        setNewResourceTitle("");
+        setNewResourceContent("");
+        setNewResourceWidth("");
+        setVideoStart("");
+        setVideoEnd("");
+    };
+
+    const closeModal = () => setIsModalOpen(false);
 
     const handleCompleteClass = async () => {
         try {
@@ -156,7 +179,7 @@ const ClassDetail = ({
                         resources={resources}
                         isAdmin={isAdmin}
                         setResources={setResources}
-                        setIsModalOpen={setIsModalOpen}
+                        setIsModalOpen={openModal}
                     />
                     <FixedBar
                         classesInModule={classesInModule}
@@ -170,11 +193,102 @@ const ClassDetail = ({
                     {isModalOpen && (
                         <Modal
                             isOpen={isModalOpen}
+                            onClose={closeModal}
                             resources={resources}
                             setResources={setResources}
-                            title="Agregar recurso"
-                            onClose={() => setIsAlertOpen(false)}
-                            modalType="addResources"
+                            title={editingIndex !== null ? "Modify Resource" : "Add New Resource"}
+                            modalType="customContent"
+                            customContent={
+                                <>
+                                    <div>
+                                        Select Resource Type:
+                                        <select
+                                            value={newResourceType}
+                                            onChange={(e) => setNewResourceType(e.target.value)}
+                                            className={styles.modalSelect}
+                                        >
+                                            <option value="">Select Type</option>
+                                            <option value="title">Title</option>
+                                            <option value="text">Text</option>
+                                            <option value="code">Code</option>
+                                            <option value="videoUrl">Video URL</option>
+                                            <option value="imageUrl">Image URL</option>
+                                            <option value="link">Link</option>
+                                            <option value="pdfUrl">PDF URL</option>
+                                            <option value="sendProject">Send Project</option>
+                                        </select>
+                                    </div>
+
+                                    {(newResourceType === "link" || newResourceType === "pdfUrl") && (
+                                        <div>
+                                            Enter Title:
+                                            <input
+                                                type="text"
+                                                value={newResourceTitle}
+                                                onChange={(e) => setNewResourceTitle(e.target.value)}
+                                                className={styles.modalInput}
+                                                placeholder="Enter title"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        Enter Content:
+                                        <textarea
+                                            type="text"
+                                            value={newResourceContent}
+                                            onChange={(e) => setNewResourceContent(e.target.value)}
+                                            className={styles.modalInput}
+                                            placeholder="Enter content"
+                                        />
+                                    </div>
+
+                                    {newResourceType === "videoUrl" && (
+                                        <>
+                                            <label>
+                                                Start Time (seconds):
+                                                <input
+                                                    type="number"
+                                                    value={videoStart}
+                                                    onChange={(e) => setVideoStart(e.target.value)}
+                                                    className={styles.modalInput}
+                                                />
+                                            </label>
+                                            <label>
+                                                End Time (seconds):
+                                                <input
+                                                    type="number"
+                                                    value={videoEnd}
+                                                    onChange={(e) => setVideoEnd(e.target.value)}
+                                                    className={styles.modalInput}
+                                                />
+                                            </label>
+                                        </>
+                                    )}
+                                    {newResourceType === "imageUrl" && (
+                                        <>
+                                            <label>
+                                                Ancho de la imagen (px):
+                                                <input
+                                                    type="number"
+                                                    value={newResourceWidth}
+                                                    onChange={(e) => setNewResourceWidth(e.target.value)}
+                                                    className={styles.modalInput}
+                                                    placeholder="Ancho de la imagen"
+                                                />
+                                            </label>
+                                        </>
+                                    )}
+                                    <div className={styles.modalActions}>
+                                        {newResourceType !== "" && (
+                                            <button onClick={handleSaveResource}>
+                                                {editingIndex !== null ? "Save Changes" : "Add"}
+                                            </button>
+                                        )}
+                                        <button onClick={closeModal}>Cancel</button>
+                                    </div>
+                                </>
+                            }
                         />
                     )}
                     {isAlertOpen && (

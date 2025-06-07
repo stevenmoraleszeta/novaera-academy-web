@@ -31,6 +31,12 @@ const ResourceList = ({ resources, setResources, isAdmin, setIsModalOpen, course
                     setIsModalOpen={setIsModalOpen}
                 />
             ))}
+
+            {isAdmin ? (
+                <button onClick={setIsModalOpen} className={styles.addButton}>
+                    Add Resource
+                </button>
+            ) : null}
         </div>
     );
 };
