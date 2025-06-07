@@ -152,6 +152,73 @@ const ClassDetail = ({
         }
     };
 
+    const handleSaveResource = async () => {
+        const typeMap = {
+            text: "documento",
+            code: "documento",
+            title: "documento",
+            pdfUrl: "documento",
+            videoUrl: "video",
+            imageUrl: "imagen",
+            link: "enlace",
+            sendProject: "quiz"
+        };
+
+        const toTimeString = (seconds) => {
+            if (!seconds && seconds !== 0) return undefined;
+            const sec = parseInt(seconds, 10);
+            if (isNaN(sec)) return undefined;
+            const h = String(Math.floor(sec / 3600)).padStart(2, "0");
+            const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+            const s = String(sec % 60).padStart(2, "0");
+            return `${h}:${m}:${s}`;
+        };
+
+        const getNextOrderResource = () => {
+            if (!resources || resources.length === 0) return 1;
+            const maxOrder = Math.max(...resources.map(r => Number(r.orderresource || r.orderResource || 0)));
+            return maxOrder + 1;
+        };
+
+        const orderResource = getNextOrderResource();
+
+        const payload = {
+            classId: Number(classId),
+            contentResource: newResourceContent,
+            typeResource: typeMap[newResourceType] || "documento",
+            orderResource,
+            ...(newResourceType === "videoUrl" && toTimeString(videoStart) && { startTime: toTimeString(videoStart) }),
+            ...(newResourceType === "videoUrl" && toTimeString(videoEnd) && { endTime: toTimeString(videoEnd) }),
+            ...(newResourceType === "imageUrl" && newResourceWidth !== "" && Number(newResourceWidth) > 0 && { width: Number(newResourceWidth) }),
+            ...(newResourceType === "imageUrl" && newResourceHeight !== "" && Number(newResourceHeight) > 0 && { height: Number(newResourceHeight) }),
+        };
+
+        if (["link", "pdfUrl"].includes(newResourceType) && newResourceTitle) {
+            payload.contentResource = `${newResourceTitle}||${newResourceContent}`;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.error || (data.errors && data.errors[0]?.msg) || "Error al guardar el recurso");
+                return;
+            }
+
+            setResources([...resources, data.resource]);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Error al guardar el recurso:", error);
+            alert("Error al guardar el recurso");
+        }
+    };
+
     return (
         <div>
             {isRestricted ? (
