@@ -344,6 +344,16 @@ const ClassDetail = ({
                                                     placeholder="Ancho de la imagen"
                                                 />
                                             </label>
+                                            <label>
+                                                Alto de la imagen (px):
+                                                <input
+                                                    type="number"
+                                                    value={newResourceHeight}
+                                                    onChange={(e) => setNewResourceHeight(e.target.value)}
+                                                    className={styles.modalInput}
+                                                    placeholder="Alto de la imagen"
+                                                />
+                                            </label>
                                         </>
                                     )}
                                     <div className={styles.modalActions}>
