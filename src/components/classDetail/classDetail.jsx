@@ -63,17 +63,31 @@ const ClassDetail = ({
         fetchData();
     }, [classId, courseId, moduleId]);
 
-    const openModal = () => {
+    const openModal = (
+        type = "",
+        content = "",
+        title = "",
+        start = "",
+        end = "",
+        index = null,
+        width = "",
+        height = ""
+    ) => {
         setIsModalOpen(true);
-        setNewResourceType("");
-        setNewResourceTitle("");
-        setNewResourceContent("");
-        setNewResourceWidth("");
-        setVideoStart("");
-        setVideoEnd("");
+        setNewResourceType(type || "");
+        setNewResourceTitle(title || "");
+        setNewResourceContent(content || "");
+        setVideoStart(start || "");
+        setVideoEnd(end || "");
+        setEditingIndex(index);
+        setNewResourceWidth(width || "");
+        setNewResourceHeight(height || "");
     };
 
-    const closeModal = () => setIsModalOpen(false);
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setEditingIndex(null);
+    };
 
     const handleCompleteClass = async () => {
         try {
@@ -180,13 +194,11 @@ const ClassDetail = ({
             return maxOrder + 1;
         };
 
-        const orderResource = getNextOrderResource();
 
         const payload = {
             classId: Number(classId),
             contentResource: newResourceContent,
             typeResource: typeMap[newResourceType] || "documento",
-            orderResource,
             ...(newResourceType === "videoUrl" && toTimeString(videoStart) && { startTime: toTimeString(videoStart) }),
             ...(newResourceType === "videoUrl" && toTimeString(videoEnd) && { endTime: toTimeString(videoEnd) }),
             ...(newResourceType === "imageUrl" && newResourceWidth !== "" && Number(newResourceWidth) > 0 && { width: Number(newResourceWidth) }),
@@ -198,21 +210,49 @@ const ClassDetail = ({
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+            if (editingIndex !== null) {
+                console.log('Con editingIndex')
+                const resourceToEdit = resources[editingIndex];
+                const id = resourceToEdit.id || resourceToEdit.resourceId || resourceToEdit.resourceid;
+                payload.orderResource = resourceToEdit.orderresource || resourceToEdit.orderResource || (editingIndex + 1);
 
-            const data = await response.json();
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
 
-            if (!response.ok) {
-                alert(data.error || (data.errors && data.errors[0]?.msg) || "Error al guardar el recurso");
-                return;
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error || (data.errors && data.errors[0]?.msg) || "Error al actualizar el recurso");
+                    return;
+                }
+
+                setResources(resources.map((r, i) => i === editingIndex ? data.resource : r));
+                setIsModalOpen(false);
+                setEditingIndex(null);
+            } else {
+                console.log('Sin editingIndex')
+
+                payload.orderResource = getNextOrderResource();
+
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error || (data.errors && data.errors[0]?.msg) || "Error al guardar el recurso");
+                    return;
+                }
+
+                setResources([...resources, data.resource]);
+                setIsModalOpen(false);
             }
-
-            setResources([...resources, data.resource]);
-            setIsModalOpen(false);
         } catch (error) {
             console.error("Error al guardar el recurso:", error);
             alert("Error al guardar el recurso");

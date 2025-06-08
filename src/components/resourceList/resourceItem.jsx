@@ -159,14 +159,14 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
                     <FaEdit
                         onClick={() =>
                             openModal(
-                                type,
-                                content,
-                                title || "",
-                                start || "",
-                                end || "",
+                                resource.typeResource || resource.typeresource || resource.type,
+                                resource.contentResource || resource.contentresource || resource.content,
+                                resource.title || "",
+                                resource.startTime || resource.starttime || "",
+                                resource.endTime || resource.endtime || "",
                                 index,
-                                width || "",
-                                height || ""
+                                resource.width || "",
+                                resource.height || ""
                             )
                         }
                         className={styles.icon}
