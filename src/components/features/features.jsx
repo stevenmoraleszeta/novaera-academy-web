@@ -40,22 +40,21 @@ export default function Features({ course, setCourse, courseId }) {
     const [editingIconIndex, setEditingIconIndex] = useState(null);
     const [newIconUrl, setNewIconUrl] = useState("");
     const [loading, setLoading] = useState(false);
-
     const [features, setFeatures] = useState([]);
-    // Cargar features del curso desde la relación course_features
+
+    const fetchCourseFeatures = async () => {
+        setLoading(true);
+        try {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course-features/by-course/${courseId}`);
+            setFeatures(data);
+        } catch (error) {
+            setFeatures([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchCourseFeatures = async () => {
-            setLoading(true);
-            try {
-                const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course-features/by-course/${courseId}`);
-                setFeatures(data);
-            } catch (error) {
-                setFeatures([]);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchCourseFeatures();
     }, [courseId]);
 
@@ -70,9 +69,9 @@ export default function Features({ course, setCourse, courseId }) {
 
     // Guardar el nuevo icono (actualiza el feature)
     const saveIconUrl = async (index) => {
-        const updatedFeatures = [...course.features];
+        const updatedFeatures = [...features];
         updatedFeatures[index].iconurl = newIconUrl;
-        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+        setFeatures(updatedFeatures);
         setEditingIconIndex(null);
 
         const feature = updatedFeatures[index];
@@ -100,7 +99,6 @@ export default function Features({ course, setCourse, courseId }) {
                 description: "Nueva descripción",
                 iconurl: defaultFeatures[3].iconurl,
             };
-            console.log("Enviando a /features:", newFeature);
             const { data: createdFeature } = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/features`,
                 newFeature
@@ -110,7 +108,7 @@ export default function Features({ course, setCourse, courseId }) {
                 {
                     courseId: courseId,
                     featureId: createdFeature.featureid || createdFeature.id,
-                    order: (course.features?.length || 0) + 1
+                    order: (features?.length || 0) + 1
                 }
             );
             fetchCourseFeatures();
@@ -121,12 +119,13 @@ export default function Features({ course, setCourse, courseId }) {
 
     // Eliminar la relación course-feature (no el feature en sí)
     const handleDeleteFeature = async (index) => {
-        const feature = course.features[index];
+        const feature = features[index];
+        console.log("Eliminando coursefeatureid:", feature.coursefeatureid);
         if (!feature.coursefeatureid) {
             // Si no tiene relación, solo lo quitamos localmente
-            const updatedFeatures = [...course.features];
+            const updatedFeatures = [...features];
             updatedFeatures.splice(index, 1);
-            setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+            setFeatures(updatedFeatures);
             return;
         }
         try {
@@ -141,10 +140,10 @@ export default function Features({ course, setCourse, courseId }) {
 
     // Cambiar el orden de los features (actualiza la relación)
     const moveFeature = async (index, direction) => {
-        const newFeatures = [...course.features];
+        const newFeatures = [...features];
         const [movedFeature] = newFeatures.splice(index, 1);
         newFeatures.splice(index + direction, 0, movedFeature);
-        setCourse((prev) => ({ ...prev, features: newFeatures }));
+        setFeatures(newFeatures);
         try {
             await Promise.all(
                 newFeatures.map((feature, i) => {
@@ -166,9 +165,9 @@ export default function Features({ course, setCourse, courseId }) {
 
     // Editar los datos del feature (title, description, iconurl)
     const handleFieldChange = async (index, field, value) => {
-        const updatedFeatures = [...course.features];
+        const updatedFeatures = [...features];
         updatedFeatures[index][field] = value;
-        setCourse((prev) => ({ ...prev, features: updatedFeatures }));
+        setFeatures(updatedFeatures);
 
         const feature = updatedFeatures[index];
         if (!feature.featureid) return;
@@ -279,7 +278,7 @@ export default function Features({ course, setCourse, courseId }) {
                                         </button>
                                         <button
                                             onClick={() => moveFeature(index, 1)}
-                                            disabled={index === course.features.length - 1}
+                                            disabled={index === features.length - 1}
                                             className={styles.moveButton}
                                             type="button"
                                         >
