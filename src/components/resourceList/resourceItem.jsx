@@ -11,7 +11,7 @@ const getField = (obj, ...fields) => {
     return "";
 };
 
-const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }) => {
+const ResourceItem = ({ resource, index, isAdmin, setResources, openModal }) => {
     const type = getField(resource, "type", "typeresource", "typeResource");
     const content = getField(resource, "content", "contentresource", "contentResource");
     const title = getField(resource, "title");
@@ -20,7 +20,7 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
     const width = getField(resource, "width");
     const height = getField(resource, "height");
 
-    const openModal = (type, content, title, start, end, index, width, height) => {
+    /* const openModal = (type, content, title, start, end, index, width, height) => {
         setIsModalOpen({
             isOpen: true,
             type,
@@ -32,7 +32,7 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
             width,
             height,
         });
-    };
+    }; */
 
     const handleRemoveResource = async (index) => {
         const resourceToDelete = resource;
@@ -159,14 +159,14 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
                     <FaEdit
                         onClick={() =>
                             openModal(
-                                resource.typeResource || resource.typeresource || resource.type,
-                                resource.contentResource || resource.contentresource || resource.content,
-                                resource.title || "",
-                                resource.startTime || resource.starttime || "",
-                                resource.endTime || resource.endtime || "",
+                                type,
+                                content,
+                                title,
+                                start,
+                                end,
                                 index,
-                                resource.width || "",
-                                resource.height || ""
+                                width,
+                                height
                             )
                         }
                         className={styles.icon}

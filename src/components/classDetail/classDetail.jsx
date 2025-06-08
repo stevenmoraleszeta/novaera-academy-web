@@ -73,10 +73,18 @@ const ClassDetail = ({
         width = "",
         height = ""
     ) => {
+        let resourceType = type || "";
+        let resourceTitle = title || "";
+        let resourceContent = content || "";
+        if ((resourceType === "link" || resourceType === "pdfUrl") && resourceContent.includes("||")) {
+            const [titlePart, contentPart] = resourceContent.split("||");
+            resourceTitle = titlePart;
+            resourceContent = contentPart;
+        }
         setIsModalOpen(true);
-        setNewResourceType(type || "");
-        setNewResourceTitle(title || "");
-        setNewResourceContent(content || "");
+        setNewResourceType(resourceType);
+        setNewResourceTitle(resourceTitle);
+        setNewResourceContent(resourceContent);
         setVideoStart(start || "");
         setVideoEnd(end || "");
         setEditingIndex(index);
