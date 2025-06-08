@@ -186,65 +186,14 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, openModal }) => 
                 </div>
             )}
 
+            {/* Título */}
             {type === "title" && (
                 <h2 className={styles.titleResource}>
                     {displayTitle || displayContent || "Untitled"}
                 </h2>
             )}
 
-            {(type === "videoUrl" || type === "video") && (
-                <div className={styles.videoWrapper}>
-                    <iframe
-                        src={generateYouTubeEmbedUrl(displayContent, start, end)}
-                        title={`Video ${index + 1}`}
-                        className={styles.videoFrame}
-                        id={`video-${index}`}
-                        allow="autoplay; encrypted-media; fullscreen"
-                    ></iframe>
-                    <button
-                        onClick={() => restartVideo(index)}
-                        className={styles.restartButton}
-                    >
-                        Reiniciar video
-                    </button>
-                </div>
-            )}
-
-            {(type === "imageUrl" || type === "imagen") && (
-                <img
-                    src={displayContent}
-                    alt={displayTitle || "Image"}
-                    className={styles.imagePreview}
-                    style={{ width: width || 'auto', height: height || 'auto' }}
-                    width={200}
-                    height={150}
-                />
-            )}
-
-            {(type === "link" || type === "enlace") && (
-                <a
-                    href={displayContent}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.resourceButton}
-                >
-                    <FaLink className={styles.resourceButtonIcon} />
-                    {displayTitle || "Unnamed Link"}
-                </a>
-            )}
-
-            {(type === "pdfUrl" || (type === "documento" && displayContent && displayContent.endsWith(".pdf"))) && (
-                <a
-                    href={displayContent}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.resourceButton}
-                >
-                    <FaFilePdf className={styles.resourceButtonIcon} />
-                    {displayTitle || "Unnamed PDF"}
-                </a>
-            )}
-
+            {/* Texto */}
             {type === "text" && (
                 <div
                     className={styles.textResource}
@@ -267,6 +216,7 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, openModal }) => 
                 />
             )}
 
+            {/* Documento: si tiene título, mostrar como título; si no, como texto */}
             {type === "documento" && (
                 displayTitle
                     ? (
@@ -297,6 +247,64 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, openModal }) => 
                     )
             )}
 
+            {/* Video */}
+            {(type === "videoUrl" || type === "video") && (
+                <div className={styles.videoWrapper}>
+                    <iframe
+                        src={generateYouTubeEmbedUrl(displayContent, start, end)}
+                        title={`Video ${index + 1}`}
+                        className={styles.videoFrame}
+                        id={`video-${index}`}
+                        allow="autoplay; encrypted-media; fullscreen"
+                    ></iframe>
+                    <button
+                        onClick={() => restartVideo(index)}
+                        className={styles.restartButton}
+                    >
+                        Reiniciar video
+                    </button>
+                </div>
+            )}
+
+            {/* Imagen */}
+            {(type === "imageUrl" || type === "imagen") && (
+                <img
+                    src={displayContent}
+                    alt={displayTitle || "Image"}
+                    className={styles.imagePreview}
+                    style={{ width: width || 'auto', height: height || 'auto' }}
+                    width={200}
+                    height={150}
+                />
+            )}
+
+            {/* Link */}
+            {(type === "link" || type === "enlace") && (
+                <a
+                    href={displayContent}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.resourceButton}
+                >
+                    <FaLink className={styles.resourceButtonIcon} />
+                    {displayTitle || "Unnamed Link"}
+                </a>
+            )}
+
+            {/* PDF */}
+            {(type === "pdfUrl" || (type === "documento" && displayContent && displayContent.endsWith(".pdf"))) && (
+                <a
+                    href={displayContent}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.resourceButton}
+                >
+                    <FaFilePdf className={styles.resourceButtonIcon} />
+                    {displayTitle || "Unnamed PDF"}
+                </a>
+            )}
+
+            {/* Enviar Proyecto o Quiz */}
             {(type === "sendProject" || type === "quiz") && (
                 <button
                     className={styles.sendProjectButton}
@@ -307,6 +315,7 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, openModal }) => 
                 </button>
             )}
 
+            {/* Código */}
             {type === "code" && (
                 <CodeBlock code={displayContent} />
             )}
