@@ -37,20 +37,20 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
     const handleRemoveResource = async (index) => {
         const resourceToDelete = resource;
         const resourceId = resourceToDelete.resourceid || resourceToDelete.resourceId || resourceToDelete.id;
-        console.log(resourceId)
         if (!resourceId) {
             alert("No se encontró el ID del recurso para eliminar.");
             return;
         }
         if (!window.confirm("¿Seguro que deseas eliminar este recurso?")) return;
         try {
-            const res = await fetch(`/api/class-resources/${resourceId}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources/${resourceId}`, {
                 method: "DELETE",
             });
             const data = await res.json();
-            console.log("Respuesta del backend: ", data)
             if (!res.ok) {
                 alert(data.error || "Error al eliminar el recurso");
+                const errorData = await res.json();
+                console.log("Respuesta del backend:", errorData);
                 return;
             }
             setResources((prev) => prev.filter((_, i) => i !== index));
@@ -74,21 +74,46 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
 
                 const resourceA = newArr[index];
                 const resourceB = newArr[targetIndex];
+
+                const normalize = (r, newOrder) => {
+                    const obj = {
+                        classId: r.classid || r.classId,
+                        contentResource: r.contentresource || r.contentResource,
+                        typeResource: r.typeresource || r.typeResource,
+                        orderResource: newOrder,
+                        startTime: r.starttime || r.startTime || undefined,
+                        endTime: r.endtime || r.endTime || undefined,
+                    };
+                    const width = r.width !== undefined ? Number(r.width) : undefined;
+                    if (width > 0) obj.width = width;
+                    const height = r.height !== undefined ? Number(r.height) : undefined;
+                    if (height > 0) obj.height = height;
+                    return obj;
+                };
+
                 const idA = resourceA.resourceid || resourceA.resourceId || resourceA.id;
                 const idB = resourceB.resourceid || resourceB.resourceId || resourceB.id;
+
                 const orderA = resourceA.orderresource || resourceA.orderResource;
                 const orderB = resourceB.orderresource || resourceB.orderResource;
 
-                fetch(`/api/class-resources/${idA}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ...resourceA, orderResource: orderA, orderresource: orderA }),
-                });
-                fetch(`/api/class-resources/${idB}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ...resourceB, orderResource: orderB, orderresource: orderB }),
-                });
+                (async () => {
+                    const resA = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources/${idA}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(normalize(resourceA, orderA)),
+                    });
+                    const dataA = await resA.json();
+                    console.log("Respuesta backend recurso A:", dataA);
+
+                    const resB = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources/${idB}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(normalize(resourceB, orderB)),
+                    });
+                    const dataB = await resB.json();
+                    console.log("Respuesta backend recurso B:", dataB);
+                })();
 
                 return newArr;
             }

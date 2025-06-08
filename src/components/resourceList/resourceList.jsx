@@ -31,6 +31,7 @@ const ResourceList = ({ resources, setResources, isAdmin, setIsModalOpen, course
                         isAdmin={isAdmin}
                         setResources={setResources}
                         setIsModalOpen={setIsModalOpen}
+                        resources={resources}
                     />
                 ))}
 
