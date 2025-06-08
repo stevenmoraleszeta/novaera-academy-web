@@ -103,16 +103,12 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(normalize(resourceA, orderA)),
                     });
-                    const dataA = await resA.json();
-                    console.log("Respuesta backend recurso A:", dataA);
 
                     const resB = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/class-resources/${idB}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(normalize(resourceB, orderB)),
                     });
-                    const dataB = await resB.json();
-                    console.log("Respuesta backend recurso B:", dataB);
                 })();
 
                 return newArr;
