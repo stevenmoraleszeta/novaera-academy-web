@@ -40,7 +40,6 @@ const useFetchCourse = (courseId) => {
                 if (!res.ok) throw new Error("Curso no encontrado");
 
                 const data = await res.json();
-                console.log("data recibida:", data);
 
                 data.archived = Boolean(data.archived);
 

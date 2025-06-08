@@ -41,21 +41,21 @@ export default function Features({ course, setCourse, courseId }) {
     const [newIconUrl, setNewIconUrl] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const [features, setFeatures] = useState([]);
     // Cargar features del curso desde la relación course_features
-    const fetchCourseFeatures = async () => {
-        if (!courseId) return;
-        setLoading(true);
-        try {
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course-features/by-course/${courseId}`);
-            setCourse((prev) => ({ ...prev, features: data }));
-        } catch (error) {
-            console.error("Error al cargar course features:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
+        const fetchCourseFeatures = async () => {
+            setLoading(true);
+            try {
+                const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course-features/by-course/${courseId}`);
+                setFeatures(data);
+            } catch (error) {
+                setFeatures([]);
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchCourseFeatures();
     }, [courseId]);
 
@@ -190,6 +190,8 @@ export default function Features({ course, setCourse, courseId }) {
 
     if (loading) return <div>Cargando características...</div>;
 
+    const featuresToShow = features.length > 0 ? features : defaultFeatures;
+
     return (
         <div className={styles.features}>
             {isAdmin && (
@@ -200,106 +202,105 @@ export default function Features({ course, setCourse, courseId }) {
                 </div>
             )}
 
-            {(
-                (course.features || defaultFeatures)
-                    .slice()
-                    .sort((a, b) => (a.order ?? a.orderFeature ?? 0) - (b.order ?? b.orderFeature ?? 0))
-            ).map((feature, index) => (
-                <div key={feature.coursefeatureid || feature.featureid || index} className={styles.feature}>
-                    {/* Solo renderiza imagen si hay iconurl */}
-                    {feature.iconurl ? (
-                        <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
-                            <Image
-                                src={feature.iconurl}
-                                alt={`Icono de ${feature.title}`}
-                                fill
-                                style={{ objectFit: "contain" }}
-                            />
-                        </div>
-                    ) : null}
+            {featuresToShow
+                .slice()
+                .sort((a, b) => (a.order ?? a.orderFeature ?? 0) - (b.order ?? b.orderFeature ?? 0))
+                .map((feature, index) => (
+                    <div key={feature.coursefeatureid || feature.featureid || index} className={styles.feature}>
+                        {/* Solo renderiza imagen si hay iconurl */}
+                        {feature.iconurl ? (
+                            <div className={styles.featureIcon} onClick={() => handleIconClick(index)}>
+                                <Image
+                                    src={feature.iconurl}
+                                    alt={`Icono de ${feature.title}`}
+                                    fill
+                                    style={{ objectFit: "contain" }}
+                                />
+                            </div>
+                        ) : null}
 
-                    {editingIconIndex === index && isAdmin && feature.coursefeatureid && (
-                        <div className={styles.iconUrlInputContainer}>
-                            <input
-                                type="text"
-                                value={newIconUrl}
-                                onChange={handleIconFeatureChange}
-                                className={styles.iconUrlInput}
-                            />
-                            <button onClick={() => saveIconUrl(index)} className={styles.saveButton} type="button">
-                                Guardar
-                            </button>
-                        </div>
-                    )}
-
-                    <div>
-                        {isAdmin ? (
-                            <>
+                        {editingIconIndex === index && isAdmin && feature.coursefeatureid && (
+                            <div className={styles.iconUrlInputContainer}>
                                 <input
                                     type="text"
-                                    value={feature.title}
-                                    onChange={(e) =>
-                                        handleFieldChange(index, "title", e.target.value)
-                                    }
-                                    className={styles.featureTitleInput}
-                                // Quitar disabled para permitir edición visual
+                                    value={newIconUrl}
+                                    onChange={handleIconFeatureChange}
+                                    className={styles.iconUrlInput}
                                 />
-                                <textarea
-                                    value={feature.description}
-                                    onChange={(e) =>
-                                        handleFieldChange(index, "description", e.target.value)
-                                    }
-                                    className={styles.featureDescriptionInput}
-                                // Quitar disabled para permitir edición visual
-                                />
-                            </>
-                        ) : (
-                            <>
-                                <div className={styles.featureTitleInput}>
-                                    {feature.title || "Título no disponible"}
-                                </div>
-                                <div className={styles.featureDescriptionInput}>
-                                    {feature.description || "Descripción no disponible"}
-                                </div>
-                            </>
-                        )}
-
-                        {/* Mostrar acciones de mover para todos los features, pero solo permitir si tienen coursefeatureid */}
-                        {isAdmin && (
-                            <div className={styles.featuresActionsContainer}>
-                                <div className={styles.featureActions}>
-                                    <button
-                                        onClick={() => moveFeature(index, -1)}
-                                        disabled={index === 0}
-                                        className={styles.moveButton}
-                                        type="button"
-                                    >
-                                        <FaArrowUp />
-                                    </button>
-                                    <button
-                                        onClick={() => moveFeature(index, 1)}
-                                        disabled={index === course.features.length - 1}
-                                        className={styles.moveButton}
-                                        type="button"
-                                    >
-                                        <FaArrowDown />
-                                    </button>
-                                </div>
-                                {/* Eliminar solo si tiene coursefeatureid */}
-                                {feature.coursefeatureid && (
-                                    <button
-                                        className={styles.featuresActionsBtn}
-                                        onClick={() => handleDeleteFeature(index)}
-                                        type="button"
-                                    >
-                                        <FaTrash />
-                                    </button>
-                                )}
+                                <button onClick={() => saveIconUrl(index)} className={styles.saveButton} type="button">
+                                    Guardar
+                                </button>
                             </div>
                         )}
+
+                        <div>
+                            {isAdmin ? (
+                                <>
+                                    <input
+                                        type="text"
+                                        value={feature.title}
+                                        onChange={(e) =>
+                                            handleFieldChange(index, "title", e.target.value)
+                                        }
+                                        className={styles.featureTitleInput}
+                                    // Quitar disabled para permitir edición visual
+                                    />
+                                    <textarea
+                                        value={feature.description}
+                                        onChange={(e) =>
+                                            handleFieldChange(index, "description", e.target.value)
+                                        }
+                                        className={styles.featureDescriptionInput}
+                                    // Quitar disabled para permitir edición visual
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <div className={styles.featureTitleInput}>
+                                        {feature.title || "Título no disponible"}
+                                    </div>
+                                    <div className={styles.featureDescriptionInput}>
+                                        {feature.description || "Descripción no disponible"}
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Mostrar acciones de mover para todos los features, pero solo permitir si tienen coursefeatureid */}
+                            {isAdmin && (
+                                <div className={styles.featuresActionsContainer}>
+                                    <div className={styles.featureActions}>
+                                        <button
+                                            onClick={() => moveFeature(index, -1)}
+                                            disabled={index === 0}
+                                            className={styles.moveButton}
+                                            type="button"
+                                        >
+                                            <FaArrowUp />
+                                        </button>
+                                        <button
+                                            onClick={() => moveFeature(index, 1)}
+                                            disabled={index === course.features.length - 1}
+                                            className={styles.moveButton}
+                                            type="button"
+                                        >
+                                            <FaArrowDown />
+                                        </button>
+                                    </div>
+                                    {/* Eliminar solo si tiene coursefeatureid */}
+                                    {feature.coursefeatureid && (
+                                        <button
+                                            className={styles.featuresActionsBtn}
+                                            onClick={() => handleDeleteFeature(index)}
+                                            type="button"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
         </div>
     );
 }
