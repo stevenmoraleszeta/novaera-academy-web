@@ -21,16 +21,18 @@ const ResourceList = ({ resources, setResources, isAdmin, setIsModalOpen, course
 
     return (
         <div className={styles.resourcesContainer}>
-            {resources.map((resource, index) => (
-                <ResourceItem
-                    key={index}
-                    resource={resource}
-                    index={index}
-                    isAdmin={isAdmin}
-                    setResources={setResources}
-                    setIsModalOpen={setIsModalOpen}
-                />
-            ))}
+            {[...resources]
+                .sort((a, b) => (a.orderresource || a.orderResource) - (b.orderresource || b.orderResource))
+                .map((resource, index) => (
+                    <ResourceItem
+                        key={index}
+                        resource={resource}
+                        index={index}
+                        isAdmin={isAdmin}
+                        setResources={setResources}
+                        setIsModalOpen={setIsModalOpen}
+                    />
+                ))}
 
             {isAdmin ? (
                 <button onClick={setIsModalOpen} className={styles.addButton}>

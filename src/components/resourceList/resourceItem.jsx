@@ -3,7 +3,23 @@ import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown, FaLink, FaFilePdf, FaWhatsa
 import CodeBlock from "@/components/codeBlock/CodeBlock";
 import styles from "./ResourceList.module.css";
 
+// Esto obtiene el campo en snake case o came case
+const getField = (obj, ...fields) => {
+    for (const f of fields) {
+        if (obj[f] !== undefined && obj[f] !== null) return obj[f];
+    }
+    return "";
+};
+
 const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }) => {
+    const type = getField(resource, "type", "typeresource", "typeResource");
+    const content = getField(resource, "content", "contentresource", "contentResource");
+    const title = getField(resource, "title");
+    const start = getField(resource, "start", "starttime", "startTime");
+    const end = getField(resource, "end", "endtime", "endTime");
+    const width = getField(resource, "width");
+    const height = getField(resource, "height");
+
     const openModal = (type, content, title, start, end, index, width, height) => {
         setIsModalOpen({
             isOpen: true,
@@ -18,19 +34,65 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
         });
     };
 
-    const handleRemoveResource = (index) => {
-        setResources((prev) => prev.filter((_, i) => i !== index));
+    const handleRemoveResource = async (index) => {
+        const resourceToDelete = resource;
+        const resourceId = resourceToDelete.resourceid || resourceToDelete.resourceId || resourceToDelete.id;
+        console.log(resourceId)
+        if (!resourceId) {
+            alert("No se encontró el ID del recurso para eliminar.");
+            return;
+        }
+        if (!window.confirm("¿Seguro que deseas eliminar este recurso?")) return;
+        try {
+            const res = await fetch(`/api/class-resources/${resourceId}`, {
+                method: "DELETE",
+            });
+            const data = await res.json();
+            console.log("Respuesta del backend: ", data)
+            if (!res.ok) {
+                alert(data.error || "Error al eliminar el recurso");
+                return;
+            }
+            setResources((prev) => prev.filter((_, i) => i !== index));
+        } catch (error) {
+            alert("Error al eliminar el recurso");
+            console.error(error);
+        }
     };
 
-    const handleMoveResource = (index, direction) => {
+    const handleMoveResource = async (index, direction) => {
         setResources((prev) => {
             const newArr = [...prev];
+            let targetIndex = null;
             if (direction === "up" && index > 0) {
-                [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
+                targetIndex = index - 1;
             } else if (direction === "down" && index < newArr.length - 1) {
-                [newArr[index + 1], newArr[index]] = [newArr[index], newArr[index + 1]];
+                targetIndex = index + 1;
             }
-            return newArr;
+            if (targetIndex !== null) {
+                [newArr[index], newArr[targetIndex]] = [newArr[targetIndex], newArr[index]];
+
+                const resourceA = newArr[index];
+                const resourceB = newArr[targetIndex];
+                const idA = resourceA.resourceid || resourceA.resourceId || resourceA.id;
+                const idB = resourceB.resourceid || resourceB.resourceId || resourceB.id;
+                const orderA = resourceA.orderresource || resourceA.orderResource;
+                const orderB = resourceB.orderresource || resourceB.orderResource;
+
+                fetch(`/api/class-resources/${idA}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ...resourceA, orderResource: orderA, orderresource: orderA }),
+                });
+                fetch(`/api/class-resources/${idB}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ...resourceB, orderResource: orderB, orderresource: orderB }),
+                });
+
+                return newArr;
+            }
+            return prev;
         });
     };
 
@@ -42,6 +104,7 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
     };
 
     const generateYouTubeEmbedUrl = (url, start, end) => {
+        if (!url) return "";
         const videoId = url.split("v=")[1]?.split("&")[0];
         if (!videoId) return "";
         let embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&enablejsapi=1`;
@@ -51,13 +114,22 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
     };
 
     const convertToSeconds = (time) => {
-        const [h, m, s] = time.split(":").map(Number);
-        return (h * 3600 || 0) + (m * 60 || 0) + (s || 0);
+        if (!time) return 0;
+        const [h = 0, m = 0, s = 0] = time.split(":").map(Number);
+        return (h * 3600) + (m * 60) + s;
     };
 
     const handleSendProjectClick = () => {
         window.open("https://wa.me/?text=Hola, quiero enviar el proyecto", "_blank");
     };
+
+    let displayTitle = title;
+    let displayContent = content;
+    if ((type === "link" || type === "pdfUrl" || type === "enlace" || type === "documento") && content && content.includes("||")) {
+        const [t, c] = content.split("||");
+        displayTitle = t;
+        displayContent = c;
+    }
 
     return (
         <div className={styles.block}>
@@ -66,14 +138,14 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
                     <FaEdit
                         onClick={() =>
                             openModal(
-                                resource.type,
-                                resource.content,
-                                resource.title || "",
-                                resource.start || "",
-                                resource.end || "",
+                                type,
+                                content,
+                                title || "",
+                                start || "",
+                                end || "",
                                 index,
-                                resource.width || "",
-                                resource.height || ""
+                                width || "",
+                                height || ""
                             )
                         }
                         className={styles.icon}
@@ -93,16 +165,16 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
                 </div>
             )}
 
-            {resource.type === "title" && (
+            {type === "title" && (
                 <h2 className={styles.titleResource}>
-                    {resource.content || "Untitled"}
+                    {displayTitle || displayContent || "Untitled"}
                 </h2>
             )}
 
-            {resource.type === "videoUrl" && (
+            {(type === "videoUrl" || type === "video") && (
                 <div className={styles.videoWrapper}>
                     <iframe
-                        src={generateYouTubeEmbedUrl(resource.content, resource.start, resource.end)}
+                        src={generateYouTubeEmbedUrl(displayContent, start, end)}
                         title={`Video ${index + 1}`}
                         className={styles.videoFrame}
                         id={`video-${index}`}
@@ -117,73 +189,105 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, setIsModalOpen }
                 </div>
             )}
 
-            {resource.type === "imageUrl" && (
+            {(type === "imageUrl" || type === "imagen") && (
                 <img
-                    src={resource.content}
-                    alt={resource.title || "Image"}
+                    src={displayContent}
+                    alt={displayTitle || "Image"}
                     className={styles.imagePreview}
-                    style={{ width: resource.width || 'auto', height: resource.height || 'auto' }}
+                    style={{ width: width || 'auto', height: height || 'auto' }}
                     width={200}
                     height={150}
                 />
             )}
 
-            {resource.type === "link" && (
+            {(type === "link" || type === "enlace") && (
                 <a
-                    href={resource.content}
+                    href={displayContent}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.resourceButton}
                 >
                     <FaLink className={styles.resourceButtonIcon} />
-                    {resource.title || "Unnamed Link"}
+                    {displayTitle || "Unnamed Link"}
                 </a>
             )}
 
-            {resource.type === "pdfUrl" && (
+            {(type === "pdfUrl" || (type === "documento" && displayContent && displayContent.endsWith(".pdf"))) && (
                 <a
-                    href={resource.content}
+                    href={displayContent}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.resourceButton}
                 >
                     <FaFilePdf className={styles.resourceButtonIcon} />
-                    {resource.title || "Unnamed PDF"}
+                    {displayTitle || "Unnamed PDF"}
                 </a>
             )}
 
-            {resource.type === "text" && (
+            {type === "text" && (
                 <div
                     className={styles.textResource}
                     dangerouslySetInnerHTML={{
-                        __html: resource.content
-                            .replace(/^\s+/gm, (match) => "&nbsp;".repeat(match.length))
-                            .replace(/\+([\s\S]*?)\+/g, (match, p1) => {
-                                const items = p1
-                                    .split("\n")
-                                    .filter((line) => line.trim().startsWith("-"))
-                                    .map((line) => `<li>${line.trim().substring(1).trim()}</li>`)
-                                    .join("");
-                                return `<ul>${items}</ul>`;
-                            })
-                            .replace(/\n/g, "<br>")
-                            .replace(/\*(.*?)\*/g, "<b>$1</b>"),
+                        __html: displayContent
+                            ? displayContent
+                                .replace(/^\s+/gm, (match) => "&nbsp;".repeat(match.length))
+                                .replace(/\+([\s\S]*?)\+/g, (match, p1) => {
+                                    const items = p1
+                                        .split("\n")
+                                        .filter((line) => line.trim().startsWith("-"))
+                                        .map((line) => `<li>${line.trim().substring(1).trim()}</li>`)
+                                        .join("");
+                                    return `<ul>${items}</ul>`;
+                                })
+                                .replace(/\n/g, "<br>")
+                                .replace(/\*(.*?)\*/g, "<b>$1</b>")
+                            : ""
                     }}
                 />
             )}
 
-            {resource.type === "sendProject" && (
+            {type === "documento" && (
+                displayTitle
+                    ? (
+                        <h2 className={styles.titleResource}>
+                            {displayTitle}
+                        </h2>
+                    )
+                    : (
+                        <div
+                            className={styles.textResource}
+                            dangerouslySetInnerHTML={{
+                                __html: displayContent
+                                    ? displayContent
+                                        .replace(/^\s+/gm, (match) => "&nbsp;".repeat(match.length))
+                                        .replace(/\+([\s\S]*?)\+/g, (match, p1) => {
+                                            const items = p1
+                                                .split("\n")
+                                                .filter((line) => line.trim().startsWith("-"))
+                                                .map((line) => `<li>${line.trim().substring(1).trim()}</li>`)
+                                                .join("");
+                                            return `<ul>${items}</ul>`;
+                                        })
+                                        .replace(/\n/g, "<br>")
+                                        .replace(/\*(.*?)\*/g, "<b>$1</b>")
+                                    : ""
+                            }}
+                        />
+                    )
+            )}
+
+            {(type === "sendProject" || type === "quiz") && (
                 <button
                     className={styles.sendProjectButton}
                     onClick={handleSendProjectClick}
                 >
                     <FaWhatsapp className={styles.sendProjectIcon} />
-                    {resource.content || "Enviar Proyecto"}
+                    {displayContent || "Enviar Proyecto"}
                 </button>
             )}
 
-            {resource.type === "code" && (
-                <CodeBlock code={resource.content} />
+            {type === "code" && (
+                <CodeBlock code={displayContent} />
             )}
         </div>
     );
