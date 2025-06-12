@@ -121,10 +121,12 @@ const ClassDetail = ({
                 console.error("Usuario no autenticado.");
                 return;
             }
-            // Busca el índice de la clase actual en el módulo
+
+            const getClassId = (cls) => cls.id ?? cls.classid ?? cls.classId;
             const currentClassIndex = classesInModule.findIndex(
-                cls => Number(cls.id) === Number(classId)
+                cls => Number(getClassId(cls)) === Number(classId)
             );
+            console.log(classesInModule)
 
             // Si no es la primera clase, verifica que la anterior esté completada
             if (currentClassIndex > 0) {
