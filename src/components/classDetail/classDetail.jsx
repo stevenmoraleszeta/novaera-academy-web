@@ -39,6 +39,8 @@ const ClassDetail = ({
     const [historyIndex, setHistoryIndex] = useState(0);
     const [history, setHistory] = useState([""]);
 
+
+
     useEffect(() => {
         const fetchData = async () => {
             if (!classId || !courseId || !moduleId) return;
@@ -62,6 +64,22 @@ const ClassDetail = ({
         };
         fetchData();
     }, [classId, courseId, moduleId]);
+
+    useEffect(() => {
+        if (!courseId || !moduleId) return;
+        const fetchClassesInModule = async () => {
+            try {
+                const url = `${process.env.NEXT_PUBLIC_API_URL}/classes/by-course-module/${courseId}/${moduleId}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("No se pudieron obtener las clases del módulo");
+                const data = await res.json();
+                setClassesInModule(data || []);
+            } catch (error) {
+                console.error("Error al obtener las clases del módulo:", error);
+            }
+        };
+        fetchClassesInModule();
+    }, [courseId, moduleId]);
 
     const openModal = (
         type = "",
@@ -99,39 +117,74 @@ const ClassDetail = ({
 
     const handleCompleteClass = async () => {
         try {
-            if (!currentUser || !currentUser.id) {
+            if (!currentUser || !currentUser.userid) {
                 console.error("Usuario no autenticado.");
                 return;
             }
-            const completedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.id}/completed-classes`);
-            if (!completedRes.ok) {
-                console.error("No se pudo obtener el progreso del usuario.");
-                return;
-            }
-            const completedData = await completedRes.json();
-            const completedClasses = completedData.completedClasses || [];
-            const currentClassIndex = classesInModule.findIndex(cls => cls.id === classId);
-            if (currentClassIndex > 0 && !isCompleted) {
-                const previousClassId = classesInModule[currentClassIndex - 1].id;
+            // Busca el índice de la clase actual en el módulo
+            const currentClassIndex = classesInModule.findIndex(
+                cls => Number(cls.id) === Number(classId)
+            );
+
+            // Si no es la primera clase, verifica que la anterior esté completada
+            if (currentClassIndex > 0) {
+                const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.userid}/completed-classes`;
+                const completedRes = await fetch(url);
+                if (!completedRes.ok) {
+                    const errorText = await completedRes.text();
+                    console.error("No se pudo obtener el progreso del usuario. Status:", completedRes.status, "Respuesta:", errorText);
+                    return;
+                }
+                const completedData = await completedRes.json();
+                // Fuerza a que todos los IDs sean números
+                const completedClasses = (completedData.completedClasses || []).map(Number);
+                const previousClassId = Number(classesInModule[currentClassIndex - 1].id);
                 if (!completedClasses.includes(previousClassId)) {
                     setIsAlertOpen(true);
                     console.error("La clase anterior no está completada. No puedes completar esta clase.");
                     return;
                 }
             }
+
+            // Si pasa la validación, completa o descompleta la clase
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.userid}/completed-classes`;
+            const completedRes = await fetch(url);
+            if (!completedRes.ok) {
+                const errorText = await completedRes.text();
+                console.error("No se pudo obtener el progreso del usuario. Status:", completedRes.status, "Respuesta:", errorText);
+                return;
+            }
+            const completedData = await completedRes.json();
+            const completedClasses = (completedData.completedClasses || []).map(Number);
+
+            const isCompleted = completedClasses.includes(Number(classId));
             const newCompletedStatus = !isCompleted;
-            const updatedClasses = newCompletedStatus
-                ? [...completedClasses, classId]
-                : completedClasses.filter(id => id !== classId);
-            const updateRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.id}/completed-classes`, {
+            let updatedClasses;
+            if (newCompletedStatus) {
+                updatedClasses = Array.from(new Set([...completedClasses, Number(classId)]));
+            } else {
+                updatedClasses = completedClasses.filter(id => id !== Number(classId));
+            }
+
+            const sanitizedClasses = updatedClasses
+                .map(id => Number(id))
+                .filter(id => !isNaN(id) && id !== 0);
+
+            const updateRes = await fetch(url, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ completedClasses: updatedClasses }),
+                body: JSON.stringify({ completedClasses: sanitizedClasses }),
             });
             if (!updateRes.ok) {
                 throw new Error("No se pudo actualizar el progreso de la clase.");
             }
-            setIsCompleted(newCompletedStatus);
+
+            // Refresca el estado tras actualizar
+            const refreshedRes = await fetch(url);
+            if (refreshedRes.ok) {
+                const refreshedData = await refreshedRes.json();
+                setIsCompleted((refreshedData.completedClasses || []).map(Number).includes(Number(classId)));
+            }
         } catch (error) {
             console.error("Error actualizando el estado de la clase:", error);
         }
