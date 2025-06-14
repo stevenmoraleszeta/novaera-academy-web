@@ -103,17 +103,25 @@ const ModuleCard = ({
                 `${process.env.NEXT_PUBLIC_API_URL}/classes`,
                 newClass
             );
-            const createdClass = res.data.class || newClass;
-            onModulesUpdate((prevModules) =>
-                prevModules.map((mod) =>
-                    getModuleId(mod) === moduleId
-                        ? {
-                            ...mod,
-                            classes: [...mod.classes, { ...createdClass }]
-                        }
-                        : mod
-                )
-            );
+            console.log("Respuesta del backend al crear clase:", res.data);
+
+            const createdClass = res.data.class || res.data || newClass;
+            const classId = createdClass.classid || createdClass.id || createdClass._id;
+            if (classId) {
+                onModulesUpdate((prevModules) =>
+                    prevModules.map((mod) =>
+                        getModuleId(mod) === moduleId
+                            ? {
+                                ...mod,
+                                classes: [...mod.classes, { ...createdClass }]
+                            }
+                            : mod
+                    )
+                );
+                onClassClick(moduleId, classId);
+            } else {
+                alert("No se pudo obtener el ID de la nueva clase.");
+            }
         } catch (error) {
             console.error("Error al añadir clase:", error);
         }
