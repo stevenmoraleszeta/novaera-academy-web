@@ -6,6 +6,7 @@ import ResourceList from "@/components/resourceList/resourceList";
 import FixedBar from "@/components/fixedBarClasses/fixedBar";
 import RestrictedContent from "@/components/restrictedContent/restrictedContent";
 import { Modal } from "@/components/modal/modal";
+import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses";
 
 const ClassDetail = ({
     courseId,
@@ -20,7 +21,6 @@ const ClassDetail = ({
     const [resources, setResources] = useState([]);
     const [classesInModule, setClassesInModule] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isCompleted, setIsCompleted] = useState(false);
     const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
     const [isRestricted, setIsRestricted] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -34,22 +34,16 @@ const ClassDetail = ({
     const [editingIndex, setEditingIndex] = useState(null);
     const [newResourceWidth, setNewResourceWidth] = useState("");
     const [newResourceHeight, setNewResourceHeight] = useState("");
-    const [completedClasses, setCompletedClasses] = useState([]);
-
-    const fetchCompletedStatus = async () => {
-        if (!currentUser || !currentUser.userid || !classId) return;
-        try {
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.userid}/completed-classes`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error("No se pudo obtener el progreso del usuario");
-            const data = await res.json();
-            const completed = (data.completedClasses || []).map(Number);
-            setCompletedClasses(completed);
-            setIsCompleted(completed.includes(Number(classId)));
-        } catch (error) {
-            console.error("Error al obtener el estado de completado:", error);
-        }
-    };
+    const {
+        completedClasses,
+        isCompleted,
+        fetchCompletedStatus,
+        setCompletedClasses,
+        setIsCompleted,
+    } = useCompletedClasses({
+        userId: currentUser?.userid,
+        classId,
+    });
 
     useEffect(() => {
         const fetchData = async () => {
