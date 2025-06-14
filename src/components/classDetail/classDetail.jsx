@@ -24,10 +24,8 @@ const ClassDetail = ({
     const [isPreviousClassCompleted, setIsPreviousClassCompleted] = useState(true);
     const [isRestricted, setIsRestricted] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
-
     const [orderClass, setOrderClass] = useState(1);
     const [restricted, setRestricted] = useState(false);
-
     const [newResourceType, setNewResourceType] = useState("");
     const [newResourceContent, setNewResourceContent] = useState("");
     const [newResourceTitle, setNewResourceTitle] = useState("");
@@ -36,10 +34,22 @@ const ClassDetail = ({
     const [editingIndex, setEditingIndex] = useState(null);
     const [newResourceWidth, setNewResourceWidth] = useState("");
     const [newResourceHeight, setNewResourceHeight] = useState("");
-    const [historyIndex, setHistoryIndex] = useState(0);
-    const [history, setHistory] = useState([""]);
+    const [completedClasses, setCompletedClasses] = useState([]);
 
-
+    const fetchCompletedStatus = async () => {
+        if (!currentUser || !currentUser.userid || !classId) return;
+        try {
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.userid}/completed-classes`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("No se pudo obtener el progreso del usuario");
+            const data = await res.json();
+            const completed = (data.completedClasses || []).map(Number);
+            setCompletedClasses(completed);
+            setIsCompleted(completed.includes(Number(classId)));
+        } catch (error) {
+            console.error("Error al obtener el estado de completado:", error);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -66,20 +76,6 @@ const ClassDetail = ({
     }, [classId, courseId, moduleId]);
 
     useEffect(() => {
-        if (!currentUser || !currentUser.userid || !classId) return;
-        const fetchCompletedStatus = async () => {
-            try {
-                const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.userid}/completed-classes`;
-                const res = await fetch(url);
-                if (!res.ok) throw new Error("No se pudo obtener el progreso del usuario");
-                const data = await res.json();
-                const completedClasses = (data.completedClasses || []).map(Number);
-                const completed = completedClasses.includes(Number(classId));
-                setIsCompleted(completed);
-            } catch (error) {
-                console.error("Error al obtener el estado de completado:", error);
-            }
-        };
         fetchCompletedStatus();
     }, [currentUser, classId, moduleId, isModalOpen]);
 
@@ -98,6 +94,23 @@ const ClassDetail = ({
         };
         fetchClassesInModule();
     }, [courseId, moduleId]);
+
+    useEffect(() => {
+        if (!classesInModule.length || !classId) return;
+
+        const idx = classesInModule.findIndex(
+            c => Number(c.id ?? c.classid ?? c.classId) === Number(classId)
+        );
+        if (idx === -1) return;
+
+        if (idx === 0) {
+            setIsPreviousClassCompleted(true);
+            return;
+        }
+        const prevClassId = Number(classesInModule[idx - 1].id ?? classesInModule[idx - 1].classid ?? classesInModule[idx - 1].classId);
+        const completed = completedClasses.includes(prevClassId);
+        setIsPreviousClassCompleted(completed);
+    }, [classesInModule, classId, completedClasses]);
 
     const openModal = (
         type = "",
@@ -144,21 +157,10 @@ const ClassDetail = ({
             const currentClassIndex = classesInModule.findIndex(
                 cls => Number(getClassId(cls)) === Number(classId)
             );
-            console.log(classesInModule)
 
             // Si no es la primera clase, verifica que la anterior esté completada
             if (currentClassIndex > 0) {
-                const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.userid}/completed-classes`;
-                const completedRes = await fetch(url);
-                if (!completedRes.ok) {
-                    const errorText = await completedRes.text();
-                    console.error("No se pudo obtener el progreso del usuario. Status:", completedRes.status, "Respuesta:", errorText);
-                    return;
-                }
-                const completedData = await completedRes.json();
-                // Fuerza a que todos los IDs sean números
-                const completedClasses = (completedData.completedClasses || []).map(Number);
-                const previousClassId = Number(classesInModule[currentClassIndex - 1].id);
+                const previousClassId = Number(getClassId(classesInModule[currentClassIndex - 1]));
                 if (!completedClasses.includes(previousClassId)) {
                     setIsAlertOpen(true);
                     console.error("La clase anterior no está completada. No puedes completar esta clase.");
@@ -175,20 +177,20 @@ const ClassDetail = ({
                 return;
             }
             const completedData = await completedRes.json();
-            const completedClasses = (completedData.completedClasses || []).map(Number);
+            const completedClassesFromApi = (completedData.completedClasses || []).map(Number);
 
-            const isCompleted = completedClasses.includes(Number(classId));
+            const isCompleted = completedClassesFromApi.includes(Number(classId));
             const newCompletedStatus = !isCompleted;
             let updatedClasses;
             if (newCompletedStatus) {
-                updatedClasses = Array.from(new Set([...completedClasses, Number(classId)]));
+                updatedClasses = Array.from(new Set([...completedClassesFromApi, Number(classId)]));
             } else {
-                updatedClasses = completedClasses.filter(id => id !== Number(classId));
+                updatedClasses = completedClassesFromApi.filter(id => id !== Number(classId));
             }
 
             const sanitizedClasses = updatedClasses
                 .map(id => Number(id))
-                .filter(id => !isNaN(id) && id !== 0);
+                .filter(id => !isNaN(id) && id !== 0)
 
             const updateRes = await fetch(url, {
                 method: "PUT",
