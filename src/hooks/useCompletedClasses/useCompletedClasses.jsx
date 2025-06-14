@@ -5,7 +5,7 @@ export function useCompletedClasses({ userId, classId }) {
     const [isCompleted, setIsCompleted] = useState(false);
 
     const fetchCompletedStatus = useCallback(async () => {
-        if (!userId || !classId) return;
+        if (!userId) return;
         try {
             const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/completed-classes`;
             const res = await fetch(url);

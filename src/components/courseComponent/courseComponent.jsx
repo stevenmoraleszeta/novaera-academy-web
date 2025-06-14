@@ -408,10 +408,10 @@ const CourseDetail = ({
                         }}
                         totalModules={modules}
                         isAdmin={isAdmin}
-                        collectionName={isLiveCourse ? "liveCourses" : "onlineCourses"}
                         courseId={courseId}
                         onModulesUpdate={setModules}
                         onClassClick={onClassClick}
+                        currentUser={currentUser}
                     />
                 ))
             ) : (

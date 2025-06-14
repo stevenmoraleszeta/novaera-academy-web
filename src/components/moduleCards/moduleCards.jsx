@@ -1,20 +1,29 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from "react";
 import { FaArrowUp, FaArrowDown, FaPlus, FaTrash, FaCheck, FaLock, FaLockOpen } from 'react-icons/fa';
 import styles from './moduleCard.module.css';
 import axios from 'axios';
 import { useRouter } from "next/navigation";
+import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses";
 
 const ModuleCard = ({
     moduleData,
-    collectionName,
     isAdmin,
     courseId,
     totalModules,
     onModulesUpdate,
-    onClassClick
+    onClassClick,
+    currentUser
 }) => {
+
+    const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
+        userId: currentUser.userid,
+    });
+
+    useEffect(() => {
+        fetchCompletedStatus();
+    }, [currentUser?.userid]);
 
     const router = useRouter();
 
@@ -238,11 +247,11 @@ const ModuleCard = ({
                     moduleData.classes.map((cls, classIndex) => (
                         <div
                             key={`${getModuleId(moduleData)}-${getClassId(cls)}`}
-                            className={`${styles.class} ${cls.completed ? styles.completedClass : ""}`}
+                            className={`${styles.class} ${completedClasses.includes(Number(getClassId(cls))) ? styles.completedClass : ""}`}
                             onClick={() => onClassClick(getModuleId(moduleData), getClassId(cls))}
                         >
                             <div className={styles.classCircle}>
-                                {cls.completed && <FaCheck />}
+                                {completedClasses.includes(Number(getClassId(cls))) && <FaCheck />}
                             </div>
                             <span className={styles.classTitle}>{cls.title}</span>
 
