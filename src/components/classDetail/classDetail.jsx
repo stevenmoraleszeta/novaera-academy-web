@@ -66,6 +66,24 @@ const ClassDetail = ({
     }, [classId, courseId, moduleId]);
 
     useEffect(() => {
+        if (!currentUser || !currentUser.userid || !classId) return;
+        const fetchCompletedStatus = async () => {
+            try {
+                const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${currentUser.userid}/completed-classes`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("No se pudo obtener el progreso del usuario");
+                const data = await res.json();
+                const completedClasses = (data.completedClasses || []).map(Number);
+                const completed = completedClasses.includes(Number(classId));
+                setIsCompleted(completed);
+            } catch (error) {
+                console.error("Error al obtener el estado de completado:", error);
+            }
+        };
+        fetchCompletedStatus();
+    }, [currentUser, classId, moduleId, isModalOpen]);
+
+    useEffect(() => {
         if (!courseId || !moduleId) return;
         const fetchClassesInModule = async () => {
             try {
@@ -187,6 +205,8 @@ const ClassDetail = ({
                 const refreshedData = await refreshedRes.json();
                 setIsCompleted((refreshedData.completedClasses || []).map(Number).includes(Number(classId)));
             }
+
+            await fetchCompletedStatus();
         } catch (error) {
             console.error("Error actualizando el estado de la clase:", error);
         }
