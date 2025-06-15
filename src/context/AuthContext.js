@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
 
                 const user = response.data;
                 setCurrentUser(user);
-                setIsAdmin(user.firstname === 'AdminAccount'); // asume que el rol de admin tiene roleid 1
+                setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8); // asume que el rol de admin tiene roleid 8
                 setMissingInfo(!user.country || !user.phone || !user.age);
             } catch (error) {
                 // Si el error es 401 (token inválido o expirado), limpiar sesión

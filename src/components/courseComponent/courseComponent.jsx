@@ -54,9 +54,8 @@ const CourseDetail = ({
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`)
             .then(res => res.json())
             .then(data => {
-                console.log(data)
                 setAllUsers(data);
-                setAdminUsers(data.filter(u => u.roleid === 1));
+                setAdminUsers(data.filter(u => u.roleid === 8));
             });
 
         // Traer los estudiantes inscritos en el curso
@@ -478,7 +477,7 @@ const CourseDetail = ({
                         >
                             <option value="">Selecciona un mentor</option>
                             {adminUsers.map(user => (
-                                <option key={user.id} value={user.id}>
+                                <option key={user.userid} value={user.userid}>
                                     {user.firstname || "Nombre no disponible"}
                                 </option>
                             ))}
