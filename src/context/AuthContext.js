@@ -59,8 +59,9 @@ export function AuthProvider({ children }) {
     // Función para iniciar sesión con email y contraseña
     const loginWithEmailAndPassword = async (email, password) => {
         try {
+            console.log("Intentando login con:", email, password);
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-                email,
+                email: email.trim().toLowerCase(),
                 password,
             });
 
@@ -69,7 +70,7 @@ export function AuthProvider({ children }) {
             localStorage.setItem("token", token);
             setCurrentUser(user);
 
-            setIsAdmin(user.namerole === "Admin");
+            setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
 
             setMissingInfo(!user.country || !user.phone || !user.age);
         } catch (error) {
@@ -96,7 +97,7 @@ export function AuthProvider({ children }) {
                 password,
                 firstName: name,
                 photoUrl,
-                roleId: 2, // Asignar un rol student por defecto
+                roleId: 9, // Asignar un rol student por defecto
             });
 
             const { token, user } = response.data;
