@@ -44,7 +44,7 @@ const CourseDetail = ({
 
     const filteredStudents = allUsers.filter(
         (user) =>
-            (user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) || !searchTerm) &&
+            (user.firstname?.toLowerCase().includes(searchTerm.toLowerCase()) || !searchTerm) &&
             (user.email?.toLowerCase().includes(searchEmail.toLowerCase()) || !searchEmail)
     );
 
