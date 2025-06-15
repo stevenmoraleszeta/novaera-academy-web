@@ -205,6 +205,10 @@ const ModuleCard = ({
         }
     };
 
+    const nextPendingClassIndex = moduleData.classes?.findIndex(
+        (cls) => !completedClasses.includes(Number(getClassId(cls)))
+    );
+
     return (
         <div className={styles.module}>
             <div className={styles.moduleHeader}>
@@ -255,7 +259,11 @@ const ModuleCard = ({
                     moduleData.classes.map((cls, classIndex) => (
                         <div
                             key={`${getModuleId(moduleData)}-${getClassId(cls)}`}
-                            className={`${styles.class} ${completedClasses.includes(Number(getClassId(cls))) ? styles.completedClass : ""}`}
+                            className={
+                                `${styles.class} ` +
+                                (completedClasses.includes(Number(getClassId(cls))) ? styles.completedClass : "") +
+                                (classIndex === nextPendingClassIndex && !completedClasses.includes(Number(getClassId(cls))) ? ` ${styles.highlightClass}` : "")
+                            }
                             onClick={() => onClassClick(getModuleId(moduleData), getClassId(cls))}
                         >
                             <div className={styles.classCircle}>
