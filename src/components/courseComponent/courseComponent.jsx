@@ -98,9 +98,9 @@ const CourseDetail = ({
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userid: numericId,
-                    courseId,
-                    enrollmentDate: new Date().toISOString(),
+                    userId: Number(studentId),
+                    courseId: Number(courseId),
+                    enrollmentDate: new Date().toISOString().split('T')[0],
                 }),
             });
             setStudents([...students, numericId]);
