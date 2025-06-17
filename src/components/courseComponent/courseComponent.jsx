@@ -98,7 +98,7 @@ const CourseDetail = ({
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: numericId,
+                    userid: numericId,
                     courseId,
                     enrollmentDate: new Date().toISOString(),
                 }),
@@ -161,11 +161,11 @@ const CourseDetail = ({
 
     useEffect(() => {
         const checkEnrollmentStatus = async () => {
-            if (!currentUser || !currentUser.id || !courseId) return;
+            if (!currentUser || !currentUser.userid || !courseId) return;
 
             try {
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.id}`
+                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.userid}`
                 );
 
                 if (response.status === 200) {
@@ -501,7 +501,7 @@ const CourseDetail = ({
                             <select id="studentSelect">
                                 <option value="">Selecciona un estudiante</option>
                                 {filteredStudents.map(user => (
-                                    <option key={user.id} value={user.id}>
+                                    <option key={user.userid} value={user.userid}>
                                         {user.firstname || "Nombre no disponible"} - {user.email}
                                     </option>
                                 ))}
@@ -519,10 +519,10 @@ const CourseDetail = ({
                             </thead>
                             <tbody>
                                 {students.map(studentId => {
-                                    const student = allUsers.find(user => user.id === studentId);
+                                    const student = allUsers.find(user => user.userid === studentId);
                                     return (
                                         <tr key={studentId}>
-                                            <td>{student ? student.displayName : "Nombre no disponible"}</td>
+                                            <td>{student ? student.firstname : "Nombre no disponible"}</td>
                                             <td>
                                                 <button onClick={() => handleRemoveStudent(studentId)}>
                                                     <FaTrash />
