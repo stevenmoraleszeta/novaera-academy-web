@@ -12,6 +12,9 @@ import ModuleCard from "@/components/moduleCards/moduleCards";
 import { Modal } from "@/components/modal/modal";
 import ProjectsList from "@/components/projects/projects";
 
+// courseComponent.js
+import ClassesRecorded from "@/components/classesRecorded/ClassesRecorded"; 
+
 import { FaPlus, FaTrash } from "react-icons/fa";
 import styles from "./courseComponent.module.css";
 
@@ -398,47 +401,56 @@ const CourseDetail = ({
             {!isEnrolled && (
                 <Features courseId={courseId} course={course} setCourse={setCourse}></Features>
             )}
-            {modules.length > 0 ? (
-                modules.map((classModule, moduleIndex) => (
-                    <ModuleCard
-                        key={classModule.id || `module-${moduleIndex}`}
-                        moduleData={{
-                            ...classModule,
-                            order: moduleIndex,
-                        }}
-                        totalModules={modules}
-                        isAdmin={isAdmin}
-                        courseId={courseId}
-                        onModulesUpdate={setModules}
-                        onClassClick={onClassClick}
-                        currentUser={currentUser}
-                    />
-                ))
-            ) : (
-                <p>No hay módulos disponibles.</p>
-            )}
-            {isAdmin && (
-                <button onClick={addModule} className="course-detail-add-module-button" title="Añadir Módulo">
-                    Add Module
-                </button>
-            )}
+            <div className={styles.mainContentGrid}>
+                <div className={styles.leftColumn}>
+                    {modules.length > 0 ? (
+                        modules.map((classModule, moduleIndex) => (
+                            <ModuleCard
+                                key={classModule.id || `module-${moduleIndex}`}
+                                moduleData={{
+                                    ...classModule,
+                                    order: moduleIndex,
+                                }}
+                                totalModules={modules}
+                                isAdmin={isAdmin}
+                                courseId={courseId}
+                                onModulesUpdate={setModules}
+                                onClassClick={onClassClick}
+                                currentUser={currentUser}
+                            />
+                        ))
+                    ) : (
+                        <p>No hay módulos disponibles.</p>
+                    )}
+                    {isAdmin && (
+                        <button onClick={addModule} className="course-detail-add-module-button" title="Añadir Módulo">
+                            Add Module
+                        </button>
+                    )}
+                </div>
 
-            {/* ProjectsList solo para cursos en vivo */}
-            {isLiveCourse && (
-                <ProjectsList
-                    isAdmin={isAdmin}
-                    isStudentInCourse={isEnrolled}
-                    projects={projects}
-                    studentProjects={studentProjects}
-                    courseId={courseId}
-                    averageScore={averageScore}
-                    handleEditProject={handleEditProject}
-                    moveProject={() => { }}
-                    deleteProject={deleteProject}
-                    addProject={addProject}
-                    students={students}
-                />
-            )}
+                <div className={styles.rightColumn}>
+                    {/* ProjectsList solo para cursos en vivo */}
+                    {isLiveCourse && (
+                        <ProjectsList
+                            isAdmin={isAdmin}
+                            isStudentInCourse={isEnrolled}
+                            projects={projects}
+                            studentProjects={studentProjects}
+                            courseId={courseId}
+                            averageScore={averageScore}
+                            handleEditProject={handleEditProject}
+                            moveProject={() => { }}
+                            deleteProject={deleteProject}
+                            addProject={addProject}
+                            students={students}
+                        />
+                    )}
+                    {/* Records solo para cursos en vivo */}    
+                    {isLiveCourse && <ClassesRecorded courseId={courseId} isAdmin={isAdmin} />}
+                    {/* {isLiveCourse && <ClassesRecorded courseId={courseId} />}    */}
+                </div>
+            </div>   
 
             {isVideoModalOpen && (
                 <Modal isOpen={isVideoModalOpen}

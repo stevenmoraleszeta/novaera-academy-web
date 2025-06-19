@@ -1,0 +1,192 @@
+.recordingsBlock {
+    background: linear-gradient(var(--color-dark), var(--color-black));
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+ 
+/* Estilo para la cabecera de grabaciones */
+/* NOTA: En el JSX, esto corresponde a la clase .recordingItem */
+.recordingItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: var(--color-dark-hover);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+ 
+.recordingItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+ 
+/* Acciones flexibles y espaciadas */
+.actions {
+    display: flex;
+    gap: 10px;
+}
+ 
+.actionButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+ 
+.actionButton:hover {
+    background-color: transparent;
+    color: var(--color-secondary);
+}
+ 
+.addButton {
+    width: 100%;
+    padding: 0.75rem 1rem; /* Añadido para mejor apariencia */
+    font-weight: bold; /* Añadido para consistencia */
+    background-color: transparent;
+    border: dashed 5px var(--color-secondary);
+    border-radius: 0.5rem; /* Añadido para consistencia */
+    color: var(--text-color); /* Añadido */
+    cursor: pointer; /* Añadido */
+}
+ 
+/* Links adaptativos */
+.link {
+    text-decoration: none;
+    color: inherit; /* Hereda el color del padre */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Evita que el texto se desborde */
+}
+ 
+.link:hover {
+    color: #FF6B00; /* Cambia según el color de tu diseño */
+}
+ 
+.title {
+    /* Este estilo es para los campos de texto <input> */
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: var(--color-dark-hover);
+    border-radius: 6px;
+    border: 1px solid transparent; /* Para evitar saltos de layout */
+    color: var(--text-color); /* Asegurarse de que el texto sea visible */
+}
+
+.saveButton, .cancelButton {
+    margin: 0 5px; /* Usando el margen más pequeño como base */
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: bold;
+    cursor: pointer;
+    flex-grow: 1;
+}
+.saveButton { background-color: var(--color-secondary); color: white; }
+.cancelButton { background-color: #4a5568; color: #e2e8f0; }
+
+.formActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+ 
+.editRecording, .addRecording {
+    padding: 15px;
+    margin-bottom: 20px;
+    background: var(--color-dark-hover);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+ 
+@media (max-width: 1024px) {
+    /* Tablets */
+    .recordingsBlock {
+      padding: 1rem;
+    }
+ 
+    .recordingItem {
+      flex-direction: column; /* Cambia layout a vertical */
+      align-items: flex-start;
+      padding: 10px;
+    }
+ 
+    .actions {
+      gap: 5px;
+      justify-content: flex-start;
+      margin-top: 10px; /* Espacio cuando se apila verticalmente */
+    }
+ 
+    .addButton {
+      border-width: 3px;
+    }
+}
+ 
+@media (max-width: 768px) {
+    /* Dispositivos móviles */
+    .recordingsBlock {
+      padding: 0.8rem;
+    }
+ 
+    .actions {
+      flex-wrap: wrap; /* Acomoda botones en filas si es necesario */
+      gap: 8px;
+    }
+ 
+    .actionButton {
+      font-size: 0.9rem;
+    }
+ 
+    .addButton {
+      font-size: 0.8rem;
+      border-width: 2px;
+    }
+
+    .saveButton { 
+        margin: 0 5px;
+    }
+}
+ 
+@media (max-width: 480px) {
+    /* Teléfonos pequeños */
+    .recordingsBlock {
+      padding: 0.5rem;
+    }
+ 
+    .actions {
+      flex-direction: column;
+      gap: 5px;
+      align-items: flex-start; /* Alinea los botones a la izquierda */
+    }
+ 
+    .actionButton {
+      font-size: 0.8rem;
+    }
+ 
+    .addButton {
+      font-size: 0.7rem;
+      border-width: 1px;
+    }
+ 
+    .link {
+      font-size: 0.85rem;
+      white-space: normal; /* Permite que los enlaces se envuelvan */
+    }
+
+    .saveButton { 
+        margin: 0 5px;
+    }
+}
