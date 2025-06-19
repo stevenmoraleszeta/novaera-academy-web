@@ -6,7 +6,7 @@ import { FaTrash, FaPlus, FaPencilAlt, FaTimes, FaArrowUp, FaArrowDown } from "r
 import styles from "./ClassesRecorded.module.css";
 
 // Asegúrate de que esta URL apunte a tu servidor de backend
-const API_URL = "http://localhost:4000/api"; 
+const API_URL = process.env.NEXT_PUBLIC_API_URL; // "http://localhost:3001/api"; 
 
 const ClassesRecorded = ({ courseId, isAdmin }) => {
   const [recordings, setRecordings] = useState([]);
@@ -15,9 +15,7 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingUrl, setEditingUrl] = useState("");
-  const [showAddForm, setShowAddForm] = useState(false);
-
-  // --- Lógica para interactuar con la API ---
+  const [showAddForm, setShowAddForm] = useState(false);-
 
   useEffect(() => {
     if (!courseId) return;
@@ -41,6 +39,7 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
           orderrecording: recordings.length,
           courseid: courseId,
         });
+        console.log("Respuesta del backend al insertar:", response.data); 
         setRecordings(prev => [...prev, response.data]);
         setNewTitle("");
         setNewUrl("");
@@ -82,7 +81,6 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
       const [movedRecording] = newRecordings.splice(index, 1);
       newRecordings.splice(index + direction, 0, movedRecording);
       setRecordings(newRecordings);
-      // Aquí iría la llamada a la API para guardar el nuevo orden
   };
 
   return (
@@ -91,7 +89,7 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
 
       {recordings.map((rec, index) => (
         editingId === rec.recordingid ? (
-          // Vista de Edición
+
           <div key={rec.recordingid} className={styles.editRecording}>
             <input type="text" value={editingTitle} onChange={(e) => setEditingTitle(e.target.value)} placeholder="Editar título" className={styles.title} />
             <input type="url" value={editingUrl} onChange={(e) => setEditingUrl(e.target.value)} placeholder="Editar URL" className={styles.title} />
@@ -101,7 +99,7 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
             </div>
           </div>
         ) : (
-          // Vista Normal
+
           <div key={rec.recordingid} className={styles.recordingItem}>
             <a href={rec.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
                 <span>{rec.title}</span>
