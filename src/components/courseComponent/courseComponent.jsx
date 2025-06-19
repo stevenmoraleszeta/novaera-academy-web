@@ -16,14 +16,14 @@ import { FaPlus, FaTrash } from "react-icons/fa";
 import styles from "./courseComponent.module.css";
 
 const CourseDetail = ({
-    params,
+    courseIdentification,
     isLiveCourse = false,
     studentProjects = [],
     averageScore = null,
 }) => {
     const searchParams = useSearchParams();
-    const resolvedParams = use(params);
-    const courseId = resolvedParams.coursesId || searchParams.get("courseId");
+    const courseIdFromSearch = searchParams.get("courseId");
+    const courseId = courseIdFromSearch || courseIdentification;
     const { course, setCourse } = useFetchCourse(courseId, isLiveCourse ? "liveCourses" : "onlineCourses");
     const router = useRouter();
 
@@ -41,6 +41,7 @@ const CourseDetail = ({
     const [students, setStudents] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchEmail, setSearchEmail] = useState("");
+    const [mentorList, setMentorList] = useState([]);
 
     const filteredStudents = allUsers.filter(
         (user) =>
@@ -59,11 +60,17 @@ const CourseDetail = ({
             });
 
         // Traer los estudiantes inscritos en el curso
+        if (!courseId) {
+            console.warn("No hay courseId válido, no se hace fetch");
+            return;
+        }
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`)
             .then(res => res.json())
             .then(data => {
+                console.log("Datos recibidos del backend:", data);
                 setStudents(data.map(sc => sc.userid));
             });
+        console.log('Estudiantes: ', students)
     }, [isLiveCourse, isAdmin, courseId]);
 
     const openGroupModal = async () => {
@@ -71,20 +78,24 @@ const CourseDetail = ({
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`);
             const data = await res.json();
             setSelectedMentor(data.mentorid || "");
+            const mentorRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mentors`);
+            const mentorData = await mentorRes.json();
+            setMentorList(Array.isArray(mentorData) ? mentorData : []);
         } catch (e) {
             setSelectedMentor("");
+            setMentorList([]);
         }
         setIsGroupModalOpen(true);
     };
 
     const assignMentor = async (mentorId) => {
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}/mentor`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...course, mentorId }),
+                body: JSON.stringify({ mentorId: Number(mentorId) }),
             });
-            setSelectedMentor(mentorId);
+            setSelectedMentor(Number(mentorId));
         } catch (e) {
             console.error("Error al asignar mentor:", e);
         }
@@ -476,11 +487,14 @@ const CourseDetail = ({
                             }}
                         >
                             <option value="">Selecciona un mentor</option>
-                            {adminUsers.map(user => (
-                                <option key={user.userid} value={user.userid}>
-                                    {user.firstname || "Nombre no disponible"}
-                                </option>
-                            ))}
+                            {Array.isArray(mentorList) && mentorList.map(mentor => {
+                                const user = allUsers.find(u => u.userid === mentor.userid);
+                                return (
+                                    <option key={mentor.mentorid} value={mentor.mentorid}>
+                                        {user ? user.firstname : "Nombre no disponible"}
+                                    </option>
+                                );
+                            })}
                         </select>
                         <h3>Asignar Estudiantes</h3>
                         <input

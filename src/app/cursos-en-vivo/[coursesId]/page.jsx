@@ -23,7 +23,7 @@ const CursosEnVivoPage = async ({ params }) => {
 
     return (
         <CourseComponent
-            params={params}
+            courseIdentification={courseId}
             isLiveCourse={true}
             studentProjects={studentProjects}
             averageScore={averageScore}
