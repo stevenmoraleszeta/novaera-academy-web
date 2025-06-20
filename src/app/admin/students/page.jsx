@@ -7,15 +7,17 @@ import CrudMenu from '@/components/adminCrudMenu/adminCrudMenu';
 const AdminUsers = () => {
     document.title = "Gestión de estudiantes - Zeta Academia";
     const displayFields = [
-        { label: 'Nombre', field: 'nombreCompleto' },
-        { label: 'Email', field: 'email' },
+        {
+            label: 'Nombre Completo', 
+            render: (item) => `${item.firstname || ''} ${item.lastname1 || ''} ${item.lastname2 || ''}`.trim()
+        },
         { label: 'Curso', field: 'curso' },
-        { label: 'Rol', field: 'role' },
-        { label: 'Nombre de Usuario', field: 'username' },
     ];
 
     const editFields = [
-        { label: 'Nombre Completo', field: 'nombreCompleto' },
+        { label: 'Nombre', field: 'firstname' },
+        { label: 'Primer Apellido', field: 'lastname1' },
+        { label: 'Segundo Apellido', field: 'lastname2' },
         { label: 'Edad', field: 'edad', type: 'number' },
         { label: 'Email', field: 'email' },
         { label: 'Curso', field: 'curso' },

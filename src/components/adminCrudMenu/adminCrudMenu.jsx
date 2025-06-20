@@ -9,6 +9,7 @@ import ItemCard from './itemCard';
 import axios from "axios";
 import { Modal } from "../modal/modal";
 
+const ID_FIELD = 'userid';
 
 const CrudMenu = ({
     collectionName,
@@ -41,8 +42,10 @@ const CrudMenu = ({
             setData(propData);
             setFilteredData(propData);
         } else if (fetchedData) {
-            setData(fetchedData);
-            setFilteredData(fetchedData);
+            if (Array.isArray(fetchedData)) {
+                setData(fetchedData);
+                setFilteredData(fetchedData);
+            }
         }
     }, [propData, fetchedData]);
 
@@ -82,7 +85,7 @@ const CrudMenu = ({
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
             const token = localStorage.getItem("token");
-            const url = isEditMode ? `${apiUrl}/${collectionName}/${item.id}` : `${apiUrl}/${collectionName}`;
+            const url = isEditMode ? `${apiUrl}/${collectionName}/${item[ID_FIELD]}` : `${apiUrl}/${collectionName}`;
             const method = isEditMode ? 'PUT' : 'POST';
 
             const response = await axios({
@@ -94,7 +97,7 @@ const CrudMenu = ({
 
             if (isEditMode) {
                 setData((prevData) =>
-                    prevData.map((i) => (i.id === item.id ? response.data : i))
+                    prevData.map((i) => (i[ID_FIELD] === item[ID_FIELD] ? response.data : i))
                 );
             } else {
                 setData((prevData) => [...prevData, response.data]);
@@ -113,10 +116,17 @@ const CrudMenu = ({
 
     const confirmDelete = async () => {
         try {
-            const response = await axios.delete(`/api/${collectionName}/${itemToDelete.id}`);
+            if (!itemToDelete || !itemToDelete[ID_FIELD]) {
+                console.error("No se puede eliminar: el item o su ID no está definido.");
+                setIsConfirmModalOpen(false);
+                return;
+            }
+            
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+            await axios.delete(`${apiUrl}/${collectionName}/${itemToDelete[ID_FIELD]}`);
 
-            setData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
-            setFilteredData((prevData) => prevData.filter((i) => i.id !== itemToDelete.id));
+            setData((prevData) => prevData.filter((i) => i[ID_FIELD] !== itemToDelete[ID_FIELD]));
+            setFilteredData((prevData) => prevData.filter((i) => i[ID_FIELD] !== itemToDelete[ID_FIELD]));
 
             setIsConfirmModalOpen(false);
             setItemToDelete(null);
@@ -138,22 +148,20 @@ const CrudMenu = ({
         }
     }
 
-    /* if (loading) return <p>Cargando datos...</p>;
-    if (error) return <p>Error: {error}</p>; */
-
     return (
         <div className={styles.CRUDContainer}>
             <h1 className={styles.pageTitle}>{pageTitle}</h1>
             <SearchBar onSearch={handleSearchChange} onAdd={handleAddClick} />
             <section className={styles.itemsSection}>
-                {filteredData.length > 0 ? (
+                {filteredData && filteredData.length > 0 ? (
                     filteredData.map((item) => (
                         <ItemCard
-                            key={item.id}
+                            key={item[ID_FIELD]}
                             item={item}
                             displayFields={displayFields}
                             onEdit={() => handleItemClick(item)}
                             onDelete={() => handleDeleteItem(item)}
+                            idField={ID_FIELD}
                         />
                     ))
                 ) : (
