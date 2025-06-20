@@ -1,0 +1,200 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { FaTrash, FaPlus, FaPencilAlt, FaTimes, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import styles from "./ClassesRecorded.module.css";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+const ClassesRecorded = ({ courseId, isAdmin }) => {
+  const [recordings, setRecordings] = useState([]);
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [currentUrl, setCurrentUrl] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null); 
+
+  // --- Data logic (fetch) ---
+  useEffect(() => {
+    if (!courseId) return;
+    const fetchRecordings = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/recordings/${courseId}`);
+        setRecordings(response.data);
+      } catch (error) {
+        console.error("Error al obtener grabaciones:", error.response?.data || error.message);
+      }
+    };
+    fetchRecordings();
+  }, [courseId]);
+
+  // --- Modal for update or insert recordings ---
+  const openAddModal = () => {
+    setEditingId(null);
+    setCurrentTitle("");
+    setCurrentUrl("");
+    setIsModalOpen(true);
+  };
+  // --- open Edit modal ---
+  const openEditModal = (recording) => {
+    setEditingId(recording.recordingid);
+    setCurrentTitle(recording.title);
+    setCurrentUrl(recording.url);
+    setIsModalOpen(true);
+  };
+  // --- Close Modal ---
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingId(null);
+    setCurrentTitle("");
+    setCurrentUrl("");
+  };
+
+  // --- CRUD recordings ---
+  const handleSave = async () => {
+    if (!currentTitle || !currentUrl) {
+      alert("Por favor, completa todos los campos.");
+      return;
+    }
+
+    if (editingId) {
+      // --- update logic ---
+      try {
+        const response = await axios.put(`${API_URL}/recordings/${editingId}`, {
+          title: currentTitle,
+          url: currentUrl,
+        });
+        setRecordings(prev => prev.map(rec => (rec.recordingid === editingId ? response.data : rec)));
+      } catch (error) {
+        console.error("Error al actualizar grabación:", error.response?.data || error.message);
+      }
+    } else {
+      // --- Add record logic ---
+      try {
+        const response = await axios.post(`${API_URL}/recordings`, {
+          title: currentTitle,
+          url: currentUrl,
+          orderrecording: recordings.length,
+          courseid: courseId,
+        });
+        setRecordings(prev => [...prev, response.data]);
+      } catch (error) {
+        console.error("Error al agregar la grabación:", error.response?.data || error.message);
+      }
+    }
+    closeModal();
+  };
+    // --- Delete logic --- 
+  const deleteRecording = async (id) => {
+    if (window.confirm("¿Estás seguro de eliminar esta grabación?")) {
+      try {
+        await axios.delete(`${API_URL}/recordings/${id}`);
+        setRecordings(prev => prev.filter(rec => rec.recordingid !== id));
+      } catch (error) {
+        console.error("Error al eliminar la grabación:", error.response?.data || error.message);
+      }
+    }
+  };
+
+  // --- moving logic ---
+  const moveRecording = (index, direction) => {
+      const newRecordings = [...recordings];
+      const [movedRecording] = newRecordings.splice(index, 1);
+      newRecordings.splice(index + direction, 0, movedRecording);
+      setRecordings(newRecordings);
+  };
+
+  return (
+    <div className={styles.recordingsBlock}>
+      <h3>Grabaciones de Clases</h3>
+
+      {/* Mapeo de las grabaciones */}
+      {recordings.map((rec, index) => (
+        <div key={rec.recordingid} className={styles.recordingItem}>
+          <a href={rec.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
+              <span>{rec.title}</span>
+          </a>
+          
+          {isAdmin && (
+            <div className={styles.actions}>
+              <button onClick={() => moveRecording(index, -1)} disabled={index === 0} className={styles.actionButton} title="Mover arriba"><FaArrowUp /></button>
+              <button onClick={() => moveRecording(index, 1)} disabled={index === recordings.length - 1} className={styles.actionButton} title="Mover abajo"><FaArrowDown /></button>
+              <button onClick={() => openEditModal(rec)} className={styles.actionButton} title="Editar"><FaPencilAlt /></button>
+              <button onClick={() => deleteRecording(rec.recordingid)} className={styles.actionButton} title="Eliminar"><FaTrash /></button>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {/* Botón para abrir el modal de añadir */}
+      {isAdmin && (
+        <button onClick={openAddModal} className={styles.addButton}>
+          Añadir Grabación
+        </button>
+      )}
+
+      {/* --- (Modal) --- */}
+      {isModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>{editingId ? "Editar Grabación" : "Añadir Nueva Grabación"}</h3>
+            
+            <label htmlFor="recordingTitle">Título de la grabación:</label>
+            <input
+              id="recordingTitle"
+              type="text"
+              value={currentTitle}
+              onChange={(e) => setCurrentTitle(e.target.value)}
+              placeholder="Ej: Clase 1 - Introducción"
+              className={styles.title}
+            />
+
+            <label htmlFor="recordingUrl">URL de la grabación:</label>
+            <input
+              id="recordingUrl"
+              type="url"
+              value={currentUrl}
+              onChange={(e) => setCurrentUrl(e.target.value)}
+              placeholder="Pega el enlace del video aquí"
+              className={styles.title}
+            />
+            
+            <div className={styles.formActions}>
+              <button onClick={handleSave} className={styles.saveButton}>
+                {editingId ? <FaPencilAlt /> : <FaPlus />} {editingId ? "Guardar Cambios" : "Añadir"}
+              </button>
+              <button onClick={closeModal} className={styles.cancelButton}>
+                <FaTimes /> Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ClassesRecorded;
+
+
+//Todos deberan ser editados...
+
+// mostrar usuarios con los siguientes datos:
+// -- name, lastnames
+// -- email
+// -- phone number
+
+
+// Estudiantes:
+// -- name, lastnames
+// -- Course
+
+
+// proyectos
+// -- Title 
+// -- Student full name
+// -- Mentor full name
+// -- dueDate
+// mostrar si entrego el proyecto, sino no mostrar nada
+
+// 
