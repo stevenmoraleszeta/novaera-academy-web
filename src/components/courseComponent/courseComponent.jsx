@@ -129,9 +129,13 @@ const CourseDetail = ({
                 await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/${studentCourse.id}`, {
                     method: "DELETE",
                 });
-                setStudents(students.filter(id => id !== studentId));
+                const updatedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`);
+                const updatedData = await updatedRes.json();
+                setStudents(updatedData.map(sc => sc.userid));
             }
-        } catch (e) { }
+        } catch (e) {
+            console.error("Error al eliminar estudiante:", e);
+        }
     };
 
     const openVideoModal = () => {
