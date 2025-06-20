@@ -109,14 +109,21 @@ const ProjectsList = ({
         const [moved] = reordered.splice(index, 1);
         reordered.splice(newIndex, 0, moved);
 
-        // Actualizar el orden en el backend
         try {
             await Promise.all(
                 reordered.map((proj, idx) =>
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${proj.id}`, {
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${proj.projectid}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ ...proj, orderProject: idx + 1 }),
+                        body: JSON.stringify({
+                            title: proj.title,
+                            dueDate: proj.duedate || proj.dueDate || "",
+                            fileUrl: proj.fileurl || proj.fileUrl || "",
+                            orderProject: idx + 1,
+                            courseId: proj.courseid || proj.courseId || null,
+                            mentorId: proj.mentorid || proj.mentorId || null,
+                            userId: proj.userid || proj.userId || null,
+                        }),
                     })
                 )
             );
@@ -130,13 +137,13 @@ const ProjectsList = ({
         <div className={styles.mainContainer}>
             <h3>Proyectos</h3>
             {projects.map((project, index) => (
-                <div key={project.id} className={styles.projectItem}>
+                <div key={project.projectid} className={styles.projectItem}>
                     <span>{project.title}</span>
                     <span>{project.dueDate}</span>
                     {isAdmin && (
                         <div className={styles.projectActions}>
                             <button
-                                onClick={() => moveProject(project.id, index, -1)}
+                                onClick={() => moveProject(project.projectid, index, -1)}
                                 disabled={index === 0}
                                 className={styles.projectAction}
                                 title="Mover arriba"
@@ -144,7 +151,7 @@ const ProjectsList = ({
                                 <FaArrowUp />
                             </button>
                             <button
-                                onClick={() => moveProject(project.id, index, 1)}
+                                onClick={() => moveProject(project.projectid, index, 1)}
                                 disabled={index === projects.length - 1}
                                 className={styles.projectAction}
                                 title="Mover abajo"
@@ -152,7 +159,7 @@ const ProjectsList = ({
                                 <FaArrowDown />
                             </button>
                             <button
-                                onClick={() => deleteProject(project.id)}
+                                onClick={() => deleteProject(project.projectid)}
                                 className={styles.projectAction}
                                 title="Eliminar Proyecto"
                             >
