@@ -10,14 +10,64 @@ const ProjectsList = ({
     studentProjects,
     courseId,
     averageScore,
-    handleEditProject,
-    moveProject,
-    deleteProject,
-    addProject,
     students,
 }) => {
     const { currentUser } = useAuth();
     if (!isStudentInCourse && !isAdmin) return null;
+
+    const addProject = async (projectData) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(projectData),
+            });
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error("Error al crear el proyecto: " + errorText);
+            }
+            await res.json();
+
+            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            setProjects(await updated.json());
+        } catch (err) {
+            console.error("Error al añadir proyecto:", err);
+            alert(err.message);
+        }
+    };
+
+    const deleteProject = async (projectId) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
+                method: "DELETE",
+            });
+            if (!res.ok) throw new Error("Error al eliminar el proyecto");
+
+            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            setProjects(await updated.json());
+        } catch (err) {
+            console.error("Error al eliminar proyecto:", err);
+        }
+    };
+
+    const moveProject = async () => {
+
+    }
+
+    const handleEditProject = async (projectId, updatedData) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedData),
+            });
+            if (!res.ok) throw new Error("Error al editar el proyecto");
+            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            setProjects(await updated.json());
+        } catch (err) {
+            console.error("Error al editar proyecto:", err);
+        }
+    };
 
     const renderProjectActions = (project, index) => (
         <div className={styles.projectActions}>

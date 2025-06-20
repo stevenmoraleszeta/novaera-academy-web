@@ -13,7 +13,7 @@ import { Modal } from "@/components/modal/modal";
 import ProjectsList from "@/components/projects/projects";
 
 // courseComponent.js
-import ClassesRecorded from "@/components/classesRecorded/ClassesRecorded"; 
+import ClassesRecorded from "@/components/classesRecorded/ClassesRecorded";
 
 import { FaPlus, FaTrash } from "react-icons/fa";
 import styles from "./courseComponent.module.css";
@@ -218,55 +218,11 @@ const CourseDetail = ({
         }
     }, [isLiveCourse, courseId]);
 
-    const addProject = async (projectData) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(projectData),
-            });
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error("Error al crear el proyecto: " + errorText);
-            }
-            await res.json();
 
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
-        } catch (err) {
-            console.error("Error al añadir proyecto:", err);
-            alert(err.message);
-        }
-    };
 
-    const handleEditProject = async (projectId, updatedData) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedData),
-            });
-            if (!res.ok) throw new Error("Error al editar el proyecto");
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
-        } catch (err) {
-            console.error("Error al editar proyecto:", err);
-        }
-    };
 
-    const deleteProject = async (projectId) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
-                method: "DELETE",
-            });
-            if (!res.ok) throw new Error("Error al eliminar el proyecto");
 
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
-        } catch (err) {
-            console.error("Error al eliminar proyecto:", err);
-        }
-    };
+
 
     const handleFieldChange = async (field, value) => {
         const fieldMap = {
@@ -454,18 +410,14 @@ const CourseDetail = ({
                             studentProjects={studentProjects}
                             courseId={courseId}
                             averageScore={averageScore}
-                            handleEditProject={handleEditProject}
-                            moveProject={() => { }}
-                            deleteProject={deleteProject}
-                            addProject={addProject}
                             students={students}
                         />
                     )}
-                    {/* Records solo para cursos en vivo */}    
+                    {/* Records solo para cursos en vivo */}
                     {isLiveCourse && <ClassesRecorded courseId={courseId} isAdmin={isAdmin} />}
                     {/* {isLiveCourse && <ClassesRecorded courseId={courseId} />}    */}
                 </div>
-            </div>   
+            </div>
 
             {isVideoModalOpen && (
                 <Modal isOpen={isVideoModalOpen}
