@@ -186,7 +186,7 @@ export function Modal({
 
                 {modalContent === "customContent" && (
                     <div className={styles.customContent}>
-                        {customContent}
+                        {children}
                     </div>
                 )}
             </div>
