@@ -91,3 +91,25 @@
 .modalContent textarea {
     margin-bottom: 20px;
 }
+
+/* Estilos para el layout de dos columnas */
+
+.mainContentGrid {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.leftColumn,
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .mainContentGrid {
+    grid-template-columns: 1fr;
+  }
+}
