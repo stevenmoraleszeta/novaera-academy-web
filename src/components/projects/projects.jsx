@@ -179,7 +179,7 @@ const ProjectsList = ({
             {/* Modal para añadir proyecto */}
             {isAddModalOpen && (
 
-                <Modal modalType="customContent" title="Agregar proyecto" isOpen={isAddModalOpen}>
+                <Modal modalType="customContent" isOpen={isAddModalOpen}>
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
                             <h3>Nuevo Proyecto</h3>
