@@ -100,3 +100,96 @@
         width: 95%;
     }
 }
+
+/* Projects items and containers */
+
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.projects {
+    background: linear-gradient(var(--color-dark), var(--color-black));
+    padding: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.projectItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: var(--color-dark-hover);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.projectItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.projectActions {
+    display: flex;
+    gap: 10px;
+}
+
+.addProjectButton {
+    width: 100%;
+    margin-top: 10px;
+    padding: 0.75rem 1rem;
+    font-weight: bold;
+    background-color: transparent;
+    border: dashed 2px var(--color-secondary);
+    border-radius: 6px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addProjectButton:hover {
+    background-color: rgba(246, 173, 85, 0.1);
+    color: var(--color-secondary);
+}
+
+.projectAction {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.projectAction:hover {
+    color: var(--color-secondary);
+}
+
+@media (max-width: 768px) {
+    .projectItem {
+        flex-direction: column;
+        /* Cambia a diseño vertical si no hay suficiente espacio */
+        align-items: flex-start;
+    }
+
+    .projectActions {
+        justify-content: flex-end;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .features {
+        height: 200vh;
+        margin-top: 2vh;
+
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+        justify-content: center;
+    }
+
+}
