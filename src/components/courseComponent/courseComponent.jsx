@@ -76,6 +76,12 @@ const CourseDetail = ({
         console.log('Estudiantes: ', students)
     }, [isLiveCourse, isAdmin, courseId]);
 
+    useEffect(() => {
+        if (course && course.mentorid) {
+            setSelectedMentor(course.mentorid);
+        }
+    }, [course]);
+
     const openGroupModal = async () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`);
@@ -197,23 +203,6 @@ const CourseDetail = ({
 
         checkEnrollmentStatus();
     }, [currentUser, courseId]);
-
-    // Proyectos para cursos en vivo
-    useEffect(() => {
-        if (isLiveCourse && courseId) {
-            const fetchProjects = async () => {
-                try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-                    if (!res.ok) throw new Error("No se pudieron obtener los proyectos");
-                    const data = await res.json();
-                    setProjects(data);
-                } catch (err) {
-                    console.error("Error al obtener proyectos:", err);
-                }
-            };
-            fetchProjects();
-        }
-    }, [isLiveCourse, courseId]);
 
 
     const handleFieldChange = async (field, value) => {
@@ -398,11 +387,11 @@ const CourseDetail = ({
                         <ProjectsList
                             isAdmin={isAdmin}
                             isStudentInCourse={isEnrolled}
-                            projects={projects}
                             studentProjects={studentProjects}
                             courseId={courseId}
                             averageScore={averageScore}
                             students={students}
+                            mentor={selectedMentor}
                         />
                     )}
                     {/* Records solo para cursos en vivo */}
