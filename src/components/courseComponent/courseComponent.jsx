@@ -146,9 +146,6 @@ const CourseDetail = ({
         setIsVideoModalOpen(true);
     };
 
-    // Proyectos (solo para cursos en vivo)
-    const [projects, setProjects] = useState([]);
-
     useEffect(() => {
         const fetchModulesAndClasses = async () => {
             if (!courseId) return;
@@ -217,11 +214,6 @@ const CourseDetail = ({
             fetchProjects();
         }
     }, [isLiveCourse, courseId]);
-
-
-
-
-
 
 
     const handleFieldChange = async (field, value) => {

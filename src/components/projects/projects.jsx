@@ -6,13 +6,14 @@ import { useAuth } from "@/context/AuthContext";
 const ProjectsList = ({
     isAdmin,
     isStudentInCourse,
-    projects,
     studentProjects,
     courseId,
     averageScore,
     students,
 }) => {
     const { currentUser } = useAuth();
+    const [projects, setProjects] = useState([]);
+
     if (!isStudentInCourse && !isAdmin) return null;
 
     const addProject = async (projectData) => {
