@@ -144,7 +144,7 @@ const ProjectsList = ({
         setIsEditModalOpen(true);
     };
 
-    // Función para guardar cambios
+    // Función para guardar cambios (admin o estudiante)
     const handleEditProject = async (e) => {
         e.preventDefault();
         let fileUrl = editProject.fileurl || editProject.fileUrl || "";
@@ -164,20 +164,33 @@ const ProjectsList = ({
             }
         }
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    title: editProject.title,
-                    dueDate: editProject.dueDate,
-                    fileUrl,
-                    orderProject: editProject.orderproject || editProject.orderProject || 1,
-                    courseId: editProject.courseid || editProject.courseId || null,
-                    mentorId: editProject.mentorid || editProject.mentorId || null,
-                    userId: editProject.userid || editProject.userId || null,
-                }),
-            });
-            if (!res.ok) throw new Error("Error al editar el proyecto");
+            if (isAdmin) {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: editProject.title,
+                        dueDate: editProject.dueDate,
+                        fileUrl,
+                        orderProject: editProject.orderproject || editProject.orderProject || 1,
+                        courseId: editProject.courseid || editProject.courseId || null,
+                        mentorId: editProject.mentorid || editProject.mentorId || null,
+                        userId: editProject.userid || editProject.userId || null,
+                    }),
+                });
+                if (!res.ok) throw new Error("Error al editar el proyecto");
+            } else {
+                // Solo permite subir archivo para estudiantes
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        fileUrl,
+                        userId: currentUser?.userid,
+                    }),
+                });
+                if (!res.ok) throw new Error("Error al entregar el proyecto");
+            }
             // Recargar proyectos
             const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
             setProjects(await updated.json());
@@ -213,8 +226,8 @@ const ProjectsList = ({
                 <div
                     key={project.projectid}
                     className={styles.projectItem}
-                    onClick={() => openEditModal(project)} // Permitir a todos abrir el modal
-                    style={{ cursor: "pointer" }}
+                    onClick={() => (isAdmin || isStudentInCourse) && openEditModal(project)}
+                    style={{ cursor: (isAdmin || isStudentInCourse) ? "pointer" : "default" }}
                 >
                     <span>{project.title}</span>
                     <span>{formatDateDMY(project.dueDate || project.duedate || "")}</span>
@@ -257,7 +270,42 @@ const ProjectsList = ({
             {/* Modal para añadir proyecto */}
             {isAddModalOpen && (
                 <Modal modalType="customContent" isOpen={isAddModalOpen}>
-                    {/* ...existing code... */}
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modalContent}>
+                            <h3>Nuevo Proyecto</h3>
+                            <form onSubmit={handleAddProject} className={styles.modalForm}>
+                                <label>Título</label>
+                                <input
+                                    type="text"
+                                    value={newProject.title}
+                                    onChange={e => setNewProject({ ...newProject, title: e.target.value })}
+                                    required
+                                />
+                                <label>Fecha de entrega</label>
+                                <input
+                                    type="date"
+                                    value={newProject.dueDate}
+                                    onChange={e => setNewProject({ ...newProject, dueDate: e.target.value })}
+                                    required
+                                />
+                                <label>Archivo</label>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={e => setNewProject({ ...newProject, file: e.target.files[0] })}
+                                    accept="*"
+                                />
+                                <div className={styles.formActions}>
+                                    <button type="submit" className={styles.saveButton}>
+                                        <FaPlus /> Guardar
+                                    </button>
+                                    <button type="button" onClick={() => setIsAddModalOpen(false)} className={styles.cancelButton}>
+                                        <FaTimes /> Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </Modal>
             )}
 
@@ -267,64 +315,22 @@ const ProjectsList = ({
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
                             <h3>{isAdmin ? "Editar Proyecto" : "Entregar Proyecto"}</h3>
-                            <form
-                                onSubmit={async (e) => {
-                                    e.preventDefault();
-                                    if (isAdmin) {
-                                        await handleEditProject(e);
-                                    } else {
-                                        // Solo permitir subir archivo para estudiantes
-                                        let fileUrl = editProject.fileurl || editProject.fileUrl || "";
-                                        if (editProject.file) {
-                                            const formData = new FormData();
-                                            formData.append("file", editProject.file);
-                                            const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
-                                                method: "POST",
-                                                body: formData,
-                                            });
-                                            if (uploadRes.ok) {
-                                                const data = await uploadRes.json();
-                                                fileUrl = data.url || "";
-                                            } else {
-                                                alert("Error al subir el archivo");
-                                                return;
-                                            }
-                                        }
-                                        try {
-                                            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}/submit`, {
-                                                method: "POST",
-                                                headers: { "Content-Type": "application/json" },
-                                                body: JSON.stringify({
-                                                    fileUrl,
-                                                    userId: currentUser?.userid,
-                                                }),
-                                            });
-                                            if (!res.ok) throw new Error("Error al entregar el proyecto");
-                                            alert("Proyecto entregado correctamente");
-                                            setIsEditModalOpen(false);
-                                            setEditProject(null);
-                                        } catch (err) {
-                                            alert(err.message);
-                                        }
-                                    }
-                                }}
-                                className={styles.modalForm}
-                            >
+                            <form onSubmit={handleEditProject} className={styles.modalForm}>
                                 <label>Título</label>
                                 <input
                                     type="text"
                                     value={editProject.title}
-                                    disabled={!isAdmin}
                                     onChange={e => setEditProject({ ...editProject, title: e.target.value })}
                                     required
+                                    disabled={!isAdmin}
                                 />
                                 <label>Fecha de entrega</label>
                                 <input
                                     type="date"
                                     value={editProject.dueDate}
-                                    disabled={!isAdmin}
                                     onChange={e => setEditProject({ ...editProject, dueDate: e.target.value })}
                                     required
+                                    disabled={!isAdmin}
                                 />
                                 <label>Archivo</label>
                                 <input
