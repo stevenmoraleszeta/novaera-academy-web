@@ -2,7 +2,7 @@ import CourseComponent from "@/components/courseComponent/courseComponent";
 
 const CursosEnLineaPage = ({ params }) => {
     return (
-        <CourseComponent params={params} />
+        <CourseComponent courseIdentification={params.coursesId} isLiveCourse={false} />
     );
 };
 
