@@ -395,7 +395,7 @@ const CourseDetail = ({
                         />
                     )}
                     {/* Records solo para cursos en vivo */}
-                    {isLiveCourse && <ClassesRecorded courseId={courseId} isAdmin={isAdmin} />}
+                    {isLiveCourse && (isEnrolled || isAdmin) && <ClassesRecorded courseId={courseId} isAdmin={isAdmin} />}
                     {/* {isLiveCourse && <ClassesRecorded courseId={courseId} />}    */}
                 </div>
             </div>
