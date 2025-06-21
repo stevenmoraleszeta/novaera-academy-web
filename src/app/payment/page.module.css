@@ -1,0 +1,237 @@
+.paymentContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.paymentBox {
+    background: linear-gradient(var(--color-dark), var(--color-primary));
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.paymentBox:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+}
+
+.paymentTitle {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.paymentDetails {
+    font-size: 18px;
+    color: var(--color-lighter);
+    margin-bottom: 5%;
+}
+
+.paymentAmount {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 30px;
+}
+
+.paypalButton {
+    margin-top: 20px;
+}
+
+.paymentSuccess,
+.paymentError {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.paymentSuccess h2,
+.paymentError h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 15px;
+}
+
+.paymentSuccess p,
+.paymentError p {
+    font-size: 18px;
+    color: var(--color-lighter);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.contactButton,
+.retryButton {
+    display: inline-block;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.contactButton {
+    background: var(--color-secondary);
+    color: var(--text-color);
+    margin-top: 20px;
+}
+
+.contactButton:hover {
+    background: var(--color-secondary-hover);
+    transform: translateY(-2px);
+}
+
+.retryButton {
+    background: var(--color-secondary);
+    color: var(--text-color);
+    margin-top: 10px;
+    border: none;
+}
+
+.retryButton:hover {
+    background: var(--color-secondary-hover);
+    transform: translateY(-2px);
+}
+
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: #00181D;
+    color: #fff;
+    padding: 20px 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+.modalTitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.modalDescription {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.modalButton {
+    background: var(--color-secondary);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+.modalButton:hover {
+    background: var(--color-secondary-hover);
+}
+
+.paymentContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.paymentBox {
+    background: linear-gradient(var(--color-dark), var(--color-primary));
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+}
+
+.paymentBox:hover {
+    transform: none;
+    /* Evita el movimiento por hover */
+}
+
+.paymentInput {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid var(--color-lighter);
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.paymentInput:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+.paymentLabel {
+    display: block;
+    margin-bottom: 8px;
+    /* Espacio entre el label y el input */
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-lighter);
+    /* Usa tu color definido */
+}
+
+.paymentRecommendation {
+    font-size: 14px;
+    color: var(--color-lighter);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.errorList {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 20px;
+    color: red;
+    /* Set the text color to red for visibility */
+    font-size: 16px;
+}
+
+.errorItem {
+    margin-bottom: 5px;
+}
+
+
+/* Payment receipt */
+
+.paymentReceipt {
+    background: linear-gradient(var(--color-dark), var(--color-primary));
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+}
