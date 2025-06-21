@@ -86,13 +86,15 @@ export default function CompleteInformation() {
                 firstname: userInfo.firstname ?? "",
                 lastname1: userInfo.lastname1 ?? "",
                 lastname2: userInfo.lastname2 ?? "",
-                age: userInfo.age && !isNaN(Number(userInfo.age)) ? Number(userInfo.age) : null,
+                age: userInfo.age && !isNaN(Number(userInfo.age)) && userInfo.age !== "" ? Number(userInfo.age) : null,
                 email: userInfo.email ?? "",
-                phone: userInfo.phone && !isNaN(Number(userInfo.phone)) ? Number(userInfo.phone) : null,
+                phone: userInfo.phone && !isNaN(Number(userInfo.phone)) && userInfo.phone !== "" ? Number(userInfo.phone) : null,
                 country: userInfo.country ?? "",
                 photourl: photourl ?? "",
+                roleId: userInfo.roleId && !isNaN(Number(userInfo.roleId)) && userInfo.roleId !== "" ? Number(userInfo.roleId) : (currentUser?.roleid ?? 9),
                 updatedAt: new Date().toISOString(),
             };
+
 
             await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
