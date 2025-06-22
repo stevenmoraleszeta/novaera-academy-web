@@ -7,13 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import { Modal } from "@/components/modal/modal";
 import styles from "./page.module.css";
 import axios from "axios";
+import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
 
 const PaymentPage = () => {
     const { currentUser } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     const courseId = searchParams.get("courseId");
-    const [course, setCourse] = useState(null);
+    const { course, setCourse } = useFetchCourse(courseId);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
     const [customPayment, setCustomPayment] = useState({
@@ -27,6 +28,7 @@ const PaymentPage = () => {
     const [paymentReceipt, setPaymentReceipt] = useState(null);
     const [noCourse, setNoCourse] = useState(false);
     const customPaymentRef = useRef(customPayment);
+
 
     useEffect(() => {
         customPaymentRef.current = customPayment;
@@ -42,35 +44,20 @@ const PaymentPage = () => {
             if (!currentUser || !courseId) return;
             try {
                 const { data } = await axios.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.id}`
+                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.userid}`
                 );
                 if (data && data.length > 0) {
                     setIsAlreadyEnrolled(true);
                 }
             } catch (error) {
-                // Si 404, no está inscrito, si otro error, loguear
-                if (error.response && error.response.status !== 404) {
+                // Solo loguea si el error NO es 404
+                if (!error.response || error.response.status !== 404) {
                     console.error("Error al verificar inscripción:", error);
                 }
             }
         };
         checkEnrollment();
     }, [currentUser, courseId]);
-
-    // Cargar detalles del curso
-    useEffect(() => {
-        const fetchCourseDetails = async () => {
-            if (!courseId) return;
-            try {
-                const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`);
-                setCourse(data);
-            } catch (error) {
-                setNoCourse(true);
-                router.push("/payment");
-            }
-        };
-        fetchCourseDetails();
-    }, [courseId]);
 
     const handlePaymentSuccess = async (details) => {
         setPaymentStatus("success");
@@ -79,9 +66,9 @@ const PaymentPage = () => {
             const paymentData = {
                 fullName: customPaymentRef.current.fullName,
                 description: customPaymentRef.current.description,
-                amount: courseId ? course.discountedPrice : customPaymentRef.current.amount,
+                amount: courseId ? course.discountedprice : customPaymentRef.current.amount,
                 courseId: courseId || null,
-                userId: currentUser ? currentUser.id : null,
+                userId: currentUser ? currentUser.userid : null,
                 courseName: course?.title,
                 receiptNumber,
             };
@@ -92,7 +79,7 @@ const PaymentPage = () => {
             // Si es pago de curso, registrar inscripción
             if (currentUser && courseId) {
                 await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/student-courses`, {
-                    userId: currentUser.id,
+                    userId: currentUser.userid,
                     courseId,
                     enrollmentDate: new Date().toISOString(),
                 });
@@ -129,7 +116,7 @@ const PaymentPage = () => {
             return null;
         }
         try {
-            const finalAmount = courseId ? course.discountedPrice : Number(amount);
+            const finalAmount = courseId ? course.discountedprice : Number(amount);
             const { data } = await axios.post("/api/create-order", { amount: finalAmount });
             return data.id;
         } catch (error) {
@@ -192,7 +179,10 @@ const PaymentPage = () => {
                             <h1 className={styles.paymentTitle}>{course.title}</h1>
                             <p className={styles.paymentDetails}>{course.description}</p>
                             <p className={styles.paymentAmount}>
-                                Monto a pagar (USD): ${course.discountedPrice?.toFixed(2)}
+                                Monto a pagar (USD): $
+                                {course.discountedprice && !isNaN(Number(course.discountedprice))
+                                    ? Number(course.discountedprice).toFixed(2)
+                                    : "No disponible"}
                             </p>
                             <div className={styles.paypalButton}>
                                 <PayPalScriptProvider
