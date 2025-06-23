@@ -176,32 +176,34 @@ const PaymentPage = () => {
 
                     {course ? (
                         <div className={styles.paymentContainer}>
-                            <h1 className={styles.paymentTitle}>{course.title}</h1>
-                            <p className={styles.paymentDetails}>{course.description}</p>
-                            <p className={styles.paymentAmount}>
-                                Monto a pagar (USD): $
-                                {course.discountedprice && !isNaN(Number(course.discountedprice))
-                                    ? Number(course.discountedprice).toFixed(2)
-                                    : "No disponible"}
-                            </p>
-                            <div className={styles.paypalButton}>
-                                <PayPalScriptProvider
-                                    options={{
-                                        "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-                                        currency: "USD",
-                                    }}
-                                >
-                                    <PayPalButtons
-                                        createOrder={validateAndCreateOrder}
-                                        onApprove={(data, actions) =>
-                                            actions.order
-                                                .capture()
-                                                .then(handlePaymentSuccess)
-                                                .catch(handlePaymentError)
-                                        }
-                                        onError={handlePaymentError}
-                                    />
-                                </PayPalScriptProvider>
+                            <div className={styles.paymentBox}>
+                                <h1 className={styles.paymentTitle}>{course.title}</h1>
+                                <p className={styles.paymentDetails}>{course.description}</p>
+                                <p className={styles.paymentAmount}>
+                                    Monto a pagar (USD): $
+                                    {course.discountedprice && !isNaN(Number(course.discountedprice))
+                                        ? Number(course.discountedprice).toFixed(2)
+                                        : "No disponible"}
+                                </p>
+                                <div className={styles.paypalButton}>
+                                    <PayPalScriptProvider
+                                        options={{
+                                            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+                                            currency: "USD",
+                                        }}
+                                    >
+                                        <PayPalButtons
+                                            createOrder={validateAndCreateOrder}
+                                            onApprove={(data, actions) =>
+                                                actions.order
+                                                    .capture()
+                                                    .then(handlePaymentSuccess)
+                                                    .catch(handlePaymentError)
+                                            }
+                                            onError={handlePaymentError}
+                                        />
+                                    </PayPalScriptProvider>
+                                </div>
                             </div>
                         </div>
                     ) : !courseId ? (
