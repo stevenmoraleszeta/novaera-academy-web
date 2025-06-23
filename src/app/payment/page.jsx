@@ -63,9 +63,14 @@ const PaymentPage = () => {
         setPaymentStatus("success");
         try {
             const receiptNumber = `REC-${Date.now()}`;
+            // Usa datos del usuario y curso si es pago de curso
             const paymentData = {
-                fullName: customPaymentRef.current.fullName,
-                description: customPaymentRef.current.description,
+                fullName: courseId
+                    ? (currentUser?.fullname || currentUser?.name || "Usuario")
+                    : customPaymentRef.current.fullName,
+                description: courseId
+                    ? `Pago de inscripción al curso: ${course?.title || "Curso"}`
+                    : customPaymentRef.current.description,
                 amount: courseId ? course.discountedprice : customPaymentRef.current.amount,
                 courseId: courseId || null,
                 userId: currentUser ? currentUser.userid : null,
