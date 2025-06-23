@@ -7,6 +7,7 @@ import FixedBar from "@/components/fixedBarClasses/fixedBar";
 import RestrictedContent from "@/components/restrictedContent/restrictedContent";
 import { Modal } from "@/components/modal/modal";
 import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses";
+import { useRouter } from "next/navigation";
 
 const ClassDetail = ({
     courseId,
@@ -14,7 +15,6 @@ const ClassDetail = ({
     classId,
     currentUser,
     isAdmin,
-    isEnrolled = true, // Puedes cambiar esto según tu lógica
     onBackToSyllabus,
 }) => {
     const [classTitle, setClassTitle] = useState("");
@@ -44,6 +44,37 @@ const ClassDetail = ({
         userId: currentUser?.userid,
         classId,
     });
+
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [isEnrolledState, setIsEnrolledState] = useState(true);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!currentUser || !currentUser.userid) {
+            setShowLoginModal(true);
+        }
+    }, [currentUser]);
+
+    useEffect(() => {
+        const checkEnrollment = async () => {
+            if (!currentUser || !currentUser.userid) return;
+            try {
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.userid}`
+                );
+                if (res.status === 200) {
+                    setIsEnrolledState(true);
+                } else {
+                    setIsEnrolledState(false);
+                }
+            } catch (error) {
+                setIsEnrolledState(false);
+            }
+        };
+        if (currentUser && currentUser.userid) {
+            checkEnrollment();
+        }
+    }, [currentUser, courseId]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -338,12 +369,54 @@ const ClassDetail = ({
         }
     };
 
+    const isFirstClass = React.useMemo(() => {
+        if (!classesInModule.length || !classId) return false;
+        const sorted = [...classesInModule].sort(
+            (a, b) =>
+                Number(a.orderClass ?? a.orderclass ?? a.order) -
+                Number(b.orderClass ?? b.orderclass ?? b.order)
+        );
+        const first = sorted[0];
+        const firstId = first?.id ?? first?.classid ?? first?.classId;
+        return String(firstId) === String(classId);
+    }, [classesInModule, classId]);
+
+    if (showLoginModal && !isFirstClass) {
+        return (
+            <Modal
+                isOpen={showLoginModal}
+                onClose={() => router.push("/login")}
+                title="Inicia sesión"
+                description="Debes iniciar sesión para acceder a las clases."
+                modalType="alert"
+            >
+                <button onClick={() => router.push("/login")}>Ir a login</button>
+            </Modal>
+        );
+    }
+
+    if (!isEnrolledState && currentUser && currentUser.userid && !isFirstClass && !isAdmin) {
+        return (
+            <Modal
+                isOpen={true}
+                onClose={() => router.push(`/cursos-en-linea/${courseId}`)}
+                title="No inscrito"
+                description="Debes inscribirte en el curso para acceder a las clases."
+                modalType="alert"
+            >
+                <button onClick={() => router.push(`/cursos-en-linea/${courseId}`)}>
+                    Volver al curso
+                </button>
+            </Modal>
+        );
+    }
+
     return (
         <div>
             {isRestricted ? (
                 <RestrictedContent
                     isAdmin={isAdmin}
-                    isEnrolled={isEnrolled}
+                    isEnrolled={isEnrolledState}
                     courseId={courseId}
                 />
             ) : (
