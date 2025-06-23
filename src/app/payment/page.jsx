@@ -92,9 +92,6 @@ const PaymentPage = () => {
 
             setPaymentReceipt(paymentData);
 
-            if (courseId) {
-                router.push(`/cursos-en-linea/${courseId}`);
-            }
         } catch (error) {
             console.error("Error al guardar la información del pago:", error);
         }
@@ -286,6 +283,14 @@ const PaymentPage = () => {
                             <p>Nombre del usuario: {paymentReceipt.fullName}</p>
                             <p>Número de comprobante: {paymentReceipt.receiptNumber}</p>
                             <p>¡Toma una captura de pantalla!</p>
+                            {courseId && (
+                                <button
+                                    className={styles.modalButton}
+                                    onClick={() => router.push(`/cursos-en-linea/${courseId}`)}
+                                >
+                                    Ir al curso
+                                </button>
+                            )}
                         </div>
                     )}
                     {paymentStatus === "error" && (
