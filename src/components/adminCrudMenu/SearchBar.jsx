@@ -1,9 +1,29 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useRef, useEffect } from 'react';
 import styles from './CrudMenu.module.css';
 
 const SearchBar = ({ onSearch, onAdd }) => {
-    const handleSearchChange = (e) => {
-        onSearch(e.target.value);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    const debounceTimeoutRef = useRef(null);
+    useEffect(() => {
+        return () => {
+            clearTimeout(debounceTimeoutRef.current);
+        };
+    }, []); 
+
+    const handleInputChange = (e) => {
+        const newTerm = e.target.value;
+        setSearchTerm(newTerm);
+        if (debounceTimeoutRef.current) {
+            clearTimeout(debounceTimeoutRef.current);
+        }
+
+        debounceTimeoutRef.current = setTimeout(() => {
+            onSearch(newTerm);
+        }, 500); 
     };
 
     return (
@@ -11,7 +31,8 @@ const SearchBar = ({ onSearch, onAdd }) => {
             <input
                 type="text"
                 placeholder="Buscar..."
-                onChange={handleSearchChange}
+                value={searchTerm}
+                onChange={handleInputChange}
             />
             <button onClick={onAdd}>Agregar</button>
         </section>

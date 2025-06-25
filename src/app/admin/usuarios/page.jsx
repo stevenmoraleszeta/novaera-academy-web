@@ -15,14 +15,13 @@ const AdminUsers = () => {
         { label: 'Correo', field: 'email' },
         { label: 'Teléfono', field: 'phone' },
     ];
-
-    /* Preguntar si se debe cambiar!!! */
-    // Fields to display and edit in the modal
+    
     const editFields = [
         { label: 'Nombre', field: 'firstname' },
         { label: 'Primer Apellido', field: 'lastname1' },
         { label: 'Segundo Apellido', field: 'lastname2' },
         { label: 'Correo', field: 'email' },
+        { label: 'Telefono', field: 'phone'},
         { label: 'Edad', field: 'age', type: 'number' },
         { label: 'Rol', field: 'roleid', type: 'number' },
         { label: 'País', field: 'country' },
@@ -35,6 +34,7 @@ const AdminUsers = () => {
                     displayFields={displayFields}
                     editFields={editFields}
                     pageTitle='Gestión de Usuarios'
+                    idField="userid"
                 />
             </div>
     );
