@@ -369,6 +369,53 @@ const ClassDetail = ({
         }
     };
 
+    const applyStyleToText = (style) => {
+        if (newResourceType !== "text") return;
+
+        const textarea = document.querySelector(`.${styles.modalInput}`);
+        const selectionStart = textarea.selectionStart;
+        const selectionEnd = textarea.selectionEnd;
+
+        let updatedContent = newResourceContent;
+
+        // Extrae las partes del texto seleccionadas y no seleccionadas
+        const before = updatedContent.substring(0, selectionStart);
+        const selected = updatedContent.substring(selectionStart, selectionEnd);
+        const after = updatedContent.substring(selectionEnd);
+
+        switch (style) {
+            case "bold":
+                updatedContent = `${before}*${selected}*${after}`;
+                break;
+            case "bullet":
+                // Agrega `-` a cada línea seleccionada
+                updatedContent = `${before}${selected
+                    .split("\n")
+                    .map((line) => (line.startsWith("- ") ? line : `- ${line}`))
+                    .join("\n")}${after}`;
+                break;
+            case "delimitedList":
+                // Envuelve el bloque seleccionado con `+`
+                updatedContent = `${before}+\n${selected
+                    .split("\n")
+                    .map((line) => (line.startsWith("- ") ? line : `- ${line}`))
+                    .join("\n")}\n+${after}`;
+                break;
+            default:
+                break;
+        }
+
+        setNewResourceContent(updatedContent);
+
+        // Restaura el foco y la selección
+        setTimeout(() => {
+            textarea.focus();
+            const newSelectionStart = selectionStart + (style === "bold" ? 1 : 0);
+            const newSelectionEnd = newSelectionEnd || newSelectionStart + selected.length;
+            textarea.setSelectionRange(newSelectionStart, newSelectionEnd);
+        }, 0);
+    };
+
     const isFirstClass = React.useMemo(() => {
         if (!classesInModule.length || !classId) return false;
         const sorted = [...classesInModule].sort(
@@ -457,108 +504,112 @@ const ClassDetail = ({
                             setResources={setResources}
                             title={editingIndex !== null ? "Modify Resource" : "Add New Resource"}
                             modalType="customContent"
-                            customContent={
+                        >
+                            <div>
+                                Select Resource Type:
+                                <select
+                                    value={newResourceType}
+                                    onChange={(e) => setNewResourceType(e.target.value)}
+                                    className={styles.modalSelect}
+                                >
+                                    <option value="">Select Type</option>
+                                    <option value="title">Title</option>
+                                    <option value="text">Text</option>
+                                    <option value="code">Code</option>
+                                    <option value="videoUrl">Video URL</option>
+                                    <option value="imageUrl">Image URL</option>
+                                    <option value="link">Link</option>
+                                    <option value="pdfUrl">PDF URL</option>
+                                    <option value="sendProject">Send Project</option>
+                                </select>
+                            </div>
+
+                            {(newResourceType === "link" || newResourceType === "pdfUrl") && (
+                                <div>
+                                    Enter Title:
+                                    <input
+                                        type="text"
+                                        value={newResourceTitle}
+                                        onChange={(e) => setNewResourceTitle(e.target.value)}
+                                        className={styles.modalInput}
+                                        placeholder="Enter title"
+                                    />
+                                </div>
+                            )}
+
+                            <div>
+                                Enter Content:
+                                <textarea
+                                    type="text"
+                                    value={newResourceContent}
+                                    onChange={(e) => setNewResourceContent(e.target.value)}
+                                    className={styles.modalInput}
+                                    placeholder="Enter content"
+                                />
+                                {newResourceType === "text" && (
+                                    <div className={styles.textEditorButtons}>
+                                        <button onClick={() => applyStyleToText("bold")} className={styles.styleButton}>Bold</button>
+                                        <button onClick={() => applyStyleToText("bullet")} className={styles.styleButton}>Bullet List</button>
+                                        <button onClick={() => applyStyleToText("delimitedList")} className={styles.styleButton}>Delimited List</button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {newResourceType === "videoUrl" && (
                                 <>
-                                    <div>
-                                        Select Resource Type:
-                                        <select
-                                            value={newResourceType}
-                                            onChange={(e) => setNewResourceType(e.target.value)}
-                                            className={styles.modalSelect}
-                                        >
-                                            <option value="">Select Type</option>
-                                            <option value="title">Title</option>
-                                            <option value="text">Text</option>
-                                            <option value="code">Code</option>
-                                            <option value="videoUrl">Video URL</option>
-                                            <option value="imageUrl">Image URL</option>
-                                            <option value="link">Link</option>
-                                            <option value="pdfUrl">PDF URL</option>
-                                            <option value="sendProject">Send Project</option>
-                                        </select>
-                                    </div>
-
-                                    {(newResourceType === "link" || newResourceType === "pdfUrl") && (
-                                        <div>
-                                            Enter Title:
-                                            <input
-                                                type="text"
-                                                value={newResourceTitle}
-                                                onChange={(e) => setNewResourceTitle(e.target.value)}
-                                                className={styles.modalInput}
-                                                placeholder="Enter title"
-                                            />
-                                        </div>
-                                    )}
-
-                                    <div>
-                                        Enter Content:
-                                        <textarea
-                                            type="text"
-                                            value={newResourceContent}
-                                            onChange={(e) => setNewResourceContent(e.target.value)}
+                                    <label>
+                                        Start Time (seconds):
+                                        <input
+                                            type="number"
+                                            value={videoStart}
+                                            onChange={(e) => setVideoStart(e.target.value)}
                                             className={styles.modalInput}
-                                            placeholder="Enter content"
                                         />
-                                    </div>
-
-                                    {newResourceType === "videoUrl" && (
-                                        <>
-                                            <label>
-                                                Start Time (seconds):
-                                                <input
-                                                    type="number"
-                                                    value={videoStart}
-                                                    onChange={(e) => setVideoStart(e.target.value)}
-                                                    className={styles.modalInput}
-                                                />
-                                            </label>
-                                            <label>
-                                                End Time (seconds):
-                                                <input
-                                                    type="number"
-                                                    value={videoEnd}
-                                                    onChange={(e) => setVideoEnd(e.target.value)}
-                                                    className={styles.modalInput}
-                                                />
-                                            </label>
-                                        </>
-                                    )}
-                                    {newResourceType === "imageUrl" && (
-                                        <>
-                                            <label>
-                                                Ancho de la imagen (px):
-                                                <input
-                                                    type="number"
-                                                    value={newResourceWidth}
-                                                    onChange={(e) => setNewResourceWidth(e.target.value)}
-                                                    className={styles.modalInput}
-                                                    placeholder="Ancho de la imagen"
-                                                />
-                                            </label>
-                                            <label>
-                                                Alto de la imagen (px):
-                                                <input
-                                                    type="number"
-                                                    value={newResourceHeight}
-                                                    onChange={(e) => setNewResourceHeight(e.target.value)}
-                                                    className={styles.modalInput}
-                                                    placeholder="Alto de la imagen"
-                                                />
-                                            </label>
-                                        </>
-                                    )}
-                                    <div className={styles.modalActions}>
-                                        {newResourceType !== "" && (
-                                            <button onClick={handleSaveResource}>
-                                                {editingIndex !== null ? "Save Changes" : "Add"}
-                                            </button>
-                                        )}
-                                        <button onClick={closeModal}>Cancel</button>
-                                    </div>
+                                    </label>
+                                    <label>
+                                        End Time (seconds):
+                                        <input
+                                            type="number"
+                                            value={videoEnd}
+                                            onChange={(e) => setVideoEnd(e.target.value)}
+                                            className={styles.modalInput}
+                                        />
+                                    </label>
                                 </>
-                            }
-                        />
+                            )}
+                            {newResourceType === "imageUrl" && (
+                                <>
+                                    <label>
+                                        Ancho de la imagen (px):
+                                        <input
+                                            type="number"
+                                            value={newResourceWidth}
+                                            onChange={(e) => setNewResourceWidth(e.target.value)}
+                                            className={styles.modalInput}
+                                            placeholder="Ancho de la imagen"
+                                        />
+                                    </label>
+                                    <label>
+                                        Alto de la imagen (px):
+                                        <input
+                                            type="number"
+                                            value={newResourceHeight}
+                                            onChange={(e) => setNewResourceHeight(e.target.value)}
+                                            className={styles.modalInput}
+                                            placeholder="Alto de la imagen"
+                                        />
+                                    </label>
+                                </>
+                            )}
+                            <div className={styles.modalActions}>
+                                {newResourceType !== "" && (
+                                    <button onClick={handleSaveResource}>
+                                        {editingIndex !== null ? "Save Changes" : "Add"}
+                                    </button>
+                                )}
+                                <button onClick={closeModal}>Cancel</button>
+                            </div>
+                        </Modal>
                     )}
                     {isAlertOpen && (
                         <Modal
