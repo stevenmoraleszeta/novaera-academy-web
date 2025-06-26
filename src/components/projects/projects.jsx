@@ -3,6 +3,8 @@ import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes } from "react-icons/fa
 import styles from "./ProjectsList.module.css";
 import { useAuth } from "@/context/AuthContext";
 import { Modal } from "../modal/modal";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/firebase/firebase";
 
 const ProjectsList = ({
     isAdmin,
@@ -59,22 +61,9 @@ const ProjectsList = ({
 
     const handleAddProject = async (e) => {
         e.preventDefault();
-        // Subir archivo si hay
         let fileUrl = "";
         if (newProject.file) {
-            const formData = new FormData();
-            formData.append("file", newProject.file);
-            const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
-                method: "POST",
-                body: formData,
-            });
-            if (uploadRes.ok) {
-                const data = await uploadRes.json();
-                fileUrl = data.url || "";
-            } else {
-                alert("Error al subir el archivo");
-                return;
-            }
+            fileUrl = await uploadFileToFirebase(newProject.file);
         }
         await addProject({
             title: newProject.title,
@@ -149,19 +138,7 @@ const ProjectsList = ({
         e.preventDefault();
         let fileUrl = editProject.fileurl || editProject.fileUrl || "";
         if (editProject.file) {
-            const formData = new FormData();
-            formData.append("file", editProject.file);
-            const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
-                method: "POST",
-                body: formData,
-            });
-            if (uploadRes.ok) {
-                const data = await uploadRes.json();
-                fileUrl = data.url || "";
-            } else {
-                alert("Error al subir el archivo");
-                return;
-            }
+            fileUrl = await uploadFileToFirebase(editProject.file);
         }
         try {
             if (isAdmin) {
@@ -218,6 +195,13 @@ const ProjectsList = ({
         const fullYear = year.length === 2 ? `20${year}` : year.slice(-4);
         return `${fullYear}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
     }
+
+    const uploadFileToFirebase = async (file) => {
+        if (!file) return "";
+        const storageRef = ref(storage, `projects/${Date.now()}_${file.name}`);
+        await uploadBytes(storageRef, file);
+        return await getDownloadURL(storageRef);
+    };
 
     return (
         <div className={styles.mainContainer}>
