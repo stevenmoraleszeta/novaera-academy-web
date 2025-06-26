@@ -21,6 +21,8 @@ export function Modal({
     onSave // Para ModalForm
 }) {
 
+    const [editedItem, setEditedItem] = useState(item);
+    
     const [typeResource, setTypeResource] = useState("text");
     const [contentResource, setContentResource] = useState("");
     const [titleResource, setTitleResource] = useState("");
@@ -31,8 +33,20 @@ export function Modal({
     const [modalContent, setModalContent] = useState("");
 
     useEffect(() => {
+        setEditedItem(item);
+    }, [item]);
+
+    useEffect(() => {
         setModalContent(modalType);
     }, [modalType]);
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setEditedItem(prev => ({
+            ...prev, 
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
 
     const handleSave = async () => {
 
@@ -88,7 +102,7 @@ export function Modal({
                 )}
 
                 {modalContent === "alert" && (
-                    <div className={styles.btnsContainer}>
+                     <div className={styles.btnsContainer}>
                         {children}
                         <button onClick={onClose}>Cerrar</button>
                     </div>
@@ -102,25 +116,33 @@ export function Modal({
                     </div>
                 )}
 
+                {/* --- formModal --- */}
                 {modalContent === "formModal" && (
                     <div className={styles.modalContent}>
                         <h2>{isEditMode ? "Editar Elemento" : "Agregar Nuevo Elemento"}</h2>
-                        {editFields.map(({ label, field, type }) => (
-                            <div key={field} className={styles.fieldRow}>
-                                <label>{label}</label>
-                                <input
-                                    type={type}
-                                    name={field}
-                                    value={item[field] || ""}
-                                    onChange={(e) => {
-                                        const { name, value } = e.target;
-                                        item[name] = value;
-                                    }}
-                                />
-                            </div>
-                        ))}
+                        {editFields.map(({ label, field, type, render }) => {
+                            if (render) {
+                                return (
+                                    <div key={label} className={styles.fieldRow}>
+                                        <label>{label}</label>
+                                        <div className={styles.readOnlyField}>{render(editedItem)}</div>
+                                    </div>
+                                )
+                            }
+                            return (
+                                <div key={field} className={styles.fieldRow}>
+                                    <label>{label}</label>
+                                    <input
+                                        type={type || 'text'}
+                                        name={field}
+                                        value={editedItem?.[field] || ""}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            );
+                        })}
                         <div className={styles.modalButtons}>
-                            <button onClick={() => onSave(item, isEditMode)}>Guardar</button>
+                            <button onClick={() => onSave(editedItem, isEditMode)}>Guardar</button>
                             <button onClick={onClose}>Cerrar</button>
                         </div>
                     </div>

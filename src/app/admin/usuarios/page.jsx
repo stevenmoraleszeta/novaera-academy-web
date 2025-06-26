@@ -8,19 +8,20 @@ const AdminUsers = () => {
     document.title = "Administración de Usuarios - ZETA";
     // Fields to display in the list view
     const displayFields = [
-        { label: 'Nombre', field: 'nombreCompleto' },
+        {
+            label: 'Nombre Completo', 
+            render: (item) => `${item.firstname || ''} ${item.lastname1 || ''} ${item.lastname2 || ''}`.trim()
+        },
         { label: 'Correo', field: 'email' },
-        { label: 'Edad', field: 'age' },
-        { label: 'Rol', field: 'roleid' },
-        { label: 'País', field: 'country' },
+        { label: 'Teléfono', field: 'phone' },
     ];
-
-    // Fields to display and edit in the modal
+    
     const editFields = [
         { label: 'Nombre', field: 'firstname' },
         { label: 'Primer Apellido', field: 'lastname1' },
         { label: 'Segundo Apellido', field: 'lastname2' },
         { label: 'Correo', field: 'email' },
+        { label: 'Telefono', field: 'phone'},
         { label: 'Edad', field: 'age', type: 'number' },
         { label: 'Rol', field: 'roleid', type: 'number' },
         { label: 'País', field: 'country' },
@@ -33,6 +34,7 @@ const AdminUsers = () => {
                     displayFields={displayFields}
                     editFields={editFields}
                     pageTitle='Gestión de Usuarios'
+                    idField="userid"
                 />
             </div>
     );
