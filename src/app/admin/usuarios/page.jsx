@@ -17,13 +17,13 @@ const AdminUsers = () => {
     ];
     
     const editFields = [
-        { label: 'Nombre', field: 'firstname' },
-        { label: 'Primer Apellido', field: 'lastname1' },
+        { label: 'Nombre', field: 'firstname', required: true},
+        { label: 'Primer Apellido', field: 'lastname1', required: true },
         { label: 'Segundo Apellido', field: 'lastname2' },
-        { label: 'Correo', field: 'email' },
+        { label: 'Correo', field: 'email', required: true},
         { label: 'Telefono', field: 'phone'},
         { label: 'Edad', field: 'age', type: 'number' },
-        { label: 'Rol', field: 'roleid', type: 'number' },
+        { label: 'Rol', field: 'roleid', type: 'number', required: true},
         { label: 'País', field: 'country' },
     ];
 
