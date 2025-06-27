@@ -27,18 +27,24 @@ const ProjectsPage = () => {
         { 
             label: 'Título', 
             field: 'project_title', 
-            type: 'text'
+            type: 'text',
+            required: true
+        },
+        {   label: 'Curso', 
+            field: 'course_name'
         },
         { 
             label: 'Fecha Límite', 
             render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>, 
-            type: 'text'
+            type: 'text',
+            required: true
         },
         { label: 'Puntuación', field: 'score', type: 'number' },
         { 
             label: 'Fecha de entrega', 
             render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>, 
-            type: 'text'
+            type: 'text',
+            required: true
         },
         //Esto no se como manejarlo del los archivos!!!
         { 
@@ -46,9 +52,6 @@ const ProjectsPage = () => {
             field: 'fileurl', 
             type: 'text', 
             placeholder: 'https://ejemplo.com/feedback.pdf' 
-        },
-        {   label: 'Curso', 
-            field: 'course_name'
         },
         { 
             label: 'Comentarios para el Estudiante', 
@@ -71,9 +74,6 @@ const ProjectsPage = () => {
                 editFields={editFields}
                 pageTitle="Proyectos de Estudiantes"
                 idField="studentProjectId"
-                //onSave={handleSave}
-                //onDelete={handleDelete}
-                //data={[]}
             />
         </div>
     );
