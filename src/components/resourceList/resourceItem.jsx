@@ -50,7 +50,6 @@ const ResourceItem = ({ resource, index, isAdmin, setResources, openModal }) => 
             if (!res.ok) {
                 alert(data.error || "Error al eliminar el recurso");
                 const errorData = await res.json();
-                console.log("Respuesta del backend:", errorData);
                 return;
             }
             setResources((prev) => prev.filter((_, i) => i !== index));

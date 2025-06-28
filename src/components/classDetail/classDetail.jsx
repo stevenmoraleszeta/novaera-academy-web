@@ -228,7 +228,6 @@ const ClassDetail = ({
             orderClass,
             restricted
         };
-        console.log("Payload enviado al backend:", payload);
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/classes/${classId}`, {
                 method: "PUT",
@@ -237,7 +236,6 @@ const ClassDetail = ({
             });
             if (!res.ok) {
                 const errorData = await res.json();
-                console.log("Respuesta del backend:", errorData);
                 throw new Error("No se pudo actualizar el título");
             }
         } catch (error) {
@@ -290,7 +288,6 @@ const ClassDetail = ({
 
         try {
             if (editingIndex !== null) {
-                console.log('Con editingIndex')
                 const resourceToEdit = resources[editingIndex];
                 const id = resourceToEdit.id || resourceToEdit.resourceId || resourceToEdit.resourceid;
                 payload.orderResource = resourceToEdit.orderresource || resourceToEdit.orderResource || (editingIndex + 1);
@@ -312,7 +309,6 @@ const ClassDetail = ({
                 setIsModalOpen(false);
                 setEditingIndex(null);
             } else {
-                console.log('Sin editingIndex')
 
                 payload.orderResource = getNextOrderResource();
 

@@ -109,8 +109,6 @@ function UserProfile() {
                 updatedAt: new Date().toISOString(),
             };
 
-            console.log("Usuario: ", updatedUser)
-
             await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
                 updatedUser,
@@ -129,8 +127,6 @@ function UserProfile() {
         router.push("/login");
         return null;
     }
-
-    console.log("User: ", userInfo)
 
     return (
         <RequireAuth>

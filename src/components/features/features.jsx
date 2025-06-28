@@ -120,7 +120,6 @@ export default function Features({ course, setCourse, courseId }) {
     // Eliminar la relación course-feature (no el feature en sí)
     const handleDeleteFeature = async (index) => {
         const feature = features[index];
-        console.log("Eliminando coursefeatureid:", feature.coursefeatureid);
         if (!feature.coursefeatureid) {
             // Si no tiene relación, solo lo quitamos localmente
             const updatedFeatures = [...features];

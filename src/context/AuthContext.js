@@ -31,7 +31,6 @@ export function AuthProvider({ children }) {
                     setLoading(false);
                     return;
                 }
-                console.log("Token:", token);
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
                 const response = await axios.get(`${apiUrl}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -59,7 +58,6 @@ export function AuthProvider({ children }) {
     // Función para iniciar sesión con email y contraseña
     const loginWithEmailAndPassword = async (email, password) => {
         try {
-            console.log("Intentando login con:", email, password);
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
                 email: email.trim().toLowerCase(),
                 password,

@@ -30,12 +30,10 @@ const useFetchCourse = (courseId) => {
 
     useEffect(() => {
         const fetchCourse = async () => {
-            console.log("courseId recibido en hook:", courseId);
             if (!courseId) return;
 
             try {
                 const url = `${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`;
-                console.log("URL de fetch:", url);
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("Curso no encontrado");
 
