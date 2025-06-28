@@ -247,7 +247,15 @@ const CourseDetail = ({
             modalityId: course.modalityId ?? course.modalityid,
         };
 
-        normalizedCourse[backendField] = value;
+        if (field === "discountedprice" || field === "discountedPrice") {
+            normalizedCourse.discountedPrice = value;
+            normalizedCourse.discountedprice = value;
+        } else if (field === "originalprice" || field === "originalPrice") {
+            normalizedCourse.originalPrice = value;
+            normalizedCourse.originalprice = value;
+        } else {
+            normalizedCourse[backendField] = value;
+        }
         setCourse(normalizedCourse);
 
         const backendCourse = {
@@ -418,7 +426,7 @@ const CourseDetail = ({
                         />
                     )}
                     {/* Records solo para cursos en vivo */}
-                    {isLiveCourse && <ClassesRecorded courseId={courseId} isAdmin={isAdmin} />}
+                    {isLiveCourse && (isEnrolled || isAdmin) && <ClassesRecorded courseId={courseId} isAdmin={isAdmin} />}
                     {/* {isLiveCourse && <ClassesRecorded courseId={courseId} />}    */}
                 </div>
             </div>

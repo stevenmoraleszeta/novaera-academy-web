@@ -77,6 +77,35 @@ export function AuthProvider({ children }) {
         }
     };
 
+    const loginWithGoogle = () => {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+        const googleAuthUrl = `${apiUrl.replace('/api', '')}/auth/google`;
+        const width = 500, height = 600;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2.5;
+        const popup = window.open(
+            googleAuthUrl,
+            "GoogleLogin",
+            `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        // Escucha el mensaje del popup con el token
+        const handleMessage = async (event) => {
+            // Cambiar esto cuando el backend está en otro dominio
+            if (!event.origin.includes(process.env.NEXT_PUBLIC_API_URL.replace('/api', ''))) return;
+            const { token, user } = event.data;
+            if (token && user) {
+                localStorage.setItem("token", token);
+                setCurrentUser(user);
+                setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
+                setMissingInfo(!user.country || !user.phone || !user.age);
+                popup.close();
+                window.removeEventListener("message", handleMessage);
+            }
+        };
+
+        window.addEventListener("message", handleMessage);
+    };
 
     const registerWithEmailAndPassword = async (email, password, name, profilePicture) => {
         try {
@@ -143,6 +172,7 @@ export function AuthProvider({ children }) {
         updateCurrentUser: setCurrentUser,
         isAdmin,
         missingInfo,
+        loginWithGoogle
     };
 
     return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;

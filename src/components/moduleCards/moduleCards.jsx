@@ -19,11 +19,13 @@ const ModuleCard = ({
 }) => {
 
     const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
-        userId: currentUser.userid,
+        userId: currentUser?.userid,
     });
 
     useEffect(() => {
-        fetchCompletedStatus();
+        if (currentUser?.userid) {
+            fetchCompletedStatus();
+        }
     }, [currentUser?.userid]);
 
     const router = useRouter();

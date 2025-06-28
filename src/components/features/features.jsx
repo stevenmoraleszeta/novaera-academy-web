@@ -142,7 +142,14 @@ export default function Features({ course, setCourse, courseId }) {
         const newFeatures = [...features];
         const [movedFeature] = newFeatures.splice(index, 1);
         newFeatures.splice(index + direction, 0, movedFeature);
+
+        // Actualiza el campo order localmente
+        newFeatures.forEach((feature, i) => {
+            feature.order = i + 1;
+        });
+
         setFeatures(newFeatures);
+
         try {
             await Promise.all(
                 newFeatures.map((feature, i) => {
@@ -156,7 +163,6 @@ export default function Features({ course, setCourse, courseId }) {
                     );
                 })
             );
-            fetchCourseFeatures();
         } catch (error) {
             console.error("Error al actualizar el orden de las características:", error);
         }
@@ -180,7 +186,6 @@ export default function Features({ course, setCourse, courseId }) {
                     iconurl: feature.iconurl,
                 }
             );
-            fetchCourseFeatures();
         } catch (error) {
             console.error("Error al actualizar feature:", error);
         }

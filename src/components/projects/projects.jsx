@@ -3,6 +3,8 @@ import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes } from "react-icons/fa
 import styles from "./ProjectsList.module.css";
 import { useAuth } from "@/context/AuthContext";
 import { Modal } from "../modal/modal";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/firebase/firebase";
 
 const ProjectsList = ({
     isAdmin,
@@ -22,6 +24,8 @@ const ProjectsList = ({
         file: null,
     });
     const fileInputRef = useRef(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editProject, setEditProject] = useState(null);
 
     // Cargar proyectos al montar
     useEffect(() => {
@@ -57,22 +61,9 @@ const ProjectsList = ({
 
     const handleAddProject = async (e) => {
         e.preventDefault();
-        // Subir archivo si hay
         let fileUrl = "";
         if (newProject.file) {
-            const formData = new FormData();
-            formData.append("file", newProject.file);
-            const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
-                method: "POST",
-                body: formData,
-            });
-            if (uploadRes.ok) {
-                const data = await uploadRes.json();
-                fileUrl = data.url || "";
-            } else {
-                alert("Error al subir el archivo");
-                return;
-            }
+            fileUrl = await uploadFileToFirebase(newProject.file);
         }
         await addProject({
             title: newProject.title,
@@ -133,17 +124,101 @@ const ProjectsList = ({
         }
     };
 
+    const openEditModal = (project) => {
+        setEditProject({
+            ...project,
+            dueDate: project.dueDate || project.duedate || "",
+            file: null, // No puede editar el archivo anterior, solo subir uno nuevo
+        });
+        setIsEditModalOpen(true);
+    };
+
+    // Función para guardar cambios (admin o estudiante)
+    const handleEditProject = async (e) => {
+        e.preventDefault();
+        let fileUrl = editProject.fileurl || editProject.fileUrl || "";
+        if (editProject.file) {
+            fileUrl = await uploadFileToFirebase(editProject.file);
+        }
+        try {
+            if (isAdmin) {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: editProject.title,
+                        dueDate: editProject.dueDate,
+                        fileUrl,
+                        orderProject: editProject.orderproject || editProject.orderProject || 1,
+                        courseId: editProject.courseid || editProject.courseId || null,
+                        mentorId: editProject.mentorid || editProject.mentorId || null,
+                        userId: editProject.userid || editProject.userId || null,
+                    }),
+                });
+                if (!res.ok) throw new Error("Error al editar el proyecto");
+            } else {
+                // Solo permite subir archivo para estudiantes
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}/submit`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        fileUrl,
+                        userId: currentUser?.userid,
+                    }),
+                });
+                if (!res.ok) throw new Error("Error al entregar el proyecto");
+            }
+            // Recargar proyectos
+            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            setProjects(await updated.json());
+            setIsEditModalOpen(false);
+            setEditProject(null);
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    function formatDateDMY(dateStr) {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        if (isNaN(d)) return "";
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = String(d.getFullYear()).slice(-2);
+        return `${day}/${month}/${year}`;
+    }
+
+    function parseDMYtoISO(dmy) {
+        if (!dmy) return "";
+        const [day, month, year] = dmy.split("/");
+        if (!day || !month || !year) return "";
+        const fullYear = year.length === 2 ? `20${year}` : year.slice(-4);
+        return `${fullYear}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+
+    const uploadFileToFirebase = async (file) => {
+        if (!file) return "";
+        const storageRef = ref(storage, `projects/${Date.now()}_${file.name}`);
+        await uploadBytes(storageRef, file);
+        return await getDownloadURL(storageRef);
+    };
+
     return (
         <div className={styles.mainContainer}>
             <h3>Proyectos</h3>
             {projects.map((project, index) => (
-                <div key={project.projectid} className={styles.projectItem}>
+                <div
+                    key={project.projectid}
+                    className={styles.projectItem}
+                    onClick={() => (isAdmin || isStudentInCourse) && openEditModal(project)}
+                    style={{ cursor: (isAdmin || isStudentInCourse) ? "pointer" : "default" }}
+                >
                     <span>{project.title}</span>
-                    <span>{project.dueDate}</span>
+                    <span>{formatDateDMY(project.dueDate || project.duedate || "")}</span>
                     {isAdmin && (
                         <div className={styles.projectActions}>
                             <button
-                                onClick={() => moveProject(project.projectid, index, -1)}
+                                onClick={e => { e.stopPropagation(); moveProject(project.projectid, index, -1); }}
                                 disabled={index === 0}
                                 className={styles.projectAction}
                                 title="Mover arriba"
@@ -151,7 +226,7 @@ const ProjectsList = ({
                                 <FaArrowUp />
                             </button>
                             <button
-                                onClick={() => moveProject(project.projectid, index, 1)}
+                                onClick={e => { e.stopPropagation(); moveProject(project.projectid, index, 1); }}
                                 disabled={index === projects.length - 1}
                                 className={styles.projectAction}
                                 title="Mover abajo"
@@ -159,7 +234,7 @@ const ProjectsList = ({
                                 <FaArrowDown />
                             </button>
                             <button
-                                onClick={() => deleteProject(project.projectid)}
+                                onClick={e => { e.stopPropagation(); deleteProject(project.projectid); }}
                                 className={styles.projectAction}
                                 title="Eliminar Proyecto"
                             >
@@ -178,7 +253,6 @@ const ProjectsList = ({
 
             {/* Modal para añadir proyecto */}
             {isAddModalOpen && (
-
                 <Modal modalType="customContent" isOpen={isAddModalOpen}>
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
@@ -210,6 +284,49 @@ const ProjectsList = ({
                                         <FaPlus /> Guardar
                                     </button>
                                     <button type="button" onClick={() => setIsAddModalOpen(false)} className={styles.cancelButton}>
+                                        <FaTimes /> Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+
+            {/* Modal para editar proyecto */}
+            {isEditModalOpen && editProject && (
+                <Modal modalType="customContent" isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modalContent}>
+                            <h3>{isAdmin ? "Editar Proyecto" : "Entregar Proyecto"}</h3>
+                            <form onSubmit={handleEditProject} className={styles.modalForm}>
+                                <label>Título</label>
+                                <input
+                                    type="text"
+                                    value={editProject.title}
+                                    onChange={e => setEditProject({ ...editProject, title: e.target.value })}
+                                    required
+                                    disabled={!isAdmin}
+                                />
+                                <label>Fecha de entrega</label>
+                                <input
+                                    type="date"
+                                    value={editProject.dueDate}
+                                    onChange={e => setEditProject({ ...editProject, dueDate: e.target.value })}
+                                    required
+                                    disabled={!isAdmin}
+                                />
+                                <label>Archivo</label>
+                                <input
+                                    type="file"
+                                    onChange={e => setEditProject({ ...editProject, file: e.target.files[0] })}
+                                    accept="*"
+                                />
+                                <div className={styles.formActions}>
+                                    <button type="submit" className={styles.saveButton}>
+                                        <FaPlus /> {isAdmin ? "Guardar" : "Entregar"}
+                                    </button>
+                                    <button type="button" onClick={() => setIsEditModalOpen(false)} className={styles.cancelButton}>
                                         <FaTimes /> Cancelar
                                     </button>
                                 </div>
