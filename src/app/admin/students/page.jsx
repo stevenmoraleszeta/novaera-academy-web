@@ -29,11 +29,11 @@ const AdminUsers = () => {
     ];
 
     const editFields = [
-        { label: 'Nombre', field: 'firstname', required: true },
-        { label: 'Primer Apellido', field: 'lastname1', required: true },
+        { label: 'Nombre *', field: 'firstname', required: true },
+        { label: 'Primer Apellido *', field: 'lastname1', required: true },
         { label: 'Segundo Apellido', field: 'lastname2' },
         { label: 'Edad', field: 'age', type: 'number' },
-        { label: 'Email', field: 'email', required: true },
+        { label: 'Email *', field: 'email', required: true },
         { label: 'Telefono', field: 'phone'},
         { label: 'Ocupación', field: 'occupation' },
         { label: 'Estilo de Aprendizaje', field: 'learningstyle' },

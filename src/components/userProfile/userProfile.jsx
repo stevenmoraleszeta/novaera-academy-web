@@ -3,6 +3,8 @@ import Image from "next/image";
 import { FaTrash } from "react-icons/fa";
 import styles from "./UserProfileForm.module.css";
 
+import Link from "next/link";
+
 const UserProfileForm = ({
     currentUser,
     userInfo,
@@ -83,6 +85,11 @@ const UserProfileForm = ({
                                 className={styles.ageInput}
                             />
                         </div>
+                    </div>
+                    <div>
+                        <Link href="/userProfile/changePass" className={styles.changePasswordLink}>
+                            Cambiar Contraseña
+                        </Link>
                     </div>
                     <button type="submit" className={styles.submitButton}>
                         Guardar Cambios
