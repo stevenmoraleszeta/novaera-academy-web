@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useEffect, useState, use, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
 
+import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses"; 
 import CourseDetails from "@/components/courseDetails/courseDetails";
 import CourseVideo from "@/components/courseVideo/courseVideo";
 import Features from "@/components/features/features";
 import ModuleCard from "@/components/moduleCards/moduleCards";
 import { Modal } from "@/components/modal/modal";
 import ProjectsList from "@/components/projects/projects";
-
-// courseComponent.js
 import ClassesRecorded from "@/components/classesRecorded/ClassesRecorded";
 
 import { FaPlus, FaTrash } from "react-icons/fa";
@@ -45,6 +44,30 @@ const CourseDetail = ({
     const [searchTerm, setSearchTerm] = useState("");
     const [searchEmail, setSearchEmail] = useState("");
     const [mentorList, setMentorList] = useState([]);
+    
+    const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
+        userId: currentUser?.userid,
+    });
+
+    useEffect(() => {
+        if (currentUser?.userid) {
+            fetchCompletedStatus();
+        }
+    }, [currentUser?.userid]);
+
+    const getClassId = (cls) => cls.classid || cls.id;
+
+    const highlightedClassId = useMemo(() => {
+        for (const module of modules) {
+            const nextClass = module.classes?.find(
+                cls => !completedClasses.includes(Number(getClassId(cls)))
+            );
+            if (nextClass) {
+                return getClassId(nextClass);
+            }
+        }
+        return null;
+    }, [modules, completedClasses]);
 
     const filteredStudents = allUsers.filter(
         (user) =>
@@ -70,10 +93,8 @@ const CourseDetail = ({
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`)
             .then(res => res.json())
             .then(data => {
-                console.log("Datos recibidos del backend:", data);
                 setStudents(data.map(sc => sc.userid));
             });
-        console.log('Estudiantes: ', students)
     }, [isLiveCourse, isAdmin, courseId]);
 
     useEffect(() => {
@@ -377,6 +398,8 @@ const CourseDetail = ({
                                 onModulesUpdate={setModules}
                                 onClassClick={onClassClick}
                                 currentUser={currentUser}
+                                highlightedClassId={highlightedClassId}
+                                completedClasses={completedClasses}
                             />
                         ))
                     ) : (

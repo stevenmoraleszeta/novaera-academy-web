@@ -33,7 +33,6 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
         !category || course?.category === category;
 
     const handleFilter = () => {
-
         const normalizedCourses = courses.map(course => ({
             ...course,
             archived: Boolean(course.archived),
@@ -45,9 +44,6 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
             matchesCategory(course, selectedCategory) &&
             !course.archived
         );
-
-        console.log("Courses originales:", courses);
-
         setFilteredCourses(filtered);
     };
 
@@ -138,7 +134,6 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
     };
 
     const categories = ["Programación", "Ofimática"];
-    console.log("Cursos filtrados:", filteredCourses);
 
     return (
         <div className={styles.container}>

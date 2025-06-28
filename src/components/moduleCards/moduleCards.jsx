@@ -14,7 +14,8 @@ const ModuleCard = ({
     totalModules,
     onModulesUpdate,
     onClassClick,
-    currentUser
+    currentUser,
+    highlightedClassId, 
 }) => {
 
     const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
@@ -105,8 +106,6 @@ const ModuleCard = ({
                 `${process.env.NEXT_PUBLIC_API_URL}/classes`,
                 newClass
             );
-            console.log("Respuesta del backend al crear clase:", res.data);
-
             const createdClass = res.data.class || res.data || newClass;
             const classId = createdClass.classid || createdClass.id || createdClass._id;
             if (classId) {
@@ -207,10 +206,6 @@ const ModuleCard = ({
         }
     };
 
-    const nextPendingClassIndex = moduleData.classes?.findIndex(
-        (cls) => !completedClasses.includes(Number(getClassId(cls)))
-    );
-
     return (
         <div className={styles.module}>
             <div className={styles.moduleHeader}>
@@ -259,12 +254,12 @@ const ModuleCard = ({
             <div className={styles.classes}>
                 {moduleData.classes?.length > 0 ? (
                     moduleData.classes.map((cls, classIndex) => (
-                        <div
+                       <div
                             key={`${getModuleId(moduleData)}-${getClassId(cls)}`}
                             className={
                                 `${styles.class} ` +
                                 (completedClasses.includes(Number(getClassId(cls))) ? styles.completedClass : "") +
-                                (classIndex === nextPendingClassIndex && !completedClasses.includes(Number(getClassId(cls))) ? ` ${styles.highlightClass}` : "")
+                                (getClassId(cls) === highlightedClassId ? ` ${styles.highlightClass}` : "")
                             }
                             onClick={() => onClassClick(getModuleId(moduleData), getClassId(cls))}
                         >
