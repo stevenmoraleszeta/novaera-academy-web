@@ -1,5 +1,3 @@
-// En: app/perfil/cambiar-contrasena/page.jsx
-
 "use client";
 
 import React, { useState } from 'react';
@@ -41,7 +39,7 @@ function ChangePasswordPage() {
         try {
             const token = localStorage.getItem("token");
             await axios.put(
-                `${process.env.NEXT_PUBLIC_API_URL}/users/change-password`, 
+                `${process.env.NEXT_PUBLIC_API_URL}/auth/change-password`, 
                 {
                     currentPassword: currentPassword,
                     newPassword: newPassword,
@@ -109,7 +107,6 @@ function ChangePasswordPage() {
 
                     {error && <p className={styles.error}>{error}</p>}
                     {successMessage && <p className={styles.success}>{successMessage}</p>}
-                    
                     <button type="submit" className={styles.submitButton} disabled={isLoading}>
                         {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
                     </button>

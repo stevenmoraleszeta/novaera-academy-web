@@ -91,16 +91,18 @@ const UserProfileForm = ({
                             Cambiar Contraseña
                         </Link>
                     </div>
-                    <button type="submit" className={styles.submitButton}>
-                        Guardar Cambios
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleLogout}
-                        className={styles.logoutButton}
-                    >
-                        Cerrar Sesión
-                    </button>
+                    <div className={styles.actionsContainer}>
+                        <button type="submit" className={styles.submitButton}>
+                            Guardar Cambios
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className={styles.logoutButton}
+                        >
+                            Cerrar Sesión
+                        </button>
+                    </div>
                 </div>
             </form>
         </section>

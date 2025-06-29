@@ -138,6 +138,15 @@
     margin-right: 10px;
 }
 
+.actionsContainer {
+  width: 100%;
+  display: flex; /* Pone los botones en una fila */
+  justify-content: flex-start; /* Los alinea al principio */
+  align-items: center;
+  gap: 1rem; /* Crea un espacio consistente entre cada botón */
+  margin-top: 2rem; /* Añade un espacio considerable arriba del grupo de botones */
+}
+
 /* media queries */
 
 @media (max-width: 768px) {
