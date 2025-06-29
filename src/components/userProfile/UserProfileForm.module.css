@@ -131,10 +131,20 @@
 }
 
 .submitButton,
-.logoutButton {
+.logoutButton, 
+.changePasswordLink {
     font-weight: 600;
     font-size: clamp(0.395vw, 18.97px, 0.869vw);
     margin-right: 10px;
+}
+
+.actionsContainer {
+  width: 100%;
+  display: flex; /* Pone los botones en una fila */
+  justify-content: flex-start; /* Los alinea al principio */
+  align-items: center;
+  gap: 1rem; /* Crea un espacio consistente entre cada botón */
+  margin-top: 2rem; /* Añade un espacio considerable arriba del grupo de botones */
 }
 
 /* media queries */
@@ -197,8 +207,15 @@
     }
 
     .submitButton,
-    .logoutButton {
+    .logoutButton,
+    .changePasswordLink  {
         font-weight: 600;
         font-size: clamp(2vw, 15px, 3vw);
     }
+
+.changePasswordLink {
+    text-decoration: none;
+    color: white; 
+    cursor: pointer;
+}
 }

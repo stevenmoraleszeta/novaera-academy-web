@@ -3,6 +3,8 @@ import Image from "next/image";
 import { FaTrash } from "react-icons/fa";
 import styles from "./UserProfileForm.module.css";
 
+import Link from "next/link";
+
 const UserProfileForm = ({
     currentUser,
     userInfo,
@@ -84,16 +86,23 @@ const UserProfileForm = ({
                             />
                         </div>
                     </div>
-                    <button type="submit" className={styles.submitButton}>
-                        Guardar Cambios
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleLogout}
-                        className={styles.logoutButton}
-                    >
-                        Cerrar Sesión
-                    </button>
+                    <div>
+                        <Link href="/userProfile/changePass" className={styles.changePasswordLink}>
+                            Cambiar Contraseña
+                        </Link>
+                    </div>
+                    <div className={styles.actionsContainer}>
+                        <button type="submit" className={styles.submitButton}>
+                            Guardar Cambios
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className={styles.logoutButton}
+                        >
+                            Cerrar Sesión
+                        </button>
+                    </div>
                 </div>
             </form>
         </section>

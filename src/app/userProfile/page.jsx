@@ -51,7 +51,7 @@ function UserProfile() {
     const handleLogout = () => {
         localStorage.removeItem("token");
         updateCurrentUser(null);
-        router.push("/");
+        router.push("/login");   //Siento que es mejor que lo mande al login a uno al cerrar la sesion!!!
     };
 
     const handleFileChange = (e) => {

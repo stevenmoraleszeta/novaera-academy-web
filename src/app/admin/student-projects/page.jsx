@@ -25,7 +25,7 @@ const ProjectsPage = () => {
 
     const editFields = [
         { 
-            label: 'Título', 
+            label: 'Título *', 
             field: 'project_title', 
             type: 'text',
             required: true
@@ -34,14 +34,14 @@ const ProjectsPage = () => {
             field: 'course_name'
         },
         { 
-            label: 'Fecha Límite', 
+            label: 'Fecha Límite *', 
             render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>, 
             type: 'text',
             required: true
         },
         { label: 'Puntuación', field: 'score', type: 'number' },
         { 
-            label: 'Fecha de entrega', 
+            label: 'Fecha de entrega *', 
             render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>, 
             type: 'text',
             required: true
