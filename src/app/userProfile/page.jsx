@@ -96,16 +96,25 @@ function UserProfile() {
                 throw new Error("No se encontró el ID del usuario.");
             }
 
+            // Helper function to safely convert to integer
+            const safeParseInt = (value, defaultValue = null) => {
+                if (value === "" || value === null || value === undefined) {
+                    return defaultValue;
+                }
+                const parsed = parseInt(value, 10);
+                return isNaN(parsed) ? defaultValue : parsed;
+            };
+
             const updatedUser = {
                 firstname: userInfo.firstname ?? "",
                 lastname1: userInfo.lastname1 ?? "",
                 lastname2: userInfo.lastname2 ?? "",
-                age: userInfo.age ? Number(userInfo.age) : null,
+                age: safeParseInt(userInfo.age),
                 email: userInfo.email ?? "",
-                phone: userInfo.phone ?? "",
+                phone: safeParseInt(userInfo.phone),
                 country: userInfo.country ?? "",
                 photourl: photourl ?? "",
-                roleId: isNaN(Number(userInfo.roleId)) ? 2 : Number(userInfo.roleId),
+                roleid: safeParseInt(userInfo.roleid, currentUser?.roleid ?? 2),
                 updatedAt: new Date().toISOString(),
             };
 
@@ -118,6 +127,11 @@ function UserProfile() {
             updateCurrentUser({ ...currentUser, photourl });
             router.push("/cursos-en-linea");
         } catch (error) {
+            if (error.response && error.response.data && error.response.data.error) {
+                alert("Error al actualizar usuario: " + error.response.data.error);
+            } else {
+                alert("Error de red al actualizar usuario");
+            }
             console.error("Error updating profile", error);
         }
     };

@@ -68,7 +68,7 @@ export default function CompleteInformation() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Validate required fields
         if (!userInfo.firstname || !userInfo.lastname1 || !userInfo.email || !userInfo.age) {
             alert("Por favor completa todos los campos requeridos (Nombre, Primer Apellido, Email, Edad)");
@@ -119,11 +119,9 @@ export default function CompleteInformation() {
                 phone: safeParseInt(userInfo.phone),
                 country: userInfo.country ?? "",
                 photourl: photourl ?? "",
-                roleid: safeParseInt(userInfo.roleId, currentUser?.roleid ?? 9), // Changed to roleid to match backend
+                roleid: safeParseInt(userInfo.roleId, currentUser?.roleid ?? 9),
                 updatedAt: new Date().toISOString(),
             };
-
-            console.log("Sending updated user data:", updatedUser); // Debug log
 
             await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
