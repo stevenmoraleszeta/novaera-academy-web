@@ -25,30 +25,10 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  /* Correcto */
   overflow-x: hidden;
-  /* Correcto */
   overflow-y: auto;
-  /* Asegura que se pueda desplazar verticalmente */
   background-color: var(--color-black);
   color: var(--text-color);
-}
-
-.page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  overflow-y: auto;
-  /* Asegura que sea desplazable */
-}
-
-.content {
-  flex: 1;
-  overflow-y: auto;
-  /* Asegura que este contenedor sea desplazable */
-  height: 100%;
-  /* Opcional si necesitas ajustar la altura */
-  overflow-x: hidden;
 }
 
 /* General text styles */
@@ -66,10 +46,6 @@ textarea {
   color: inherit;
 }
 
-/* Header */
-h1 {
-  color: var(--color-primary);
-}
 
 /* Input and select styles */
 input,
@@ -124,6 +100,8 @@ button {
   font-size: 16px;
   transition: background-color 0.3s;
   font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
 }
 
 button:hover {
@@ -131,10 +109,39 @@ button:hover {
   color: var(--text-color);
 }
 
+/*
+Button for cancel and save action
+*/
+
+.saveButton,
+.cancelButton {
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.saveButton {
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+.cancelButton {
+    background-color: #4a5568;
+    color: #e2e8f0;
+}
+
 /* Image styles */
 img {
   max-width: 100%;
   height: auto;
+  display: block;
 }
 
 /* Table styles */
@@ -157,11 +164,8 @@ th {
 
 ul {
   list-style-position: inside;
-  /* Alinea los puntos con el texto */
   padding-left: 0;
-  /* Elimina el padding izquierdo */
   margin-left: 0;
-  /* Elimina el margen izquierdo */
 }
 
 /* App container */
@@ -211,16 +215,14 @@ input[type="checkbox"]:checked::after {
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  /* Reduced by 20% */
-  background: linear-gradient(80deg, var(--color-primary) 60%, var(--color-black) 100%);
+  background: linear-gradient(80deg, #012F38 60%, #000E11 100%);
   color: var(--text-color);
   gap: 8px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 4vh;
-  /* Reduced by 20% */
+  height: 5vh;
   z-index: 1000;
 }
 
@@ -228,38 +230,58 @@ input[type="checkbox"]:checked::after {
   display: flex;
   list-style: none;
   gap: 16px;
-  /* Reduced by 20% */
 }
 
 .navbarLink {
-  color: var(--text-color);
+  color: white;
   text-decoration: none;
   font-weight: bold;
   transition: color 0.3s;
-  font-size: 16px;
-  /* Reduced by 20% */
+  margin: 1.6vw;
+  font-size: clamp(0.8vw, 16px, 1.6vw);
+}
+
+.navbarLinkSelected {
+  color: #8CB7C0;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+  margin: 1.6vw;
+  font-size: clamp(0.8vw, 16px, 1.6vw);
 }
 
 .accessLink {
-  background-color: var(--color-secondary);
-  color: var(--text-color);
+  background-color: #FF6B00;
+  color: white;
   border: none;
   padding: 8px 16px;
-  /* Reduced by 20% */
-  font-size: 16px;
-  /* Reduced by 20% */
+  margin-right: 16px;
+  font-size: clamp(0.8vw, 16px, 1.6vw);
   font-weight: bold;
+  text-decoration: none;
   cursor: pointer;
   border-radius: 5px;
 }
-
 .profileImage {
   width: 32px;
-  /* Reduced by 20% */
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
+
+
+/*
+Modals elements
+*/
+.formActions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/*
+/////////////////
+*/
 
 /* Card container */
 .cardContainer {
@@ -583,7 +605,16 @@ input[type="checkbox"]:checked::after {
   box-shadow: none;
 }
 
+
+/* Eliminar */
 .course-detail-add-module-button {
+  margin-top: 10vh;
+  width: 100%;
+  background-color: transparent;
+  border: dashed 5px var(--color-secondary);
+}
+
+.add-element-button {
   margin-top: 10vh;
   width: 100%;
   background-color: transparent;
@@ -688,10 +719,10 @@ input[type="checkbox"]:checked::after {
     border: solid 1px var(--color-secondary); /* From globals.css input:focus style */
 }
 
-.create-user-file-input { /* Specific style for file input, ensure it's distinct if needed */
+/* .create-user-file-input { Specific style for file input, ensure it's distinct if needed */
     /* Assuming general .create-user-input styles apply, add specifics if any */
     /* Example: if it had unique styling in the module */
-}
+/* } */
 
 
 .create-user-submit-btn {

@@ -406,7 +406,7 @@ const CourseDetail = ({
                         <p>No hay módulos disponibles.</p>
                     )}
                     {isAdmin && (
-                        <button onClick={addModule} className="course-detail-add-module-button" title="Añadir Módulo">
+                        <button onClick={addModule} className="add-element-button" title="Añadir Módulo">
                             Add Module
                         </button>
                     )}
@@ -445,10 +445,12 @@ const CourseDetail = ({
                             placeholder="Pega el enlace del video"
                             style={{ width: "100%" }}
                         />
-                        <div style={{ display: "flex", gap: 8 }}>
-                            <button onClick={handleSaveVideoUrl}>Guardar</button>
-                            <button onClick={() => setIsVideoModalOpen(false)}>Cancelar</button>
+                        {/* <div style={{ display: "flex", gap: 8 }}> */}
+                        <div className="formActions">
+                            <button className="saveButton" onClick={handleSaveVideoUrl}>Guardar</button>
+                            <button className="cancelButton" onClick={() => setIsVideoModalOpen(false)}>Cancelar</button>
                         </div>
+                            
                     </div>
                 </Modal>
             )}
@@ -527,8 +529,8 @@ const CourseDetail = ({
                                 })}
                             </tbody>
                         </table>
-                        <div className={styles.buttonContainer}>
-                            <button onClick={() => setIsGroupModalOpen(false)} className={styles.secondaryButton}>
+                        <div className="formActions">
+                            <button className= "cancelButton" onClick={() => setIsGroupModalOpen(false)}>
                                 Cerrar
                             </button>
                         </div>

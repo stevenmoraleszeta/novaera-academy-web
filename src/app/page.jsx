@@ -8,7 +8,6 @@ import ContactUsBtn from "@/components/contactUsBtn/contactUsBtn";
 import React from 'react';
 import useTypedEffect from "@/hooks/typed/typed";
 
-
 import styles from "./page.module.css";
 import Image from "next/image";
 import Link from "next/link";

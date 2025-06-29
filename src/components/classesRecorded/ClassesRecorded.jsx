@@ -126,9 +126,8 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
         </div>
       ))}
 
-      {/* Botón para abrir el modal de añadir */}
       {isAdmin && (
-        <button onClick={openAddModal} className={styles.addButton}>
+        <button onClick={openAddModal} className="add-element-button">
           Añadir Grabación
         </button>
       )}
@@ -159,11 +158,11 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
               className={styles.title}
             />
             
-            <div className={styles.formActions}>
-              <button onClick={handleSave} className={styles.saveButton}>
-                {editingId ? <FaPencilAlt /> : <FaPlus />} {editingId ? "Guardar Cambios" : "Añadir"}
+            <div className="formActions">
+              <button onClick={handleSave} className="saveButton">
+                {editingId ? <FaPencilAlt /> : <FaPlus />} {editingId ? "Guardar" : "Añadir"}
               </button>
-              <button onClick={closeModal} className={styles.cancelButton}>
+              <button onClick={closeModal} className="cancelButton">
                 <FaTimes /> Cancelar
               </button>
             </div>
@@ -175,26 +174,3 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
 };
 
 export default ClassesRecorded;
-
-
-//Todos deberan ser editados...
-
-// mostrar usuarios con los siguientes datos:
-// -- name, lastnames
-// -- email
-// -- phone number
-
-
-// Estudiantes:
-// -- name, lastnames
-// -- Course
-
-
-// proyectos
-// -- Title 
-// -- Student full name
-// -- Mentor full name
-// -- dueDate
-// mostrar si entrego el proyecto, sino no mostrar nada
-
-// 

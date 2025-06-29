@@ -246,7 +246,7 @@ const ProjectsList = ({
             ))}
 
             {isAdmin && (
-                <button onClick={() => setIsAddModalOpen(true)} className={styles.addProjectButton}>
+                <button onClick={() => setIsAddModalOpen(true)} className="add-element-button">
                     <FaPlus /> Añadir Proyecto
                 </button>
             )}
@@ -264,6 +264,7 @@ const ProjectsList = ({
                                     value={newProject.title}
                                     onChange={e => setNewProject({ ...newProject, title: e.target.value })}
                                     required
+                                    className={styles.title}
                                 />
                                 <label>Fecha de entrega</label>
                                 <input
@@ -271,6 +272,7 @@ const ProjectsList = ({
                                     value={newProject.dueDate}
                                     onChange={e => setNewProject({ ...newProject, dueDate: e.target.value })}
                                     required
+                                    className={styles.title}
                                 />
                                 <label>Archivo</label>
                                 <input
@@ -278,12 +280,13 @@ const ProjectsList = ({
                                     ref={fileInputRef}
                                     onChange={e => setNewProject({ ...newProject, file: e.target.files[0] })}
                                     accept="*"
+                                    className={styles.title}
                                 />
-                                <div className={styles.formActions}>
-                                    <button type="submit" className={styles.saveButton}>
-                                        <FaPlus /> Guardar
+                                <div className="formActions">
+                                    <button type="submit"  className="saveButton">
+                                        <FaPlus /> Añadir
                                     </button>
-                                    <button type="button" onClick={() => setIsAddModalOpen(false)} className={styles.cancelButton}>
+                                    <button type="button" onClick={() => setIsAddModalOpen(false)} className="cancelButton">
                                         <FaTimes /> Cancelar
                                     </button>
                                 </div>
@@ -307,6 +310,7 @@ const ProjectsList = ({
                                     onChange={e => setEditProject({ ...editProject, title: e.target.value })}
                                     required
                                     disabled={!isAdmin}
+                                    className={styles.title}
                                 />
                                 <label>Fecha de entrega</label>
                                 <input
@@ -315,18 +319,20 @@ const ProjectsList = ({
                                     onChange={e => setEditProject({ ...editProject, dueDate: e.target.value })}
                                     required
                                     disabled={!isAdmin}
+                                    className={styles.title}
                                 />
                                 <label>Archivo</label>
                                 <input
                                     type="file"
                                     onChange={e => setEditProject({ ...editProject, file: e.target.files[0] })}
                                     accept="*"
+                                    className={styles.title}
                                 />
-                                <div className={styles.formActions}>
-                                    <button type="submit" className={styles.saveButton}>
+                                <div className="formActions">
+                                    <button type="submit" className="saveButton">
                                         <FaPlus /> {isAdmin ? "Guardar" : "Entregar"}
                                     </button>
-                                    <button type="button" onClick={() => setIsEditModalOpen(false)} className={styles.cancelButton}>
+                                    <button type="button" onClick={() => setIsEditModalOpen(false)} className="cancelButton">
                                         <FaTimes /> Cancelar
                                     </button>
                                 </div>
