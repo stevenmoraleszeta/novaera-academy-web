@@ -68,6 +68,25 @@ export default function CompleteInformation() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Validate required fields
+        if (!userInfo.firstname || !userInfo.lastname1 || !userInfo.email || !userInfo.age) {
+            alert("Por favor completa todos los campos requeridos (Nombre, Primer Apellido, Email, Edad)");
+            return;
+        }
+
+        // Validate age is a positive number
+        if (isNaN(Number(userInfo.age)) || Number(userInfo.age) <= 0) {
+            alert("Por favor ingresa una edad válida");
+            return;
+        }
+
+        // Validate phone if provided (make it optional)
+        if (userInfo.phone && userInfo.phone !== "" && (isNaN(Number(userInfo.phone)) || userInfo.phone.length < 8)) {
+            alert("Por favor ingresa un número telefónico válido o déjalo vacío");
+            return;
+        }
+
         try {
             const token = localStorage.getItem("token");
             let photourl = userInfo.photourl ?? "";
@@ -82,19 +101,29 @@ export default function CompleteInformation() {
                 throw new Error("No se encontró el ID del usuario.");
             }
 
+            // Helper function to safely convert to integer
+            const safeParseInt = (value, defaultValue = null) => {
+                if (value === "" || value === null || value === undefined) {
+                    return defaultValue;
+                }
+                const parsed = parseInt(value, 10);
+                return isNaN(parsed) ? defaultValue : parsed;
+            };
+
             const updatedUser = {
                 firstname: userInfo.firstname ?? "",
                 lastname1: userInfo.lastname1 ?? "",
                 lastname2: userInfo.lastname2 ?? "",
-                age: userInfo.age && !isNaN(Number(userInfo.age)) && userInfo.age !== "" ? Number(userInfo.age) : null,
+                age: safeParseInt(userInfo.age),
                 email: userInfo.email ?? "",
-                phone: userInfo.phone && !isNaN(Number(userInfo.phone)) && userInfo.phone !== "" ? Number(userInfo.phone) : null,
+                phone: safeParseInt(userInfo.phone),
                 country: userInfo.country ?? "",
                 photourl: photourl ?? "",
-                roleId: userInfo.roleId && !isNaN(Number(userInfo.roleId)) && userInfo.roleId !== "" ? Number(userInfo.roleId) : (currentUser?.roleid ?? 9),
+                roleid: safeParseInt(userInfo.roleId, currentUser?.roleid ?? 9), // Changed to roleid to match backend
                 updatedAt: new Date().toISOString(),
             };
 
+            console.log("Sending updated user data:", updatedUser); // Debug log
 
             await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
@@ -178,7 +207,6 @@ export default function CompleteInformation() {
                                     name="phone"
                                     value={userInfo.phone}
                                     onChange={handleChange}
-                                    required
                                 />
                             </div>
                             <div className={styles.secondFieldsContainer}>
