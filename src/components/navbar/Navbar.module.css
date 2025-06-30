@@ -1,40 +1,3 @@
-.topnav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  /* Reducción del 20% */
-  background: linear-gradient(80deg, #012F38 60%, #000E11 100%);
-  color: white;
-  gap: 8px;
-  /* Reducción del 20% */
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4vh;
-  /* Reducción del 20% */
-  z-index: 1000;
-}
-
-.navLinks {
-  display: flex;
-  list-style: none;
-  gap: 16px;
-  /* Reducción del 20% */
-}
-
-.navbarLink {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  transition: color 0.3s;
-  margin: 1.6vw;
-  /* Reducción del 20% */
-  font-size: clamp(0.8vw, 16px, 1.6vw);
-  /* Reducción del 20% */
-}
-
 .navbarLinkSelected {
   color: #8CB7C0;
   text-decoration: none;
@@ -44,42 +7,21 @@
   font-size: clamp(0.8vw, 16px, 1.6vw);
 }
 
-.accessLink {
-  background-color: #FF6B00;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  /* Reducción del 20% */
-  margin-right: 16px;
-  /* Reducción del 20% */
-  font-size: clamp(0.8vw, 16px, 1.6vw);
-  /* Reducción del 20% */
-  font-weight: bold;
-  text-decoration: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
 .profileLink {
   padding: 0;
 }
 
 .profileImage {
   width: 32px;
-  /* Reducción del 20% */
   height: 32px;
-  /* Reducción del 20% */
   border-radius: 50%;
   object-fit: cover;
 }
 
 .zLogo {
   margin-left: 16px;
-  /* Reducción del 20% */
   width: clamp(4.8vw, 40px, 12vw);
-  /* Reducción del 20% */
   height: clamp(6vw, 40px, 12vw);
-  /* Reducción del 20% */
   object-fit: cover;
 }
 
@@ -93,7 +35,6 @@
   display: flex;
   justify-content: center;
   padding-top: 0.88vh;
-  /* Reducción del 20% */
   align-items: center;
 }
 

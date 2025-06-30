@@ -14,6 +14,24 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null); 
 
+  const [errors, setErrors] = useState({});
+
+  // --- FUNCIÓN PARA VALIDAR EL FORMULARIO ---
+const validateForm = () => {
+  const newErrors = {};
+  if (!currentTitle.trim()) {
+    newErrors.title = "El título es obligatorio.";
+  }
+  
+  if (!currentUrl.trim()) {
+    newErrors.url = "La URL es obligatoria.";
+  } else if (!/^(https?:\/\/|www\.)/.test(currentUrl)) {
+    newErrors.url = "La URL debe comenzar con http://, https:// o www.";
+  }
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
   // --- Data logic (fetch) ---
   useEffect(() => {
     if (!courseId) return;
@@ -52,11 +70,10 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
 
   // --- CRUD recordings ---
   const handleSave = async () => {
-    if (!currentTitle || !currentUrl) {
-      alert("Por favor, completa todos los campos.");
+    const isValid = validateForm()
+    if(!isValid){
       return;
     }
-
     if (editingId) {
       // --- update logic ---
       try {
@@ -126,9 +143,8 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
         </div>
       ))}
 
-      {/* Botón para abrir el modal de añadir */}
       {isAdmin && (
-        <button onClick={openAddModal} className={styles.addButton}>
+        <button onClick={openAddModal} className="add-element-button">
           Añadir Grabación
         </button>
       )}
@@ -145,25 +161,30 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
               type="text"
               value={currentTitle}
               onChange={(e) => setCurrentTitle(e.target.value)}
-              placeholder="Ej: Clase 1 - Introducción"
               className={styles.title}
+              required
             />
-
+            {errors.title && <span className={styles.errorMessage}>{errors.title}</span>}
             <label htmlFor="recordingUrl">URL de la grabación:</label>
             <input
               id="recordingUrl"
               type="url"
               value={currentUrl}
               onChange={(e) => setCurrentUrl(e.target.value)}
-              placeholder="Pega el enlace del video aquí"
-              className={styles.title}
+              className={`${styles.title} ${errors.url ? styles.inputError : ''}`}
+              required
             />
+            {errors.url ? (
+              <span className={styles.errorMessage}>{errors.url}</span>
+            ) : (
+              <span className={styles.helpMessage}>Debe ser un enlace válido (ej: https://... o www...)</span>
+            )}
             
-            <div className={styles.formActions}>
-              <button onClick={handleSave} className={styles.saveButton}>
-                {editingId ? <FaPencilAlt /> : <FaPlus />} {editingId ? "Guardar Cambios" : "Añadir"}
+            <div className="formActions">
+              <button onClick={handleSave} className="saveButton">
+                {editingId ? <FaPencilAlt /> : <FaPlus />} {editingId ? "Guardar" : "Añadir"}
               </button>
-              <button onClick={closeModal} className={styles.cancelButton}>
+              <button onClick={closeModal} className="cancelButton">
                 <FaTimes /> Cancelar
               </button>
             </div>
@@ -175,26 +196,3 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
 };
 
 export default ClassesRecorded;
-
-
-//Todos deberan ser editados...
-
-// mostrar usuarios con los siguientes datos:
-// -- name, lastnames
-// -- email
-// -- phone number
-
-
-// Estudiantes:
-// -- name, lastnames
-// -- Course
-
-
-// proyectos
-// -- Title 
-// -- Student full name
-// -- Mentor full name
-// -- dueDate
-// mostrar si entrego el proyecto, sino no mostrar nada
-
-// 

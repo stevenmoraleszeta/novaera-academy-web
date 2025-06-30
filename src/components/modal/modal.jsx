@@ -94,25 +94,25 @@ export function Modal({
                 {modalContent === "form" && (
                     <form className={styles.modalForm} onSubmit={onSubmit}>
                         {children}
-                        <div className={styles.btnsContainer}>
-                            <button type="submit">Enviar</button>
-                            <button type="button" onClick={onClose}>Cancelar</button>
+                        <div className="formActions">
+                            <button className="saveButton" type="submit">Enviar</button>
+                            <button className="cancelButton" type="button" onClick={onClose}>Cancelar</button>
                         </div>
                     </form>
                 )}
 
                 {modalContent === "alert" && (
-                     <div className={styles.btnsContainer}>
+                    <div className="formActions">
                         {children}
-                        <button onClick={onClose}>Cerrar</button>
+                        <button className="cancelButton" onClick={onClose}>Cerrar</button>
                     </div>
                 )}
 
                 {modalContent === "confirmation" && (
-                    <div className={styles.btnsContainer}>
+                    <div className="formActions">
                         <p>{description}</p>
-                        <button onClick={onConfirm} className={styles.confirmButton}>Confirmar</button>
-                        <button onClick={onClose} className={styles.cancelButton}>Cancelar</button>
+                        <button onClick={onConfirm} className="saveButton">Confirmar</button>
+                        <button onClick={onClose} className="cancelButton">Cancelar</button>
                     </div>
                 )}
 
@@ -141,9 +141,9 @@ export function Modal({
                                 </div>
                             );
                         })}
-                        <div className={styles.modalButtons}>
-                            <button onClick={() => onSave(editedItem, isEditMode)}>Guardar</button>
-                            <button onClick={onClose}>Cerrar</button>
+                        <div className="formActions">
+                                <button className="saveButton" onClick={() => onSave(editedItem, isEditMode)}>Guardar</button>
+                                <button className="cancelButton" onClick={onClose}>Cancelar</button>
                         </div>
                     </div>
                 )}
@@ -198,10 +198,9 @@ export function Modal({
                                 </div>
                             </>
                         )}
-
-                        <div className={styles.btnsContainer}>
-                            <button onClick={handleSave}>Guardar</button>
-                            <button onClick={onClose}>Cancelar</button>
+                        <div className="formActions">
+                            <button className="saveButton" onClick={handleSave}>Guardar</button>
+                            <button className="cancelButton" onClick={onClose}>Cancelar</button>
                         </div>
                     </div>
                 )}
