@@ -104,6 +104,29 @@
     color: var(--text-color);
 }
 
+/* Estilo para el campo de entrada con error */
+.inputError {
+  border-color: #e53e3e; /* Un color rojo para el borde */
+  box-shadow: 0 0 0 1px #e53e3e;
+}
+
+/* Estilo para el mensaje de error */
+.errorMessage {
+  color: #c53030; /* Un color rojo más oscuro para el texto */
+  font-size: 0.875rem; /* 14px */
+  margin-top: 0.25rem; /* 4px */
+  display: block; /* Para que ocupe su propia línea */
+  font-weight:bold;
+}
+
+/* Estilo para el mensaje de ayuda/guía */
+.helpMessage {
+  color: #718096; /* Un color gris para el texto de ayuda */
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
 @media (max-width: 1024px) {
     .recordingsBlock {
         padding: 1rem;
