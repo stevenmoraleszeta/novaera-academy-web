@@ -5,7 +5,7 @@ export default function CursoCard(props) {
     const { imgSrc, titleText, descText, height, width, icon, link } = props;
     return (
         <>
-            <a href={link} className="cardContainer">
+            <a href={link} className={styles.cardContainer}>
                 <Image className={styles.courseImg} width={width}
                     height={height} src={imgSrc} alt="imageCurso">
                 </Image>

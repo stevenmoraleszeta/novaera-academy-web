@@ -4,6 +4,8 @@ import React from 'react';
 import styles from './page.module.css';
 import CrudMenu from '@/components/adminCrudMenu/adminCrudMenu';
 
+import countries from "@/jsonFiles/paises.json";
+
 const AdminUsers = () => {
     document.title = "Gestión de estudiantes - Zeta Academia";
     const displayFields = [
@@ -28,6 +30,11 @@ const AdminUsers = () => {
         },
     ];
 
+    const countryOptions = countries.map(country => ({
+            value: country.es,
+            label: country.es
+    }));
+
     const editFields = [
         { label: 'Nombre *', field: 'firstname', required: true },
         { label: 'Primer Apellido *', field: 'lastname1', required: true },
@@ -40,7 +47,12 @@ const AdminUsers = () => {
         { label: 'Intereses', field: 'interests' },
         { label: 'Nivel Inicial', field: 'initiallevel' },
         { label: 'Objetivos Personales', field: 'personalgoals' },
-        { label: 'País', field: 'country'},
+        { 
+            label: 'País', 
+            field: 'country',
+            type: 'select',
+            options: countryOptions 
+        },
     ];
 
     return (

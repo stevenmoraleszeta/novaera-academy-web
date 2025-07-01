@@ -120,7 +120,7 @@ export function Modal({
                 {modalContent === "formModal" && (
                     <div className={styles.modalContent}>
                         <h2>{isEditMode ? "Editar Elemento" : "Agregar Nuevo Elemento"}</h2>
-                        {editFields.map(({ label, field, type, render }) => {
+                        {editFields.map(({ label, field, type, render, options, required }) => {
                             if (render) {
                                 return (
                                     <div key={label} className={styles.fieldRow}>
@@ -128,6 +128,26 @@ export function Modal({
                                         <div className={styles.readOnlyField}>{render(editedItem)}</div>
                                     </div>
                                 )
+                            }
+                            if (type === 'select') {
+                                return (
+                                    <div key={field} className={styles.fieldRow}>
+                                        <label>{label}</label>
+                                        <select
+                                            name={field}
+                                            value={editedItem?.[field]?.toString() || ""}
+                                            onChange={handleChange}
+                                            required={required}
+                                        >
+                                            <option value="">-- Selecciona una opción --</option>
+                                            {(options || []).map(option => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                );
                             }
                             return (
                                 <div key={field} className={styles.fieldRow}>
@@ -137,6 +157,7 @@ export function Modal({
                                         name={field}
                                         value={editedItem?.[field] || ""}
                                         onChange={handleChange}
+                                        required={required}
                                     />
                                 </div>
                             );
