@@ -41,7 +41,7 @@
 }
 
 .contactItem:hover {
-  color: var(--color-secondary);
+  color: var(--color-light-active);
 }
 
 .navPair {
@@ -63,9 +63,7 @@
 
 .navColumn a {
   text-decoration: none;
-  /* Elimina la decoración de texto de los enlaces */
   color: var(--button-primary-hover);
-  /* Asegura el color del texto */
   margin: 5px;
   font-weight: bold;
 }
@@ -107,12 +105,9 @@
 
 .iconsRedes {
   width: 25px;
-  /* Ajusta el tamaño a tu preferencia */
   height: 25px;
   margin-right: 8px;
-  /* Espacio entre el ícono y el texto */
   vertical-align: middle;
-  /* Alinea el icono con el texto */
 }
 
 /* Media queries */

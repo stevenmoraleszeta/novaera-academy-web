@@ -24,7 +24,6 @@ const UserProfileForm = ({
     return (
         <section className={styles.userProfileContainer}>
             <form onSubmit={handleSubmit} className={styles.userProfileForm}>
-                {/* <div className={styles.imgContainer}> */}
                 <div className="imgContainer">
                     {userInfo.photourl && (
                         <Image
