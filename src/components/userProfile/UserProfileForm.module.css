@@ -3,41 +3,77 @@
 .userProfileContainer {
     width: 100%;
     height: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 10vh;
-
     font-weight: 600;
 }
 
 .userProfileForm {
     width: 90%;
     height: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 40px; /* Espacio entre la foto y la info */
 }
 
-/* Image and container styling */
+.photoUploader {
+    position: relative; /* Clave para posicionar el overlay */
+    width: 200px;       /* Tamaño fijo */
+    height: 200px;
+    border-radius: 50%; /* Lo hace redondo */
+    overflow: hidden;   /* Oculta lo que se salga del círculo */
+    cursor: pointer;
+    flex-shrink: 0; /* Evita que el contenedor se encoja */
+}
 
-.imgContainer {
-    height: 100%;
-    margin-top: 40px;
-    margin-right: 40px;
-    display: flex;
-    align-items: flex-start;
-    align-self: flex-start;
+.hiddenFileInput {
+    display: none;
 }
 
 .userImg {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Súper importante: evita que la imagen se deforme */
+    transition: transform 0.3s ease; /* Efecto suave al hacer hover */
 }
+
+.photoOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0); /* Invisible por defecto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.photoIcon {
+    color: white;
+    font-size: 2.5rem; /* Tamaño del ícono */
+    opacity: 0;        /* Invisible por defecto */
+    transition: opacity 0.3s ease;
+}
+
+.photoUploader:hover .photoOverlay {
+    background-color: rgba(0, 0, 0, 0.5); /* ...el overlay se oscurece */
+}
+
+.photoUploader:hover .photoIcon {
+    opacity: 1; /* ...y el ícono aparece */
+}
+
+.photoUploader:hover .userImg {
+    transform: scale(1.1); /* ...la imagen hace un ligero zoom */
+}
+
+
+/* Image and container styling */
 
 .userInformationContainer {
     width: 50%;
@@ -51,7 +87,7 @@
     margin-left: 0px;
 }
 
-.nameInput {
+/* .nameInput {
     border-bottom: 2px solid #005F73;
     border-radius: 0px;
 
@@ -64,13 +100,30 @@
     margin-bottom: 20px;
     margin-left: 0px;
     padding-left: 0px;
+} */
+
+ .nameFieldsContainer {
+    display: flex; /* Pone los inputs en una línea horizontal */
+    gap: 20px;     /* Crea un espacio entre cada input */
+    width: 100%;
+    margin-bottom: 20px; /* Espacio antes de "Número telefónico" */
 }
 
-.nameInput:focus {
-    outline: none;
-    box-shadow: none;
-    border: none;
-    border-bottom: 2px solid #005F73;
+.nameFieldInput {
+    flex: 1; /* Hace que los 3 inputs compartan el espacio por igual */
+    border: none; /* Quita todos los bordes */
+    border-bottom: 2px solid #005f73; /* Añade solo la línea inferior */
+    background-color: transparent;
+    color: white;
+    outline: none; /* Quita el borde azul al hacer clic */
+    padding: 8px 2px; /* Un poco de espacio interno */
+    font-size: clamp(1rem, 4vw, 1.2rem); /* Tamaño de fuente más estándar */
+    font-weight: 600;
+}
+
+.nameFieldInput::placeholder {
+    color: #8cb7c0a6; /* Color semitransparente para el placeholder */
+    font-weight: 400;
 }
 
 .inputNumber {
@@ -151,20 +204,15 @@
 
 @media (max-width: 768px) {
     .userProfileForm {
-        width: 100%;
-        height: 100%;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
         flex-direction: column;
     }
 
-    .imgContainer {
+    .photoUploader {
+        margin-bottom: 2rem;
+    } 
+
+    .userInformationContainer {
         width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .nameInput {

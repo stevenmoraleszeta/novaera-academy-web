@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaCamera } from "react-icons/fa";
 import styles from "./UserProfileForm.module.css";
+import defaultAvatar  from "@/assets/img/defaultProfileImage.jpg";
 
 import Link from "next/link";
 
@@ -24,28 +25,58 @@ const UserProfileForm = ({
     return (
         <section className={styles.userProfileContainer}>
             <form onSubmit={handleSubmit} className={styles.userProfileForm}>
-                <div className="imgContainer">
-                    {userInfo.photourl && (
+                <div className={styles.photoUploader}>
+                    <label htmlFor="photoUpload">
                         <Image
-                            alt="photourl"
-                            src={userInfo.photourl}
-                            width={500}
-                            height={500}
+                            alt="profile's photo"
+                            src={userInfo.photourl || defaultAvatar}
+                            width={150}
+                            height={150}
                             className={styles.userImg}
+                            priority 
                         />
-                    )}
-                    <input type="file" onChange={handleFileChange} />
+                        <div className={styles.photoOverlay}>
+                            <FaCamera className={styles.photoIcon} />
+                        </div>
+                    </label>
+                    <input
+                        id="photoUpload"
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp" 
+                        className={styles.hiddenFileInput}
+                        onChange={handleFileChange}
+                    />
                 </div>
                 <div className={styles.userInformationContainer}>
                     <div className={styles.firstContainerInformation}>
-                        <input
-                            type="text"
-                            name="firstname"
-                            value={userInfo.firstname}
-                            onChange={handleChange}
-                            required
-                            className={styles.nameInput}
-                        />
+                        <div className={styles.nameFieldsContainer}>
+                            <input
+                                type="text"
+                                name="firstname"
+                                value={userInfo.firstname || ''}
+                                onChange={handleChange}
+                                placeholder="Nombre"
+                                className={styles.nameFieldInput}
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="lastname1"
+                                value={userInfo.lastname1 || ''}
+                                onChange={handleChange}
+                                placeholder="Primer Apellido"
+                                className={styles.nameFieldInput}
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="lastname2"
+                                value={userInfo.lastname2 || ''}
+                                onChange={handleChange}
+                                placeholder="Segundo Apellido"
+                                className={styles.nameFieldInput}
+                            />
+                        </div>
                         <p className={styles.inputLabels}>Número telefónico</p>
                         <input
                             type="text"

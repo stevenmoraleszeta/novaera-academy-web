@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext'; // Asegúrate de que este contexto esté bien configurado en Next.js
-import defaultProfileImage from '../../assets/img/defaultProfileImage.jpg';
+import defaultProfileImage from "@/assets/img/defaultProfileImage.jpg";
 
 // Importar estilos
 import styles from './Navbar.module.css'; // Los estilos globales pueden ir en _app.js
@@ -20,7 +20,7 @@ function Navbar() {
 
     useEffect(() => {
         if (currentUser) {
-            setProfileImage(currentUser.photoURL || defaultProfileImage);
+            setProfileImage(currentUser.photourl || defaultProfileImage);
         } else {
             setProfileImage(null);
         }
