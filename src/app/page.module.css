@@ -85,6 +85,12 @@
 
   text-decoration: none;
   border-radius: 3px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.coursesBtn:hover {
+  background-color: var(--color-primary-hover);
+  transform: scale(1.05);
 }
 
 /* Benefits section styles */
