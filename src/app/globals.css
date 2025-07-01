@@ -284,9 +284,9 @@ Modals elements
 */
 
 /* Card container */
+
 .cardContainer {
   width: clamp(24vw, 240px, 28vw);
-  /* Adjusted for 20% reduction */
   height: clamp(26.4vw, 240px, 36vw);
   background: linear-gradient(var(--color-primary), var(--color-dark));
   display: flex;
@@ -296,12 +296,22 @@ Modals elements
   border-radius: 10px;
 }
 
+.cardContainer:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
 /* Image and icon styling */
 .imgContainer {
   height: 50%;
   width: 100%;
   filter: brightness(0.8);
-  
+  /* height: 100%; */
+  margin-top: 40px;
+  margin-right: 40px;
+  display: flex;
+  align-items: flex-start;
+  align-self: flex-start;
   /* Reduce exposure */
 }
 

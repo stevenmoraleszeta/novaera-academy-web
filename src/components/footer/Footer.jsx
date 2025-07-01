@@ -1,11 +1,8 @@
 "use client"; // Esto indica que el componente es un Client Component
 
-// Importaciones de Next.js y React
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
-
-
 
 // Importar estilos
 import styles from "./Footer.module.css"; // Los estilos globales pueden ir en _app.js
@@ -25,9 +22,7 @@ function FooterZ() {
           />
         </Link>
         <div className={styles.contactInfo}>
-          <p>
-
-            <a
+            <a className={styles.contactItem}
               href="https://wa.link/qggv19"
               target="_blank"
               rel="noopener noreferrer"
@@ -42,10 +37,7 @@ function FooterZ() {
               />
               +50661304830
             </a>
-          </p>
-          <p>
-
-            <a
+            <a className={styles.contactItem}
               href="https://www.instagram.com/stevenmoraleszeta"
               target="_blank" // Abre el enlace en una nueva pestaña
               rel="noopener noreferrer" // Buenas prácticas de seguridad
@@ -60,10 +52,7 @@ function FooterZ() {
               />
               stevenmoraleszeta
             </a>
-          </p>
-          <p>
-
-            <a
+            <a className={styles.contactItem}
               href="https://www.instagram.com/zeta.steam"
               target="_blank" // Abre el enlace en una nueva pestaña
               rel="noopener noreferrer" // Buenas prácticas de seguridad
@@ -78,7 +67,6 @@ function FooterZ() {
               />
               zeta.steam
             </a>
-          </p>
         </div>
       </div>
 
