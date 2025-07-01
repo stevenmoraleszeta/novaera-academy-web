@@ -1,12 +1,38 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import styles from './page.module.css';
 import CrudMenu from '@/components/adminCrudMenu/adminCrudMenu';
 
+import countries from "@/jsonFiles/paises.json";
+
 const AdminUsers = () => {
     document.title = "Administración de Usuarios - ZETA";
-    // Fields to display in the list view
+
+    const [roles, setRoles] = useState([]);
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/roles`);
+                const formattedRoles = response.data.map(role => ({
+                    value: role.roleid,
+                    label: role.namerole
+                }));
+                setRoles(formattedRoles);
+            } catch (error) {
+                console.error("Error al cargar los roles:", error);
+            }
+        };
+        fetchRoles();
+    }, []);
+
+    const countryOptions = countries.map(country => ({
+        value: country.es,
+        label: country.es
+    }));
+
     const displayFields = [
         {
             label: 'Nombre Completo', 
@@ -23,8 +49,21 @@ const AdminUsers = () => {
         { label: 'Correo *', field: 'email', required: true},
         { label: 'Telefono', field: 'phone'},
         { label: 'Edad', field: 'age', type: 'number' },
-        { label: 'Rol *', field: 'roleid', type: 'number', required: true},
-        { label: 'País', field: 'country' },
+        { 
+            label: 'Rol *', 
+            field: 'roleid', 
+            type: 'select',
+            required: true,
+            options: roles 
+        },
+        { 
+            label: 'País', 
+            field: 'country',
+            type: 'select',
+            options: countryOptions 
+        },
+        // { label: 'Rol *', field: 'roleid', type: 'number', required: true},
+        // { label: 'País', field: 'country' },
     ];
 
     return (
