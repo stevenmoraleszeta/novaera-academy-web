@@ -55,8 +55,7 @@ function Login() {
                         </div>
                         <div className="auth-page-text-container">
                             <p className="auth-page-text">
-                                Inicia sesión o crea tu cuenta con Google para acceder a más
-                                funcionalidades.
+                                Inicia sesión o crea tu cuenta con Google para acceder a más funcionalidades.
                             </p>
                         </div>
                         <button className="auth-action-button" onClick={loginWithGoogle}>

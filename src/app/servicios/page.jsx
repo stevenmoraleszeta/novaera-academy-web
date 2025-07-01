@@ -59,7 +59,7 @@ const servicesData = [
     },
     {
         id: "otro",
-        title: "Otro.",
+        title: "Entre otras...",
         hoverText: "Cualquier otra asunto, estamos para ayudarte.",
         link: "https://wa.link/qggv19",
         linkText: "Contacto",

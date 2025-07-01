@@ -25,9 +25,9 @@ function FooterZ() {
           />
         </Link>
         <div className={styles.contactInfo}>
-          <p>
+          {/* <p> */}
 
-            <a
+            <a className={styles.contactItem}
               href="https://wa.link/qggv19"
               target="_blank"
               rel="noopener noreferrer"
@@ -42,10 +42,10 @@ function FooterZ() {
               />
               +50661304830
             </a>
-          </p>
-          <p>
+          {/* </p> */}
+          {/* <p> */}
 
-            <a
+            <a className={styles.contactItem}
               href="https://www.instagram.com/stevenmoraleszeta"
               target="_blank" // Abre el enlace en una nueva pestaña
               rel="noopener noreferrer" // Buenas prácticas de seguridad
@@ -60,10 +60,10 @@ function FooterZ() {
               />
               stevenmoraleszeta
             </a>
-          </p>
-          <p>
+          {/* </p> */}
+          {/* <p> */}
 
-            <a
+            <a className={styles.contactItem}
               href="https://www.instagram.com/zeta.steam"
               target="_blank" // Abre el enlace en una nueva pestaña
               rel="noopener noreferrer" // Buenas prácticas de seguridad
@@ -78,7 +78,7 @@ function FooterZ() {
               />
               zeta.steam
             </a>
-          </p>
+          {/* </p> */}
         </div>
       </div>
 

@@ -26,26 +26,22 @@
 .contactInfo {
   display: flex;
   flex-direction: column;
+  gap: 0.2rem
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
   font-size: 1rem;
-  gap: 0px;
-}
-
-.contactInfo a {
+  color: var(--text-color);
   font-weight: bold;
+  transition: color 0.2s ease;
 }
 
-.contactInfo p {
-  margin: 0;
-  /* Elimina cualquier margen adicional */
-  padding: 0;
-  /* Elimina cualquier padding adicional */
-  line-height: 2;
-  /* Ajusta la altura de línea para que los elementos estén más juntos */
-  margin-left: 4vh;
-}
-
-.contactInfo p:hover {
-  color: var(--color-light-active);
+.contactItem:hover {
+  color: var(--color-secondary);
 }
 
 .navPair {
