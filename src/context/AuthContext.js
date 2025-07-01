@@ -4,6 +4,14 @@
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import {
+    loginPersonalizado,
+    signOutFirebase,
+    onAuthStateChanged,
+    signInWithCustomTokenFirebase,
+    ensureFirebaseAuth,
+    getCurrentFirebaseUser
+} from "../utils/firebaseAuthCustom";
 
 // Crear el contexto de autenticación
 const AuthContext = createContext();
@@ -18,6 +26,7 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
     const [missingInfo, setMissingInfo] = useState(null);
+    const [firebaseUser, setFirebaseUser] = useState(null);
     const router = useRouter();
 
     // nuevo manejo del cambio de estado de autenticación
@@ -55,24 +64,34 @@ export function AuthProvider({ children }) {
         fetchCurrentUser();
     }, []);
 
-    // Función para iniciar sesión con email y contraseña
+    // Escuchar cambios en Firebase Auth
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged((user) => {
+            setFirebaseUser(user);
+            if (user) {
+                console.log("Usuario autenticado en Firebase:", user.uid);
+            } else {
+                console.log("Usuario no autenticado en Firebase");
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    // Función para iniciar sesión con email y contraseña (incluye Firebase)
     const loginWithEmailAndPassword = async (email, password) => {
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-                email: email.trim().toLowerCase(),
-                password,
-            });
-
-            const { token, user } = response.data;
+            const result = await loginPersonalizado(email.trim().toLowerCase(), password);
+            const { token, user, firebaseUser } = result;
 
             localStorage.setItem("token", token);
             setCurrentUser(user);
+            setFirebaseUser(firebaseUser || null);
 
             setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
-
             setMissingInfo(!user.country || !user.phone || !user.age);
         } catch (error) {
-            console.error("Error al iniciar sesión:", error.response?.data?.error || error.message);
+            console.error("Error al iniciar sesión:", error.message);
             throw error;
         }
     };
@@ -93,12 +112,23 @@ export function AuthProvider({ children }) {
         const handleMessage = async (event) => {
             // Cambiar esto cuando el backend está en otro dominio
             if (!event.origin.includes(process.env.NEXT_PUBLIC_API_URL.replace('/api', ''))) return;
-            const { token, user } = event.data;
+            const { token, user, firebaseToken } = event.data;
             if (token && user) {
                 localStorage.setItem("token", token);
                 setCurrentUser(user);
                 setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
                 setMissingInfo(!user.country || !user.phone || !user.age);
+
+                // Si hay firebaseToken, autenticar en Firebase
+                if (firebaseToken) {
+                    try {
+                        const firebaseUser = await signInWithCustomTokenFirebase(firebaseToken);
+                        setFirebaseUser(firebaseUser);
+                    } catch (error) {
+                        console.error("Error autenticando en Firebase:", error);
+                    }
+                }
+
                 popup.close();
                 window.removeEventListener("message", handleMessage);
             }
@@ -144,7 +174,7 @@ export function AuthProvider({ children }) {
             const token = localStorage.getItem("token");
 
             await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/logout`,
+                `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
                 {},
                 {
                     headers: { Authorization: `Bearer ${token}` },
@@ -153,8 +183,28 @@ export function AuthProvider({ children }) {
 
             localStorage.removeItem("token");
             setCurrentUser(null);
+
+            // Cerrar sesión en Firebase también
+            try {
+                await signOutFirebase();
+                setFirebaseUser(null);
+            } catch (firebaseError) {
+                console.error("Error cerrando sesión en Firebase:", firebaseError);
+            }
         } catch (error) {
             console.error("Error al cerrar sesión:", error.response?.data?.error || error.message);
+        }
+    };
+
+    // Función para asegurar autenticación en Firebase cuando sea necesaria
+    const ensureFirebaseAuthentication = async () => {
+        try {
+            const firebaseUser = await ensureFirebaseAuth();
+            setFirebaseUser(firebaseUser);
+            return firebaseUser;
+        } catch (error) {
+            console.error("Error asegurando autenticación Firebase:", error);
+            throw error;
         }
     };
 
@@ -172,7 +222,10 @@ export function AuthProvider({ children }) {
         updateCurrentUser: setCurrentUser,
         isAdmin,
         missingInfo,
-        loginWithGoogle
+        loginWithGoogle,
+        firebaseUser,
+        setFirebaseUser,
+        ensureFirebaseAuthentication
     };
 
     return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
