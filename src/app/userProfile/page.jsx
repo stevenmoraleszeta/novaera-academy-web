@@ -140,10 +140,10 @@ function UserProfile() {
     };
 
     // Permitir edición: solo renderizar el formulario si userInfo está definido
-    if (!currentUser) {
-        router.push("/login");
-        return null;
-    }
+    // if (!currentUser) {
+    //     router.push("/login");
+    //     return null;
+    // }
 
     return (
         <RequireAuth>
