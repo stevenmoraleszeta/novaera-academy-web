@@ -44,6 +44,9 @@ const CourseDetail = ({
     const [searchTerm, setSearchTerm] = useState("");
     const [searchEmail, setSearchEmail] = useState("");
     const [mentorList, setMentorList] = useState([]);
+
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [selectedImageFile, setSelectedImageFile] = useState(null);
     
     const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
         userId: currentUser?.userid,
@@ -203,21 +206,24 @@ const CourseDetail = ({
 
     useEffect(() => {
         const checkEnrollmentStatus = async () => {
-            if (!currentUser || !currentUser.userid || !courseId) return;
+            if (!currentUser || !currentUser.userid || !courseId) {
+                setIsEnrolled(false);
+                return;
+            }
 
             try {
                 const response = await fetch(
                     `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.userid}`
                 );
-
-                if (response.status === 200) {
-                    const data = await response.json();
-                    setIsEnrolled(data && data.length > 0);
-                } else {
+                if (!response.ok) {
+                    console.log("Hola");
                     setIsEnrolled(false);
+                    return;
                 }
+                const data = await response.json();
+                setIsEnrolled(Array.isArray(data) && data.length > 0);
             } catch (error) {
-                console.error("Error checking enrollment status:", error);
+                console.error("Error de red al verificar inscripción:", error);
                 setIsEnrolled(false);
             }
         };
@@ -343,6 +349,25 @@ const CourseDetail = ({
         setIsVideoModalOpen(false);
     };
 
+
+    //Para subir la imagen no se como funciona!!!
+    const handleSaveImage = async () => {
+        if (!selectedImageFile) {
+            alert("Por favor, selecciona una imagen primero.");
+            return;
+        }
+
+        try {
+            //Logica para subirlo a firebase!!!!!
+            console.log("Subiendo archivo:", selectedImageFile);
+            // Se actualiza el modal
+            setIsImageModalOpen(false);
+        } catch (error) {
+            console.error("Error al subir la imagen:", error);
+            alert("Hubo un error al subir la imagen.");
+        }
+    };
+
     useEffect(() => {
         setVideoUrl(course?.videoUrl || "");
     }, [course?.videoUrl]);
@@ -377,6 +402,7 @@ const CourseDetail = ({
                     openGroupModal={openGroupModal}
                     openVideoModal={openVideoModal}
                     isLiveCourse={isLiveCourse}
+                    openImageModal={() => setIsImageModalOpen(true)}
                 />
             </div>
             {!isEnrolled && (
@@ -454,6 +480,48 @@ const CourseDetail = ({
                     </div>
                 </Modal>
             )}
+
+            {isImageModalOpen && (
+                <Modal 
+                    isOpen={isImageModalOpen}
+                    onClose={() => setIsImageModalOpen(false)}
+                    title="Subir nueva imagen"
+                    modalType="customContent"
+                >
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <p>Selecciona la imagen que deseas subir.</p>
+                        <input
+                            type="file"
+                            name="imageUpload"
+                            accept="image/png, image/jpeg, image/webp"
+                            onChange={e => setSelectedImageFile(e.target.files[0])}
+                            style={{ width: "100%" }}
+                        />
+                        {selectedImageFile && (
+                            <p style={{ fontSize: '14px', color: '#888' }}>
+                                Archivo seleccionado: {selectedImageFile.name}
+                            </p>
+                        )}
+
+                        <div className="formActions">
+                            <button 
+                                className="saveButton" 
+                                onClick={handleSaveImage}
+                                disabled={!selectedImageFile} 
+                            >
+                                Guardar Imagen
+                            </button>
+                            <button 
+                                className="cancelButton" 
+                                onClick={() => setIsImageModalOpen(false)}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+
             {isGroupModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>

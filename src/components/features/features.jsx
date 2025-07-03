@@ -217,6 +217,7 @@ export default function Features({ course, setCourse, courseId }) {
                                     src={feature.iconurl}
                                     alt={`Icono de ${feature.title}`}
                                     fill
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     style={{ objectFit: "contain" }}
                                 />
                             </div>

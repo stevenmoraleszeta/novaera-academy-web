@@ -35,7 +35,7 @@ const ProjectsPage = () => {
         },
         { 
             label: 'Fecha Límite *', 
-            render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>, 
+            render: (item) => <p>{item.submissiondate ? new Date(item.project_duedate).toLocaleString() : 'Fecha de Entregada'}</p>, 
             type: 'text',
             required: true
         },
@@ -47,12 +47,12 @@ const ProjectsPage = () => {
             required: true
         },
         //Esto no se como manejarlo del los archivos!!!
-        { 
-            label: 'Archivo del Proyecto', 
-            field: 'fileurl', 
-            type: 'text', 
-            placeholder: 'https://ejemplo.com/feedback.pdf' 
-        },
+        // { 
+        //     label: 'Archivo del Proyecto', 
+        //     field: 'project_fileurl', 
+        //     type: 'text', 
+        //     placeholder: 'https://ejemplo.com/feedback.pdf' 
+        // },
         { 
             label: 'Comentarios para el Estudiante', 
             field: 'comments', 
@@ -60,10 +60,12 @@ const ProjectsPage = () => {
         },
         {
             label: 'Proyecto del Estudiante',
-            render: (item) => item.studentfileurl
+            render: (item) => {
+                return item.studentfileurl
                 ? <a href={item.studentfileurl} target="_blank" rel="noopener noreferrer">Descargar Entrega del Estudiante</a>
-                : <p><i>El estudiante no ha subido un archivo.</i></p>
-        },
+                : <p><i>El estudiante no ha subido un archivo.</i></p>;
+            }
+        }
     ];
 
     return (
@@ -73,7 +75,7 @@ const ProjectsPage = () => {
                 displayFields={displayFields}
                 editFields={editFields}
                 pageTitle="Proyectos de Estudiantes"
-                idField="studentProjectId"
+                idField="projectid"
             />
         </div>
     );

@@ -48,14 +48,48 @@ const ProjectsList = ({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(projectData),
             });
+            const responseData = await res.json();
             if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error("Error al crear el proyecto: " + errorText);
+                // const errorText = await res.text();
+                throw new Error(responseData.error || "Error al crear el proyecto.");
             }
-            await res.json();
+            const newProject = responseData.project;
+            if (!newProject || !newProject.projectid) {
+                throw new Error("La API no devolvió los datos del nuevo proyecto.");
+            }      
+            
+            const studentProjectData = {
+                title: newProject.title,
+                dueDate: newProject.duedate,
+                submissionDate: null,
+                fileUrl: newProject.fileurl,
+                studentFileUrl: null,
+                comments: null,
+                score: null,
+                courseId: newProject.courseid,
+                projectId: newProject.projectid,
+                userId: newProject.userid,
+                mentorId: newProject.mentorid,
+                statusId: 2,
+                userEmail: newProject.userEmail,
+                mentorEmail: newProject.mentorEmail,
+            };
+            const studentProjectRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(studentProjectData),
+            });
+
+            const studentResponseData = await studentProjectRes.json();
+            if (!studentProjectRes.ok) {
+                throw new Error(studentResponseData.error || "Se creó el proyecto, pero falló la asignación al estudiante.");
+            }
+
+            setProjects(currentProjects => [...currentProjects, newProject]);
+
             // Recargar proyectos
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
+            // const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            // setProjects(await updated.json());
         } catch (err) {
             console.error("Error al añadir proyecto:", err);
             alert(err.message);

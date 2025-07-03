@@ -5,18 +5,22 @@ import { FaRegImage, FaUser } from "react-icons/fa";
 import styles from "./CourseDetails.module.css";
 import { useRouter } from "next/navigation";
 
+
 const CourseDetails = ({
     course,
     isAdmin,
     isEnrolled,
     handleFieldChange,
     handleContactClick,
-    openModal,
     openGroupModal,
-    isLiveCourse
+    isLiveCourse,
+    openImageModal
 }) => {
     const router = useRouter();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+    // const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    // const [selectedImageFile, setSelectedImageFile] = useState(null);
+    
 
     const handleEnrollClick = async () => {
         if (isLiveCourse) {
@@ -104,7 +108,10 @@ const CourseDetails = ({
                     Contáctanos
                 </button>
                 {isAdmin && (
-                    <div className={styles.iconWrapper} onClick={openModal}>
+                    <div className={styles.iconWrapper} 
+                    // onClick={isImageModalOpen}
+                    onClick={openImageModal}
+                    >
                         <FaRegImage className={styles.editIcon} />
                     </div>
                 )}
@@ -115,6 +122,46 @@ const CourseDetails = ({
                     </div>
                 )}
             </div>
+            {/* {isImageModalOpen && (
+            <Modal 
+                isOpen={isImageModalOpen}
+                onClose={() => setIsImageModalOpen(false)}
+                title="Subir nueva imagen"
+                modalType="customContent"
+            >
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <p>Selecciona la imagen que deseas subir.</p>
+                    
+                    <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp"
+                        onChange={e => setSelectedImageFile(e.target.files[0])}
+                    />
+
+                    {selectedImageFile && (
+                        <p style={{ fontSize: '14px', color: '#888' }}>
+                            Archivo: {selectedImageFile.name}
+                        </p>
+                    )}
+
+                    <div className="formActions">
+                        <button 
+                            className="saveButton" 
+                            onClick={handleSaveImage}
+                            disabled={!selectedImageFile} 
+                        >
+                            Guardar Imagen
+                        </button>
+                        <button 
+                            className="cancelButton" 
+                            onClick={() => setIsImageModalOpen(false)}
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+        )} */}
         </div>
     );
 };
