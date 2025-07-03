@@ -147,9 +147,9 @@ export function AuthProvider({ children }) {
             // Cambiar esto cuando el backend está en otro dominio
             if (!event.origin.includes(process.env.NEXT_PUBLIC_API_URL.replace('/api', ''))) return;
 
-            const { token, user, isNewUser } = event.data;
+            // const { token, user, isNewUser } = event.data;
 
-            const { token, user, firebaseToken } = event.data;
+            const { token, user, firebaseToken, isNewUser } = event.data;
 
             if (token && user) {
                 if(isNewUser){
@@ -256,10 +256,10 @@ export function AuthProvider({ children }) {
     };
 
     useEffect(() => {
-        if (!loading && currentUser && missingInfo) {
+        if (!isCheckingUser && currentUser && missingInfo) {
             router.push("/completeInfo");
         }
-    }, [currentUser, missingInfo, loading, router]);
+    }, [currentUser, missingInfo, isCheckingUser, router]);
 
 
     const value = {
