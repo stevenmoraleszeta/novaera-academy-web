@@ -16,16 +16,6 @@ function Login() {
     } = useAuth();
     const router = useRouter();
 
-    useEffect(() => {
-        if (!loading && !isCheckingUser) {
-            if (currentUser && missingInfo) {
-                router.push("/");
-            } else if (currentUser && !missingInfo) {
-                router.push("/");
-            }
-        }
-    }, [currentUser, missingInfo, loading, isCheckingUser, router]);
-
     const handleUserPasswordLogin = () => {
         router.push("/loginPassword");
     };

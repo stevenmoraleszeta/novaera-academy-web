@@ -123,14 +123,16 @@ export default function CompleteInformation() {
                 updatedAt: new Date().toISOString(),
             };
 
-            await axios.put(
+            const response = await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
                 updatedUser,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            updateCurrentUser({ ...currentUser, photourl });
+            const userFromServer = response.data;
+            updateCurrentUser(userFromServer);
             router.push("/");
+
         } catch (error) {
             if (error.response && error.response.data && error.response.data.error) {
                 alert("Error al actualizar usuario: " + error.response.data.error);
