@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes } from "react-icons/fa";
 import styles from "./ProjectsList.module.css";
 import { useAuth } from "@/context/AuthContext";
+import { useFirebaseIntegration } from "@/hooks/useFirebaseIntegration";
 import { Modal } from "../modal/modal";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
@@ -16,6 +17,7 @@ const ProjectsList = ({
     mentor
 }) => {
     const { currentUser } = useAuth();
+    const { ensureFirebaseConnection, isConnecting, error } = useFirebaseIntegration();
     const [projects, setProjects] = useState([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [newProject, setNewProject] = useState({
@@ -26,6 +28,7 @@ const ProjectsList = ({
     const fileInputRef = useRef(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editProject, setEditProject] = useState(null);
+    const [uploadingFile, setUploadingFile] = useState(false);
 
     // Cargar proyectos al montar
     useEffect(() => {
@@ -61,22 +64,31 @@ const ProjectsList = ({
 
     const handleAddProject = async (e) => {
         e.preventDefault();
-        let fileUrl = "";
-        if (newProject.file) {
-            fileUrl = await uploadFileToFirebase(newProject.file);
+
+        try {
+            let fileUrl = "";
+            if (newProject.file) {
+                console.log("Procesando archivo para nuevo proyecto...");
+                fileUrl = await uploadFileToFirebase(newProject.file);
+            }
+
+            await addProject({
+                title: newProject.title,
+                dueDate: newProject.dueDate,
+                fileUrl,
+                orderProject: projects.length + 1,
+                courseId: courseId ? Number(courseId) : null,
+                mentorId: mentor && mentor !== "" ? Number(mentor) : null,
+                userId: students && students.length > 0 ? Number(students[0]) : null,
+            });
+
+            setIsAddModalOpen(false);
+            setNewProject({ title: "", dueDate: "", file: null });
+            if (fileInputRef.current) fileInputRef.current.value = "";
+
+        } catch (error) {
+            console.error("Error en handleAddProject:", error);
         }
-        await addProject({
-            title: newProject.title,
-            dueDate: newProject.dueDate,
-            fileUrl,
-            orderProject: projects.length + 1,
-            courseId: courseId ? Number(courseId) : null,
-            mentorId: mentor && mentor !== "" ? Number(mentor) : null,
-            userId: students && students.length > 0 ? Number(students[0]) : null,
-        });
-        setIsAddModalOpen(false);
-        setNewProject({ title: "", dueDate: "", file: null });
-        if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     const deleteProject = async (projectId) => {
@@ -136,11 +148,14 @@ const ProjectsList = ({
     // Función para guardar cambios (admin o estudiante)
     const handleEditProject = async (e) => {
         e.preventDefault();
-        let fileUrl = editProject.fileurl || editProject.fileUrl || "";
-        if (editProject.file) {
-            fileUrl = await uploadFileToFirebase(editProject.file);
-        }
+
         try {
+            let fileUrl = editProject.fileurl || editProject.fileUrl || "";
+            if (editProject.file) {
+                console.log("Procesando archivo para editar proyecto...");
+                fileUrl = await uploadFileToFirebase(editProject.file);
+            }
+
             if (isAdmin) {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}`, {
                     method: "PUT",
@@ -168,13 +183,19 @@ const ProjectsList = ({
                 });
                 if (!res.ok) throw new Error("Error al entregar el proyecto");
             }
+
             // Recargar proyectos
             const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
             setProjects(await updated.json());
             setIsEditModalOpen(false);
             setEditProject(null);
+
         } catch (err) {
-            alert(err.message);
+            console.error("Error en handleEditProject:", err);
+            // Si es error de archivo, ya se mostró. Si es otro error, mostrarlo
+            if (!err.message.includes('Firebase') && !err.message.includes('autenticación')) {
+                alert(err.message);
+            }
         }
     };
 
@@ -198,9 +219,45 @@ const ProjectsList = ({
 
     const uploadFileToFirebase = async (file) => {
         if (!file) return "";
-        const storageRef = ref(storage, `projects/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
-        return await getDownloadURL(storageRef);
+
+        try {
+            setUploadingFile(true);
+
+            // Asegurar autenticación en Firebase antes de subir
+            console.log("Asegurando autenticación en Firebase...");
+            const firebaseUser = await ensureFirebaseConnection();
+            console.log("Usuario autenticado en Firebase:", firebaseUser.uid);
+
+            // Crear referencia única del archivo
+            const timestamp = Date.now();
+            const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const fileName = `${timestamp}_${sanitizedFileName}`;
+            const storageRef = ref(storage, `projects/${firebaseUser.uid}/${fileName}`);
+
+            console.log("Subiendo archivo a Firebase Storage...");
+
+            // Subir archivo
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            console.log("Archivo subido exitosamente:", downloadURL);
+            return downloadURL;
+
+        } catch (error) {
+            console.error("Error subiendo archivo:", error);
+
+            if (error.code === 'storage/unauthorized') {
+                alert("Error: No tienes permisos para subir archivos. Asegúrate de estar autenticado.");
+            } else if (error.message.includes('Firebase')) {
+                alert("Error de autenticación: " + error.message);
+            } else {
+                alert("Error subiendo archivo: " + error.message);
+            }
+
+            throw error;
+        } finally {
+            setUploadingFile(false);
+        }
     };
 
     return (
@@ -257,6 +314,21 @@ const ProjectsList = ({
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
                             <h3>Nuevo Proyecto</h3>
+
+                            {/* Muestra error si hay problemas con Firebase */}
+                            {error && (
+                                <div style={{
+                                    padding: '12px',
+                                    backgroundColor: '#ffebee',
+                                    border: '1px solid #f44336',
+                                    borderRadius: '4px',
+                                    marginBottom: '16px',
+                                    color: '#d32f2f'
+                                }}>
+                                    ⚠️ {error}
+                                </div>
+                            )}
+
                             <form onSubmit={handleAddProject} className={styles.modalForm}>
                                 <label>Título</label>
                                 <input
@@ -283,10 +355,25 @@ const ProjectsList = ({
                                     className={styles.title}
                                 />
                                 <div className="formActions">
-                                    <button type="submit"  className="saveButton">
-                                        <FaPlus /> Añadir
+                                    <button
+                                        type="submit"
+                                        className="saveButton"
+                                        disabled={uploadingFile || isConnecting}
+                                    >
+                                        {uploadingFile ? (
+                                            <>Subiendo archivo...</>
+                                        ) : isConnecting ? (
+                                            <>Conectando...</>
+                                        ) : (
+                                            <><FaPlus /> Añadir</>
+                                        )}
                                     </button>
-                                    <button type="button" onClick={() => setIsAddModalOpen(false)} className="cancelButton">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAddModalOpen(false)}
+                                        className="cancelButton"
+                                        disabled={uploadingFile}
+                                    >
                                         <FaTimes /> Cancelar
                                     </button>
                                 </div>
@@ -302,6 +389,21 @@ const ProjectsList = ({
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
                             <h3>{isAdmin ? "Editar Proyecto" : "Entregar Proyecto"}</h3>
+
+                            {/* Mostrar error si hay problemas con Firebase */}
+                            {error && (
+                                <div style={{
+                                    padding: '12px',
+                                    backgroundColor: '#ffebee',
+                                    border: '1px solid #f44336',
+                                    borderRadius: '4px',
+                                    marginBottom: '16px',
+                                    color: '#d32f2f'
+                                }}>
+                                    ⚠️ {error}
+                                </div>
+                            )}
+
                             <form onSubmit={handleEditProject} className={styles.modalForm}>
                                 <label>Título</label>
                                 <input
@@ -329,10 +431,25 @@ const ProjectsList = ({
                                     className={styles.title}
                                 />
                                 <div className="formActions">
-                                    <button type="submit" className="saveButton">
-                                        <FaPlus /> {isAdmin ? "Guardar" : "Entregar"}
+                                    <button
+                                        type="submit"
+                                        className="saveButton"
+                                        disabled={uploadingFile || isConnecting}
+                                    >
+                                        {uploadingFile ? (
+                                            <>Subiendo archivo...</>
+                                        ) : isConnecting ? (
+                                            <>Conectando...</>
+                                        ) : (
+                                            <><FaPlus /> {isAdmin ? "Guardar" : "Entregar"}</>
+                                        )}
                                     </button>
-                                    <button type="button" onClick={() => setIsEditModalOpen(false)} className="cancelButton">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEditModalOpen(false)}
+                                        className="cancelButton"
+                                        disabled={uploadingFile}
+                                    >
                                         <FaTimes /> Cancelar
                                     </button>
                                 </div>
