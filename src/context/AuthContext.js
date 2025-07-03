@@ -46,6 +46,7 @@ export function AuthProvider({ children }) {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
+                const user = response.data;
                 setCurrentUser(user);
                 setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8); // asume que el rol de admin tiene roleid 8
             } catch (error) {
@@ -68,20 +69,20 @@ export function AuthProvider({ children }) {
             let infoIsMissing;
             if (isNewGoogleUser) {
                 infoIsMissing = false;
-                setIsNewGoogleUser(false); 
+                setIsNewGoogleUser(false);
             } else {
-                infoIsMissing = !currentUser.firstname || 
-                                !currentUser.lastname1 || 
-                                !currentUser.country || 
-                                !currentUser.phone ||
-                                (currentUser.age === null || currentUser.age === undefined);
+                infoIsMissing = !currentUser.firstname ||
+                    !currentUser.lastname1 ||
+                    !currentUser.country ||
+                    !currentUser.phone ||
+                    (currentUser.age === null || currentUser.age === undefined);
             }
-            
+
             setMissingInfo(infoIsMissing);
 
             if (infoIsMissing) {
                 router.push("/completeInfo");
-            }else{
+            } else {
                 router.push('/');
             }
         } else if (!isCheckingUser && !currentUser) {
@@ -120,8 +121,13 @@ export function AuthProvider({ children }) {
 
             setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
 
-
-            setMissingInfo(!user.country || !user.phone || !user.age);
+            // Calcular si falta información usando la misma lógica que en otros lugares
+            const infoIsMissing = !user.firstname ||
+                !user.lastname1 ||
+                !user.country ||
+                !user.phone ||
+                (user.age === null || user.age === undefined);
+            setMissingInfo(infoIsMissing);
 
         } catch (error) {
             console.error("Error al iniciar sesión:", error.message);
@@ -147,12 +153,10 @@ export function AuthProvider({ children }) {
             // Cambiar esto cuando el backend está en otro dominio
             if (!event.origin.includes(process.env.NEXT_PUBLIC_API_URL.replace('/api', ''))) return;
 
-            const { token, user, isNewUser } = event.data;
-
-            const { token, user, firebaseToken } = event.data;
+            const { token, user, isNewUser, firebaseToken } = event.data;
 
             if (token && user) {
-                if(isNewUser){
+                if (isNewUser) {
                     setIsNewGoogleUser(true);
                 }
 
@@ -160,9 +164,13 @@ export function AuthProvider({ children }) {
                 setCurrentUser(user);
                 setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
 
-                // popup.close();
-
-                setMissingInfo(!user.country || !user.phone || !user.age);
+                // Calcular si falta información usando la misma lógica consistente
+                const infoIsMissing = !user.firstname ||
+                    !user.lastname1 ||
+                    !user.country ||
+                    !user.phone ||
+                    (user.age === null || user.age === undefined);
+                setMissingInfo(infoIsMissing);
 
                 // Si hay firebaseToken, autenticar en Firebase
                 if (firebaseToken) {
@@ -215,6 +223,27 @@ export function AuthProvider({ children }) {
         }
     };
 
+    // Función para actualizar el usuario actual
+    const updateCurrentUser = (updatedUser) => {
+        setCurrentUser(updatedUser);
+
+        // Actualizar también los estados derivados
+        if (updatedUser) {
+            setIsAdmin(updatedUser.firstname === 'AdminAccount' || updatedUser.roleid === 8);
+
+            // Recalcular si falta información
+            const infoIsMissing = !updatedUser.firstname ||
+                !updatedUser.lastname1 ||
+                !updatedUser.country ||
+                !updatedUser.phone ||
+                (updatedUser.age === null || updatedUser.age === undefined);
+            setMissingInfo(infoIsMissing);
+        } else {
+            setIsAdmin(false);
+            setMissingInfo(false);
+        }
+    };
+
     const logout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -255,11 +284,12 @@ export function AuthProvider({ children }) {
         }
     };
 
-    useEffect(() => {
-        if (!loading && currentUser && missingInfo) {
-            router.push("/completeInfo");
-        }
-    }, [currentUser, missingInfo, loading, router]);
+    // Este useEffect ya no es necesario porque la lógica de redirección está en el useEffect anterior
+    // useEffect(() => {
+    //     if (!isCheckingUser && currentUser && missingInfo) {
+    //         router.push("/completeInfo");
+    //     }
+    // }, [currentUser, missingInfo, isCheckingUser, router]);
 
 
     const value = {
@@ -267,7 +297,7 @@ export function AuthProvider({ children }) {
         loginWithEmailAndPassword,
         registerWithEmailAndPassword,
         logout,
-        updateCurrentUser: setCurrentUser,
+        updateCurrentUser, // Usar la nueva función
         isAdmin,
         missingInfo,
         loginWithGoogle,

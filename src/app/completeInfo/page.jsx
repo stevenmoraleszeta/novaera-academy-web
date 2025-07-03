@@ -24,7 +24,7 @@ export default function CompleteInformation() {
         phone: "",
         country: "",
         photourl: "",
-        roleId: "",
+        roleid: "", // Cambiado de roleId a roleid para coincidir con el backend
         updatedAt: "",
     });
 
@@ -47,7 +47,7 @@ export default function CompleteInformation() {
                     phone: data.phone || "",
                     country: data.country || "",
                     photourl: data.photourl || "",
-                    roleId: data.roleId || "",
+                    roleid: data.roleid || "", // Cambiado de roleId a roleid
                     updatedAt: new Date().toISOString(),
                 });
             } catch (err) {
@@ -119,7 +119,7 @@ export default function CompleteInformation() {
                 phone: safeParseInt(userInfo.phone),
                 country: userInfo.country ?? "",
                 photourl: photourl ?? "",
-                roleid: safeParseInt(userInfo.roleId, currentUser?.roleid ?? 9),
+                roleid: safeParseInt(userInfo.roleid, currentUser?.roleid ?? 9), // Cambiado de roleId a roleid
                 updatedAt: new Date().toISOString(),
             };
 
