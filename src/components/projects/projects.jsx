@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes, FaDownload  } from "react-icons/fa";
 import styles from "./ProjectsList.module.css";
 import { useAuth } from "@/context/AuthContext";
 import { useFirebaseIntegration } from "@/hooks/useFirebaseIntegration";
@@ -170,11 +170,24 @@ const ProjectsList = ({
         }
     };
 
+    function formatSimpleDate(dateString) {
+        const date = new Date(dateString);
+        const options = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        };
+        return new Intl.DateTimeFormat('es-CR', options).format(date);
+    }
+
     const openEditModal = (project) => {
+        console.log(project);
+        const inputDate = project.duedate ? project.duedate.split('T')[0] : '';
         setEditProject({
             ...project,
-            dueDate: project.dueDate || project.duedate || "",
+            dueDate: inputDate,
             file: null, // No puede editar el archivo anterior, solo subir uno nuevo
+            fileurl: project.fileurl,
         });
         setIsEditModalOpen(true);
     };
@@ -417,12 +430,16 @@ const ProjectsList = ({
                 </Modal>
             )}
 
+
+{/* Aqui estoy trabajando!!!!!!!!!!!!!!!!!!!!!!!!!! */}
+
+
             {/* Modal para editar proyecto */}
             {isEditModalOpen && editProject && (
                 <Modal modalType="customContent" isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
-                            <h3>{isAdmin ? "Editar Proyecto" : "Entregar Proyecto"}</h3>
+                            <h3>{isAdmin ? "Editar Proyecto" : "PEntregar royecto"}</h3>
 
                             {/* Mostrar error si hay problemas con Firebase */}
                             {error && (
@@ -457,6 +474,20 @@ const ProjectsList = ({
                                     disabled={!isAdmin}
                                     className={styles.title}
                                 />
+                                <label>Instrucciones del proyecto</label>
+                                    {editProject.fileurl ? (
+                                        <a
+                                            href={editProject.fileurl}
+                                            download
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className= "cancelButton"
+                                        >
+                                            <FaDownload /> Descargar Instrucciones
+                                        </a>
+                                    ) : (
+                                        <p className={styles.noFileMessage}>No hay instrucciones adjuntas.</p>
+                                    )}
                                 <label>Archivo</label>
                                 <input
                                     type="file"

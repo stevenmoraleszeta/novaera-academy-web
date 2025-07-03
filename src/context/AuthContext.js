@@ -45,6 +45,7 @@ export function AuthProvider({ children }) {
                 const response = await axios.get(`${apiUrl}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+                const user = response.data;
 
                 setCurrentUser(user);
                 setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8); // asume que el rol de admin tiene roleid 8

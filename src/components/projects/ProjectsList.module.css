@@ -28,14 +28,6 @@
     z-index: 10000;
 }
 
-/* .title {
-    font-size: clamp(1.5vw, 25px, 2.2vw);
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: var(--color-primary);
-    text-align: center;
-} */
-
 .description {
     text-align: center;
     width: 100%;
@@ -113,6 +105,30 @@
     color: var(--text-color);
 }
 
+
+.downloadButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-bottom: 16px; /* Espacio antes del siguiente campo */
+    transition: background-color 0.2s;
+}
+
+.downloadButton:hover {
+    background-color: #0056b3;
+}
+
+.noFileMessage {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: -8px;
+    margin-bottom: 16px;
+}
 
 /* form modal Add ? edit  */
 
