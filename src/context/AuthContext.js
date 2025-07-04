@@ -284,20 +284,13 @@ export function AuthProvider({ children }) {
         }
     };
 
-    // Este useEffect ya no es necesario porque la lógica de redirección está en el useEffect anterior
-    // useEffect(() => {
-    //     if (!isCheckingUser && currentUser && missingInfo) {
-    //         router.push("/completeInfo");
-    //     }
-    // }, [currentUser, missingInfo, isCheckingUser, router]);
-
 
     const value = {
         currentUser,
         loginWithEmailAndPassword,
         registerWithEmailAndPassword,
         logout,
-        updateCurrentUser, // Usar la nueva función
+        updateCurrentUser,
         isAdmin,
         missingInfo,
         loginWithGoogle,
