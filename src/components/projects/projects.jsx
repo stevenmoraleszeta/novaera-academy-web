@@ -32,7 +32,6 @@ const ProjectsList = ({
     const [uploadingFile, setUploadingFile] = useState(false);
 
     const { showAlert, showConfirm } = useModal();
-
     // Cargar proyectos al montar
     useEffect(() => {
         if (!courseId) return;
@@ -44,7 +43,15 @@ const ProjectsList = ({
 
     if (!isStudentInCourse && !isAdmin) return null;
 
+
+    ///agrega varios pero con el problema que se lo agrega todos al primero que encuentre, entonces crea varios pero con el mismo usuario!!!!!
     const addProject = async (projectData) => {
+        const uniqueStudentIds = [...new Set(students)];
+        
+        if (!uniqueStudentIds || uniqueStudentIds.length === 0) {
+            showAlert("No se puede añadir un proyecto porque no hay estudiantes inscritos en el curso.", "Acción Requerida");
+            return; 
+        }   
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
                 method: "POST",
@@ -53,45 +60,52 @@ const ProjectsList = ({
             });
             const responseData = await res.json();
             if (!res.ok) {
-                throw new Error(responseData.error || "Error al crear el proyecto.");
+                throw new Error(responseData.error || "Error al crear el proyecto base.");
             }
             const newProject = responseData.project;
             if (!newProject || !newProject.projectid) {
                 throw new Error("La API no devolvió los datos del nuevo proyecto.");
-            }      
-            
-            const studentProjectData = {
-                title: newProject.title,
-                dueDate: newProject.duedate,
-                submissionDate: null,
-                fileUrl: newProject.fileurl,
-                studentFileUrl: null,
-                comments: null,
-                score: null,
-                courseId: newProject.courseid,
-                projectId: newProject.projectid,
-                userId: newProject.userid,
-                mentorId: newProject.mentorid,
-                statusId: 2,
-                userEmail: newProject.userEmail,
-                mentorEmail: newProject.mentorEmail,
-            };
-            const studentProjectRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(studentProjectData),
+            }
+            console.log(`Asignando proyecto ${newProject.projectid} a ${uniqueStudentIds} - ${newProject.studentId} - estudiantes.`);
+           
+            const assignmentPromises = uniqueStudentIds.map(studentId => {
+                // console.log(newProject);
+                const studentProjectData = {
+                    title: newProject.title,
+                    dueDate: newProject.duedate,
+                    submissionDate: null,
+                    fileUrl: newProject.fileurl,
+                    studentFileUrl: null,
+                    comments: null,
+                    score: null,
+                    courseId: newProject.courseid,
+                    projectId: newProject.projectid,
+                    userId: studentId,
+                    mentorId: newProject.mentorid,
+                    statusId: 2,
+                    userEmail: newProject.userEmail,
+                    mentorEmail: newProject.mentorEmail,
+                };
+
+                console.log("Enviando al backend:", studentProjectData);
+                return fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(studentProjectData),
+                });
             });
 
-            const studentResponseData = await studentProjectRes.json();
-            if (!studentProjectRes.ok) {
-                throw new Error(studentResponseData.error || "Se creó el proyecto, pero falló la asignación al estudiante.");
-            }
+            const responses = await Promise.all(assignmentPromises);
 
+            const failedAssignment = responses.find(response => !response.ok);
+            if (failedAssignment) {
+                throw new Error("Se creó el proyecto, pero falló la asignación a uno o más estudiantes.");
+            }
             setProjects(currentProjects => [...currentProjects, newProject]);
-            showAlert("Proyecto añadido exitosamente.", "Éxito");
+            showAlert("Proyecto añadido y asignado a todos los estudiantes.", "Éxito");
 
         } catch (err) {
-            showAlert(`Error al añadir proyecto: ${err.message}`, "Error");
+            showAlert(`Error en el proceso: ${err.message}`, "Error");
         }
     };
 
@@ -422,9 +436,6 @@ const ProjectsList = ({
             )}
 
 
-{/* Aqui estoy trabajando!!!!!!!!!!!!!!!!!!!!!!!!!! */}
-
-
             {/* Modal para editar proyecto */}
             {isEditModalOpen && editProject && (
                 <Modal modalType="customContent" isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
@@ -502,7 +513,7 @@ const ProjectsList = ({
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setIsEditModalOpen(false)}
+                                        onClick={(closeModal) => setIsEditModalOpen(false)}
                                         className="cancelButton"
                                         disabled={uploadingFile}
                                     >
