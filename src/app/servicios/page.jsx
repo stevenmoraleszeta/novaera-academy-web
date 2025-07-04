@@ -3,8 +3,21 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Head from "next/head";
 import styles from "./services.module.css";
+
+export const metadata = {
+    title: "Servicios | ZETA Academia - Proyectos, Clases Particulares y Más",
+    description:
+        "Ofrecemos proyectos universitarios, clases particulares de programación, y oportunidades de trabajo en tecnología. Contacta con nuestros expertos.",
+    keywords:
+        "proyectos universitarios, clases particulares programación, desarrollo software, consultoría tecnológica",
+    openGraph: {
+        title: "Servicios | ZETA Academia",
+        description:
+            "Proyectos universitarios, clases particulares de programación y más servicios especializados",
+        url: "https://zetaacademia.com/servicios",
+    },
+};
 
 const servicesData = [
     {
@@ -110,9 +123,6 @@ export default function Servicios() {
 
     return (
         <>
-            <Head>
-                <title>Servicios - ZETA</title>
-            </Head>
             <section className={styles.servicesMainSection}>
                 <div className={styles.elementsContainer}>
                     <div className={styles.zetaLogoContainer}>
