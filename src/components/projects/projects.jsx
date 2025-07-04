@@ -30,6 +30,7 @@ const ProjectsList = ({
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editProject, setEditProject] = useState(null);
     const [uploadingFile, setUploadingFile] = useState(false);
+    const [myStudentProjects, setMyStudentProjects] = useState([]);
 
     const { showAlert, showConfirm } = useModal();
     // Cargar proyectos al montar
@@ -41,10 +42,43 @@ const ProjectsList = ({
             .catch(err => console.error("Error al cargar proyectos:", err));
     }, [courseId]);
 
+    // Cargar proyectos del estudiante actual si no es admin
+    useEffect(() => {
+        if (!currentUser?.userid || isAdmin || !courseId) return;
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`)
+            .then(res => res.json())
+            .then(allStudentProjects => {
+                // Filtrar solo los proyectos del usuario actual y del curso actual
+                const myProjects = allStudentProjects.filter(sp =>
+                    sp.userid === currentUser.userid &&
+                    sp.courseid === parseInt(courseId)
+                );
+                setMyStudentProjects(myProjects);
+            })
+            .catch(err => console.error("Error al cargar mis proyectos:", err));
+    }, [currentUser?.userid, courseId, isAdmin]);
+
     if (!isStudentInCourse && !isAdmin) return null;
 
+    // Función para verificar si el estudiante ya entregó un proyecto
+    const hasSubmittedProject = (projectId) => {
+        if (isAdmin) return false;
+        return myStudentProjects.some(sp =>
+            sp.projectid === projectId &&
+            sp.studentfileurl &&
+            sp.studentfileurl.trim() !== ""
+        );
+    };
 
-    ///agrega varios pero con el problema que se lo agrega todos al primero que encuentre, entonces crea varios pero con el mismo usuario!!!!!
+    // Función para obtener la información de entrega del proyecto
+    const getSubmissionInfo = (projectId) => {
+        if (isAdmin) return null;
+        return myStudentProjects.find(sp => sp.projectid === projectId);
+    };
+
+
+    ///Crear proyecto y asignar automáticamente a todos los estudiantes del curso
     const addProject = async (projectData) => {
         const uniqueStudentIds = [...new Set(students)];
 
@@ -60,50 +94,18 @@ const ProjectsList = ({
             });
             const responseData = await res.json();
             if (!res.ok) {
-                throw new Error(responseData.error || "Error al crear el proyecto base.");
+                throw new Error(responseData.error || "Error al crear el proyecto.");
             }
             const newProject = responseData.project;
             if (!newProject || !newProject.projectid) {
                 throw new Error("La API no devolvió los datos del nuevo proyecto.");
             }
-            const assignmentPromises = uniqueStudentIds.map(studentId => {
-                // console.log(newProject);
-                const studentProjectData = {
-                    title: newProject.title,
-                    dueDate: newProject.duedate,
-                    submissionDate: null,
-                    fileUrl: newProject.fileurl,
-                    studentFileUrl: null,
-                    comments: null,
-                    score: null,
-                    courseId: newProject.courseid,
-                    projectId: newProject.projectid,
-                    userId: studentId,
-                    mentorId: newProject.mentorid,
-                    statusId: 2,
-                    userEmail: newProject.userEmail,
-                    mentorEmail: newProject.mentorEmail,
-                };
-
-                console.log("Enviando al backend:", studentProjectData);
-                return fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(studentProjectData),
-                });
-            });
-
-            const responses = await Promise.all(assignmentPromises);
-
-            const failedAssignment = responses.find(response => !response.ok);
-            if (failedAssignment) {
-                throw new Error("Se creó el proyecto, pero falló la asignación a uno o más estudiantes.");
-            }
             setProjects(currentProjects => [...currentProjects, newProject]);
-            showAlert("Proyecto añadido y asignado a todos los estudiantes.", "Éxito");
+            showAlert("Proyecto creado y asignado exitosamente a todos los estudiantes.", "Éxito");
 
         } catch (err) {
-            showAlert(`Error en el proceso: ${err.message}`, "Error");
+            console.error("Error al crear proyecto:", err);
+            showAlert(`Error al crear proyecto: ${err.message}`, "Error");
         }
     };
 
@@ -206,11 +208,14 @@ const ProjectsList = ({
 
     const openEditModal = (project) => {
         const inputDate = project.duedate ? project.duedate.split('T')[0] : '';
+        const submissionInfo = getSubmissionInfo(project.projectid);
+
         setEditProject({
             ...project,
             dueDate: inputDate,
             file: null, // No puede editar el archivo anterior, solo subir uno nuevo
             fileurl: project.fileurl,
+            submissionInfo: submissionInfo, // Añadir info de entrega si existe
         });
         setIsEditModalOpen(true);
     };
@@ -243,15 +248,30 @@ const ProjectsList = ({
                 if (!res.ok) throw new Error("Error al editar el proyecto");
             } else {
                 // Solo permite subir archivo para estudiantes
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${editProject.projectid}/submit`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects/submit/${editProject.projectid}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        fileUrl,
+                        studentFileUrl: fileUrl,
                         userId: currentUser?.userid,
+                        comments: null,
                     }),
                 });
-                if (!res.ok) throw new Error("Error al entregar el proyecto");
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({ error: "Error desconocido" }));
+                    throw new Error(errorData.error || "Error al entregar el proyecto");
+                }
+
+                // Recargar proyectos del estudiante después de la entrega
+                const studentProjectsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`);
+                const allStudentProjects = await studentProjectsRes.json();
+                const myProjects = allStudentProjects.filter(sp =>
+                    sp.userid === currentUser.userid &&
+                    sp.courseid === parseInt(courseId)
+                );
+                setMyStudentProjects(myProjects);
+
+                showAlert("Proyecto entregado exitosamente.", "Éxito");
             }
             // Recargar proyectos
             const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
@@ -319,44 +339,69 @@ const ProjectsList = ({
     return (
         <div className={styles.mainContainer}>
             <h3>Proyectos</h3>
-            {projects.map((project, index) => (
-                <div
-                    key={project.projectid}
-                    className={styles.projectItem}
-                    onClick={() => (isAdmin || isStudentInCourse) && openEditModal(project)}
-                    style={{ cursor: (isAdmin || isStudentInCourse) ? "pointer" : "default" }}
-                >
-                    <span>{project.title}</span>
-                    <span>{formatDateDMY(project.dueDate || project.duedate || "")}</span>
-                    {isAdmin && (
-                        <div className={styles.projectActions}>
-                            <button
-                                onClick={e => { e.stopPropagation(); moveProject(project.projectid, index, -1); }}
-                                disabled={index === 0}
-                                className={styles.projectAction}
-                                title="Mover arriba"
-                            >
-                                <FaArrowUp />
-                            </button>
-                            <button
-                                onClick={e => { e.stopPropagation(); moveProject(project.projectid, index, 1); }}
-                                disabled={index === projects.length - 1}
-                                className={styles.projectAction}
-                                title="Mover abajo"
-                            >
-                                <FaArrowDown />
-                            </button>
-                            <button
-                                onClick={e => { e.stopPropagation(); deleteProject(project.projectid, project.title); }}
-                                className={styles.projectAction}
-                                title="Eliminar Proyecto"
-                            >
-                                <FaTrash />
-                            </button>
+            {projects.map((project, index) => {
+                const submissionInfo = getSubmissionInfo(project.projectid);
+                const isSubmitted = hasSubmittedProject(project.projectid);
+
+                return (
+                    <div
+                        key={project.projectid}
+                        className={`${styles.projectItem} ${isSubmitted ? styles.submittedProject : ''}`}
+                        onClick={() => (isAdmin || isStudentInCourse) && openEditModal(project)}
+                        style={{ cursor: (isAdmin || isStudentInCourse) ? "pointer" : "default" }}
+                    >
+                        <div className={styles.projectInfo}>
+                            <span className={styles.projectTitle}>{project.title}</span>
+                            <span className={styles.projectDate}>
+                                Fecha límite: {formatDateDMY(project.dueDate || project.duedate || "")}
+                            </span>
+                            {!isAdmin && (
+                                <span className={`${styles.submissionStatus} ${isSubmitted ? styles.submitted : styles.pending}`}>
+                                    {isSubmitted ? (
+                                        <>
+                                            Entregado
+                                            {submissionInfo?.submissiondate && (
+                                                <span className={styles.submissionDate}>
+                                                    ({formatDateDMY(submissionInfo.submissiondate)})
+                                                </span>
+                                            )}
+                                        </>
+                                    ) : (
+                                        "Pendiente"
+                                    )}
+                                </span>
+                            )}
                         </div>
-                    )}
-                </div>
-            ))}
+                        {isAdmin && (
+                            <div className={styles.projectActions}>
+                                <button
+                                    onClick={e => { e.stopPropagation(); moveProject(project.projectid, index, -1); }}
+                                    disabled={index === 0}
+                                    className={styles.projectAction}
+                                    title="Mover arriba"
+                                >
+                                    <FaArrowUp />
+                                </button>
+                                <button
+                                    onClick={e => { e.stopPropagation(); moveProject(project.projectid, index, 1); }}
+                                    disabled={index === projects.length - 1}
+                                    className={styles.projectAction}
+                                    title="Mover abajo"
+                                >
+                                    <FaArrowDown />
+                                </button>
+                                <button
+                                    onClick={e => { e.stopPropagation(); deleteProject(project.projectid, project.title); }}
+                                    className={styles.projectAction}
+                                    title="Eliminar Proyecto"
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
 
             {isAdmin && (
                 <button onClick={() => setIsAddModalOpen(true)} className="add-element-button">
@@ -445,7 +490,7 @@ const ProjectsList = ({
                 <Modal modalType="customContent" isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
-                            <h3>{isAdmin ? "Editar Proyecto" : "PEntregar royecto"}</h3>
+                            <h3>{isAdmin ? "Editar Proyecto" : "Entregar Proyecto"}</h3>
 
                             {/* Mostrar error si hay problemas con Firebase */}
                             {error && (
@@ -494,7 +539,43 @@ const ProjectsList = ({
                                 ) : (
                                     <p className={styles.noFileMessage}>No hay instrucciones adjuntas.</p>
                                 )}
-                                <label>Archivo</label>
+
+                                {/* Mostrar información de entrega si es estudiante */}
+                                {!isAdmin && editProject.submissionInfo && (
+                                    <div className={styles.submissionInfo}>
+                                        <h4>Estado de tu entrega:</h4>
+                                        {editProject.submissionInfo.studentfileurl ? (
+                                            <div className={styles.submittedInfo}>
+                                                <p><strong>Proyecto entregado</strong></p>
+                                                <p>Fecha de entrega: {formatDateDMY(editProject.submissionInfo.submissiondate)}</p>
+                                                <a
+                                                    href={editProject.submissionInfo.studentfileurl}
+                                                    download
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="cancelButton"
+                                                >
+                                                    <FaDownload /> Ver mi entrega
+                                                </a>
+                                                {editProject.submissionInfo.score && (
+                                                    <p>Calificación: {editProject.submissionInfo.score}/100</p>
+                                                )}
+                                                {editProject.submissionInfo.comments && (
+                                                    <div>
+                                                        <strong>Comentarios del mentor:</strong>
+                                                        <p>{editProject.submissionInfo.comments}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p><strong>Proyecto no entregado</strong></p>
+                                        )}
+                                    </div>
+                                )}
+
+                                <label>
+                                    {isAdmin ? "Archivo" : editProject.submissionInfo?.studentfileurl ? "Actualizar entrega" : "Entregar archivo"}
+                                </label>
                                 <input
                                     type="file"
                                     onChange={e => setEditProject({ ...editProject, file: e.target.files[0] })}
@@ -512,7 +593,12 @@ const ProjectsList = ({
                                         ) : isConnecting ? (
                                             <>Conectando...</>
                                         ) : (
-                                            <><FaPlus /> {isAdmin ? "Guardar" : "Entregar"}</>
+                                            <>
+                                                <FaPlus />
+                                                {isAdmin ? "Guardar" :
+                                                    editProject.submissionInfo?.studentfileurl ? "Actualizar entrega" : "Entregar proyecto"
+                                                }
+                                            </>
                                         )}
                                     </button>
                                     <button

@@ -56,7 +56,7 @@
     font-size: 14px;
     font-weight: bold;
     color: #fff;
-} 
+}
 
 
 .modalOverlay {
@@ -115,7 +115,8 @@
     color: white;
     border-radius: 4px;
     text-decoration: none;
-    margin-bottom: 16px; /* Espacio antes del siguiente campo */
+    margin-bottom: 16px;
+    /* Espacio antes del siguiente campo */
     transition: background-color 0.2s;
 }
 
@@ -182,11 +183,92 @@
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
 .projectItem:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.projectItem.submittedProject {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.projectInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.projectTitle {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+
+.projectDate {
+    font-size: 0.9em;
+    color: #888;
+}
+
+.submissionStatus {
+    font-size: 0.85em;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 4px;
+    width: fit-content;
+}
+
+.submissionStatus.submitted {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.submissionStatus.pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.submissionDate {
+    font-size: 0.8em;
+    margin-left: 5px;
+    color: #666;
+}
+
+.submissionInfo {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid #28a745;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.submissionInfo h4 {
+    margin: 0 0 10px 0;
+    color: #28a745;
+    font-size: 1.1em;
+}
+
+.submittedInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.submittedInfo p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.submittedInfo strong {
+    color: #28a745;
 }
 
 .projectActions {

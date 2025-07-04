@@ -190,10 +190,8 @@ const CourseDetail = ({
                     }
 
                     const studentCourses = await studentCourseResponse.json();
-                    console.log("Student courses data:", studentCourses); // Para debugging
 
                     const studentCourseRecord = studentCourses.find(sc => sc.userid === studentId);
-                    console.log("Found student course record:", studentCourseRecord); // Para debugging
 
                     if (!studentCourseRecord) {
                         throw new Error("No se encontró el registro del estudiante en este curso");
