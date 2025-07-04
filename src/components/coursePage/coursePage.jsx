@@ -5,6 +5,7 @@ import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import useFetchCourses from "@/hooks/useFetchCourses/useFetchCourses";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useModal } from "@/context/ModalContext";
 
 import styles from "./coursePage.module.css";
 
@@ -18,6 +19,14 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [priceRange, setPriceRange] = useState(maxPrice);
     const [selectedCategory, setSelectedCategory] = useState("");
+
+    const { showAlert } = useModal();
+
+    useEffect(() => {
+        if (error) {
+            showAlert(`No se pudieron cargar los cursos: ${error}`, "Error de Red");
+        }
+    }, [error, showAlert]);
 
     useEffect(() => {
         document.title = pageTitle;
@@ -102,7 +111,8 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
             });
 
             if (!response.ok) {
-                throw new Error('Error al crear el curso');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al crear el curso');
             }
 
             // Obtener el ID del curso recién creado
@@ -126,10 +136,12 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
                     });
                 })
             );
-
-            window.location.reload();
+            showAlert("¡Curso creado exitosamente! La página se recargará.", "Éxito");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         } catch (error) {
-            console.error("Error al agregar curso: ", error);
+            showAlert(`Error al agregar el curso: ${error.message}`, "Error");
         }
     };
 
@@ -185,7 +197,6 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
             </div>
 
             {loading && <p>Cargando cursos...</p>}
-            {error && <p>{error}</p>}
 
             <div className={styles.courseGrid}>
                 {filteredCourses?.length > 0 &&

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes, FaDownload  } from "react-icons/fa";
 import styles from "./ProjectsList.module.css";
 import { useAuth } from "@/context/AuthContext";
 import { useFirebaseIntegration } from "@/hooks/useFirebaseIntegration";
 import { Modal } from "../modal/modal";
+import { useModal } from '../../context/ModalContext';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
 
@@ -30,6 +31,7 @@ const ProjectsList = ({
     const [editProject, setEditProject] = useState(null);
     const [uploadingFile, setUploadingFile] = useState(false);
 
+    const { showAlert, showConfirm } = useModal();
     // Cargar proyectos al montar
     useEffect(() => {
         if (!courseId) return;
@@ -41,24 +43,69 @@ const ProjectsList = ({
 
     if (!isStudentInCourse && !isAdmin) return null;
 
+
+    ///agrega varios pero con el problema que se lo agrega todos al primero que encuentre, entonces crea varios pero con el mismo usuario!!!!!
     const addProject = async (projectData) => {
+        const uniqueStudentIds = [...new Set(students)];
+        
+        if (!uniqueStudentIds || uniqueStudentIds.length === 0) {
+            showAlert("No se puede añadir un proyecto porque no hay estudiantes inscritos en el curso.", "Acción Requerida");
+            return; 
+        }   
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(projectData),
             });
+            const responseData = await res.json();
             if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error("Error al crear el proyecto: " + errorText);
+                throw new Error(responseData.error || "Error al crear el proyecto base.");
             }
-            await res.json();
-            // Recargar proyectos
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
+            const newProject = responseData.project;
+            if (!newProject || !newProject.projectid) {
+                throw new Error("La API no devolvió los datos del nuevo proyecto.");
+            }
+            console.log(`Asignando proyecto ${newProject.projectid} a ${uniqueStudentIds} - ${newProject.studentId} - estudiantes.`);
+           
+            const assignmentPromises = uniqueStudentIds.map(studentId => {
+                // console.log(newProject);
+                const studentProjectData = {
+                    title: newProject.title,
+                    dueDate: newProject.duedate,
+                    submissionDate: null,
+                    fileUrl: newProject.fileurl,
+                    studentFileUrl: null,
+                    comments: null,
+                    score: null,
+                    courseId: newProject.courseid,
+                    projectId: newProject.projectid,
+                    userId: studentId,
+                    mentorId: newProject.mentorid,
+                    statusId: 2,
+                    userEmail: newProject.userEmail,
+                    mentorEmail: newProject.mentorEmail,
+                };
+
+                console.log("Enviando al backend:", studentProjectData);
+                return fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(studentProjectData),
+                });
+            });
+
+            const responses = await Promise.all(assignmentPromises);
+
+            const failedAssignment = responses.find(response => !response.ok);
+            if (failedAssignment) {
+                throw new Error("Se creó el proyecto, pero falló la asignación a uno o más estudiantes.");
+            }
+            setProjects(currentProjects => [...currentProjects, newProject]);
+            showAlert("Proyecto añadido y asignado a todos los estudiantes.", "Éxito");
+
         } catch (err) {
-            console.error("Error al añadir proyecto:", err);
-            alert(err.message);
+            showAlert(`Error en el proceso: ${err.message}`, "Error");
         }
     };
 
@@ -91,18 +138,25 @@ const ProjectsList = ({
         }
     };
 
-    const deleteProject = async (projectId) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
-                method: "DELETE",
-            });
-            if (!res.ok) throw new Error("Error al eliminar el proyecto");
-            // Recargar proyectos
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
-        } catch (err) {
-            console.error("Error al eliminar proyecto:", err);
-        }
+    const deleteProject = async (projectId, projectTitle) => {
+        showConfirm(
+            `¿Estás seguro de que deseas eliminar el proyecto "${projectTitle}"?`,
+            async () => {
+                try {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
+                        method: "DELETE",
+                    });
+                    if (!res.ok) throw new Error("Error al eliminar el proyecto");
+                    
+                    const updatedProjects = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`).then(res => res.json());
+                    setProjects(updatedProjects);
+                    showAlert("Proyecto eliminado.", "Éxito");
+                } catch (err) {
+                    showAlert(`Error al eliminar: ${err.message}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
     };
 
     const moveProject = async (projectId, index, direction) => {
@@ -132,15 +186,27 @@ const ProjectsList = ({
             );
             setProjects(reordered);
         } catch (err) {
-            console.error("Error al reordenar proyectos:", err);
+            showAlert(`Error al reordenar proyectos: ${err.message}`, "Error");
         }
     };
 
+    function formatSimpleDate(dateString) {
+        const date = new Date(dateString);
+        const options = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        };
+        return new Intl.DateTimeFormat('es-CR', options).format(date);
+    }
+
     const openEditModal = (project) => {
+        const inputDate = project.duedate ? project.duedate.split('T')[0] : '';
         setEditProject({
             ...project,
-            dueDate: project.dueDate || project.duedate || "",
+            dueDate: inputDate,
             file: null, // No puede editar el archivo anterior, solo subir uno nuevo
+            fileurl: project.fileurl,
         });
         setIsEditModalOpen(true);
     };
@@ -183,19 +249,14 @@ const ProjectsList = ({
                 });
                 if (!res.ok) throw new Error("Error al entregar el proyecto");
             }
-
             // Recargar proyectos
             const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
             setProjects(await updated.json());
             setIsEditModalOpen(false);
             setEditProject(null);
-
+            showAlert("Proyecto actualizado.", "Éxito");
         } catch (err) {
-            console.error("Error en handleEditProject:", err);
-            // Si es error de archivo, ya se mostró. Si es otro error, mostrarlo
-            if (!err.message.includes('Firebase') && !err.message.includes('autenticación')) {
-                alert(err.message);
-            }
+            showAlert(`Error al actualizar: ${err.message}`, "Error");
         }
     };
 
@@ -244,17 +305,8 @@ const ProjectsList = ({
             return downloadURL;
 
         } catch (error) {
-            console.error("Error subiendo archivo:", error);
-
-            if (error.code === 'storage/unauthorized') {
-                alert("Error: No tienes permisos para subir archivos. Asegúrate de estar autenticado.");
-            } else if (error.message.includes('Firebase')) {
-                alert("Error de autenticación: " + error.message);
-            } else {
-                alert("Error subiendo archivo: " + error.message);
-            }
-
-            throw error;
+             showAlert(`Error subiendo archivo: ${error.message}`, "Error de Firebase");
+             throw error;
         } finally {
             setUploadingFile(false);
         }
@@ -291,7 +343,7 @@ const ProjectsList = ({
                                 <FaArrowDown />
                             </button>
                             <button
-                                onClick={e => { e.stopPropagation(); deleteProject(project.projectid); }}
+                                onClick={e => { e.stopPropagation(); deleteProject(project.projectid, project.title); }}
                                 className={styles.projectAction}
                                 title="Eliminar Proyecto"
                             >
@@ -383,12 +435,13 @@ const ProjectsList = ({
                 </Modal>
             )}
 
+
             {/* Modal para editar proyecto */}
             {isEditModalOpen && editProject && (
                 <Modal modalType="customContent" isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
-                            <h3>{isAdmin ? "Editar Proyecto" : "Entregar Proyecto"}</h3>
+                            <h3>{isAdmin ? "Editar Proyecto" : "PEntregar royecto"}</h3>
 
                             {/* Mostrar error si hay problemas con Firebase */}
                             {error && (
@@ -423,6 +476,20 @@ const ProjectsList = ({
                                     disabled={!isAdmin}
                                     className={styles.title}
                                 />
+                                <label>Instrucciones del proyecto</label>
+                                    {editProject.fileurl ? (
+                                        <a
+                                            href={editProject.fileurl}
+                                            download
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className= "cancelButton"
+                                        >
+                                            <FaDownload /> Descargar Instrucciones
+                                        </a>
+                                    ) : (
+                                        <p className={styles.noFileMessage}>No hay instrucciones adjuntas.</p>
+                                    )}
                                 <label>Archivo</label>
                                 <input
                                     type="file"
@@ -446,7 +513,7 @@ const ProjectsList = ({
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setIsEditModalOpen(false)}
+                                        onClick={(closeModal) => setIsEditModalOpen(false)}
                                         className="cancelButton"
                                         disabled={uploadingFile}
                                     >

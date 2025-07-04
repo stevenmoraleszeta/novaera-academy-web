@@ -1,6 +1,6 @@
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useFirebaseIntegration } from "../hooks/useFirebaseIntegration";
-import app from "../firebase/firebase";
+import { app } from '../firebase/firebase';
 
 const storage = getStorage(app);
 

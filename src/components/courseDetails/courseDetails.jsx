@@ -5,15 +5,16 @@ import { FaRegImage, FaUser } from "react-icons/fa";
 import styles from "./CourseDetails.module.css";
 import { useRouter } from "next/navigation";
 
+
 const CourseDetails = ({
     course,
     isAdmin,
     isEnrolled,
     handleFieldChange,
     handleContactClick,
-    openModal,
     openGroupModal,
-    isLiveCourse
+    isLiveCourse,
+    openImageModal
 }) => {
     const router = useRouter();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -104,7 +105,9 @@ const CourseDetails = ({
                     Contáctanos
                 </button>
                 {isAdmin && (
-                    <div className={styles.iconWrapper} onClick={openModal}>
+                    <div className={styles.iconWrapper} 
+                    onClick={openImageModal}
+                    >
                         <FaRegImage className={styles.editIcon} />
                     </div>
                 )}

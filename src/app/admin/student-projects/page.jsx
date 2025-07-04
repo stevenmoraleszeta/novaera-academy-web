@@ -47,7 +47,6 @@ const ProjectsPage = () => {
             type: 'text',
             required: true
         },
-        //Esto no se como manejarlo del los archivos!!!
         {
             label: 'Archivo del Proyecto',
             field: 'fileurl',
@@ -61,10 +60,12 @@ const ProjectsPage = () => {
         },
         {
             label: 'Proyecto del Estudiante',
-            render: (item) => item.studentfileurl
+            render: (item) => {
+                return item.studentfileurl
                 ? <a href={item.studentfileurl} target="_blank" rel="noopener noreferrer">Descargar Entrega del Estudiante</a>
-                : <p><i>El estudiante no ha subido un archivo.</i></p>
-        },
+                : <p><i>El estudiante no ha subido un archivo.</i></p>;
+            }
+        }
     ];
 
     return (
@@ -74,7 +75,7 @@ const ProjectsPage = () => {
                 displayFields={displayFields}
                 editFields={editFields}
                 pageTitle="Proyectos de Estudiantes"
-                idField="studentProjectId"
+                idField="projectid"
             />
         </div>
     );

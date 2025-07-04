@@ -1,7 +1,11 @@
 import { useCallback } from 'react';
 import axios from 'axios';
+import { useModal } from "@/context/ModalContext"; 
 
 export const useApiActions = ({ collectionName, idField, refetch, closeModal, closeConfirmation }) => {
+
+    const { showAlert } = useModal();
+
     const saveItem = useCallback(async (item, isEditMode) => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
@@ -13,17 +17,17 @@ export const useApiActions = ({ collectionName, idField, refetch, closeModal, cl
 
             refetch();
             if (closeModal) closeModal();
-            
+
+            showAlert("El usuario se ha guardado correctamente", "Éxito");
         } catch (error) {
-            console.error("Error al guardar el elemento:", error);
-            alert("Error al guardar: " + (error.response?.data?.message || error.message));
+            showAlert(`Error al guardar el elemento`, "Error");
         }
     }, [collectionName, idField, refetch, closeModal]);
 
     const deleteItem = useCallback(async (itemToDelete) => {
         try {
             if (!itemToDelete || !itemToDelete[idField]) {
-                console.error("No se puede eliminar: el item o su ID no está definido.");
+                showAlert(`No se puede eliminar: el item o su ID no está definido:`, "Error");
                 if (closeConfirmation) closeConfirmation();
                 return;
             }
@@ -31,11 +35,10 @@ export const useApiActions = ({ collectionName, idField, refetch, closeModal, cl
             await axios.delete(`${apiUrl}/${collectionName}/${itemToDelete[idField]}`);
 
             refetch();
-            if (closeConfirmation) closeConfirmation();
+            showAlert("El usuario se ha eliminado correctamente", "Éxito");
 
         } catch (error) {
-            console.error("Error al eliminar el elemento:", error);
-            alert("Error al eliminar: " + (error.response?.data?.message || error.message));
+            showAlert(`Error al eliminar el elemento`, "Error");
         }
     }, [collectionName, idField, refetch, closeConfirmation]); 
 

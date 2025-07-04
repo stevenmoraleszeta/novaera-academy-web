@@ -5,6 +5,8 @@ import axios from "axios";
 import { FaTrash, FaPlus, FaPencilAlt, FaTimes, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import styles from "./ClassesRecorded.module.css";
 
+import { useModal } from '../../context/ModalContext';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const ClassesRecorded = ({ courseId, isAdmin }) => {
@@ -16,35 +18,39 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
 
   const [errors, setErrors] = useState({});
 
-  // --- FUNCIÓN PARA VALIDAR EL FORMULARIO ---
-const validateForm = () => {
-  const newErrors = {};
-  if (!currentTitle.trim()) {
-    newErrors.title = "El título es obligatorio.";
-  }
-  
-  if (!currentUrl.trim()) {
-    newErrors.url = "La URL es obligatoria.";
-  } else if (!/^(https?:\/\/|www\.)/.test(currentUrl)) {
-    newErrors.url = "La URL debe comenzar con http://, https:// o www.";
-  }
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+  const { showAlert, showConfirm } = useModal();
+
+  // --- Validar el formulario de edicion y agregar grabaciones ---
+  const validateForm = () => {
+        const newErrors = {};
+        if (!currentTitle.trim()) newErrors.title = "El título es obligatorio.";
+        if (!currentUrl.trim()) {
+            newErrors.url = "La URL es obligatoria.";
+        } else if (!/^(https?:\/\/|www\.)/.test(currentUrl)) {
+            newErrors.url = "La URL debe comenzar con http://, https:// o www.";
+        }
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) {
+            showAlert(Object.values(newErrors).join('\n'), "Formulario Incompleto");
+            return false;
+        }
+        return true;
+    };
 
   // --- Data logic (fetch) ---
   useEffect(() => {
-    if (!courseId) return;
-    const fetchRecordings = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/recordings/${courseId}`);
-        setRecordings(response.data);
-      } catch (error) {
-        console.error("Error al obtener grabaciones:", error.response?.data || error.message);
-      }
-    };
-    fetchRecordings();
-  }, [courseId]);
+        if (!courseId) return;
+        axios.get(`${API_URL}/recordings/${courseId}`)
+            .then(response => setRecordings(response.data))
+            .catch(error => {
+                const errorMessage = error.response?.data?.error || error.message;
+                showAlert(`Error al obtener grabaciones: ${errorMessage}`, "Error de Red");
+            });
+    }, [courseId]);
+
+
 
   // --- Modal for update or insert recordings ---
   const openAddModal = () => {
@@ -101,17 +107,24 @@ const validateForm = () => {
     }
     closeModal();
   };
-    // --- Delete logic --- 
-  const deleteRecording = async (id) => {
-    if (window.confirm("¿Estás seguro de eliminar esta grabación?")) {
-      try {
-        await axios.delete(`${API_URL}/recordings/${id}`);
-        setRecordings(prev => prev.filter(rec => rec.recordingid !== id));
-      } catch (error) {
-        console.error("Error al eliminar la grabación:", error.response?.data || error.message);
-      }
-    }
-  };
+
+  // --- Delete logic --- 
+  const deleteRecording = (id, title) => {
+        showConfirm(
+            `¿Estás seguro de eliminar la grabación "${title}"?`,
+            async () => {
+                try {
+                    await axios.delete(`${API_URL}/recordings/${id}`);
+                    setRecordings(prev => prev.filter(rec => rec.recordingid !== id));
+                    showAlert("Grabación eliminada exitosamente.", "Éxito");
+                } catch (error) {
+                    const errorMessage = error.response?.data?.error || error.message;
+                    showAlert(`Error al eliminar: ${errorMessage}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
+    };
 
   // --- moving logic ---
   const moveRecording = (index, direction) => {
@@ -126,7 +139,8 @@ const validateForm = () => {
       <h3>Grabaciones de Clases</h3>
 
       {/* Mapeo de las grabaciones */}
-      {recordings.map((rec, index) => (
+      {recordings.map((rec, index) => {
+        return (
         <div key={rec.recordingid} className={styles.recordingItem}>
           <a href={rec.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
               <span>{rec.title}</span>
@@ -137,11 +151,12 @@ const validateForm = () => {
               <button onClick={() => moveRecording(index, -1)} disabled={index === 0} className={styles.actionButton} title="Mover arriba"><FaArrowUp /></button>
               <button onClick={() => moveRecording(index, 1)} disabled={index === recordings.length - 1} className={styles.actionButton} title="Mover abajo"><FaArrowDown /></button>
               <button onClick={() => openEditModal(rec)} className={styles.actionButton} title="Editar"><FaPencilAlt /></button>
-              <button onClick={() => deleteRecording(rec.recordingid)} className={styles.actionButton} title="Eliminar"><FaTrash /></button>
+              <button onClick={() => deleteRecording(rec.recordingid, rec.title)} className={styles.actionButton} title="Eliminar"><FaTrash /></button>
             </div>
           )}
         </div>
-      ))}
+      );
+    })}
 
       {isAdmin && (
         <button onClick={openAddModal} className="add-element-button">

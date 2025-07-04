@@ -327,6 +327,50 @@ Modals elements
   top: -8vh;
 }
 
+/* Modal elements */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: var(--color-dark);
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    color: var(--text-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.modalContent h2 {
+    color: red;
+    /* color: var(--color-primary); */
+    margin-top: 0;
+}
+
+.modalContent p {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 25px;
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
 /* Text styling */
 .textContainer {
   height: 50%;

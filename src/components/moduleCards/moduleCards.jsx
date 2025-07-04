@@ -6,6 +6,7 @@ import styles from './moduleCard.module.css';
 import axios from 'axios';
 import { useRouter } from "next/navigation";
 import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses";
+import { useModal } from '../../context/ModalContext';
 
 const ModuleCard = ({
     moduleData,
@@ -17,6 +18,8 @@ const ModuleCard = ({
     currentUser,
     highlightedClassId, 
 }) => {
+
+    const { showAlert, showConfirm } = useModal();
 
     const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
         userId: currentUser?.userid,
@@ -49,21 +52,24 @@ const ModuleCard = ({
                 )
             );
         } catch (error) {
-            console.error("Error al actualizar el título del módulo:", error);
+            showAlert(`Error al actualizar el título: ${error.message}`, "Error");
         }
     };
 
-    const onDeleteModule = async (moduleId) => {
-        if (confirm("¿Estás seguro de que deseas eliminar este módulo?")) {
-            try {
-                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/modules/${moduleId}`);
-                onModulesUpdate((prevModules) =>
-                    prevModules.filter((mod) => getModuleId(mod) !== moduleId)
-                );
-            } catch (error) {
-                console.error("Error al eliminar el módulo:", error);
-            }
-        }
+     const onDeleteModule = async (moduleId, moduleTitle) => {
+        showConfirm(
+            `¿Estás seguro de que deseas eliminar el módulo "${moduleTitle}"?`,
+            async () => {
+                try {
+                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/modules/${moduleId}`);
+                    onModulesUpdate(prev => prev.filter(mod => getModuleId(mod) !== moduleId));
+                    showAlert("Módulo eliminado con éxito.", "Eliminado");
+                } catch (error) {
+                    showAlert(`Error al eliminar el módulo: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
     };
 
     const onMoveModule = async (index, direction) => {
@@ -89,7 +95,7 @@ const ModuleCard = ({
                 orderModule: idx
             })));
         } catch (error) {
-            console.error("Error actualizando el orden de los módulos:", error);
+            showAlert(`Error al mover el módulo: ${error.message}`, "Error");
         }
     };
 
@@ -108,44 +114,40 @@ const ModuleCard = ({
             );
             const createdClass = res.data.class || res.data || newClass;
             const classId = createdClass.classid || createdClass.id || createdClass._id;
-            if (classId) {
-                onModulesUpdate((prevModules) =>
-                    prevModules.map((mod) =>
-                        getModuleId(mod) === moduleId
-                            ? {
-                                ...mod,
-                                classes: [...mod.classes, { ...createdClass }]
-                            }
-                            : mod
-                    )
-                );
-                onClassClick(moduleId, classId);
-            } else {
-                alert("No se pudo obtener el ID de la nueva clase.");
+            if (!classId){
+                showAlert("No se pudo obtener el ID de la nueva clase.", "Error");
+                return;
             }
+            onModulesUpdate((prevModules) =>
+                prevModules.map((mod) =>
+                    getModuleId(mod) === moduleId
+                        ? {
+                            ...mod,
+                            classes: [...mod.classes, { ...createdClass }]
+                        }
+                        : mod
+                )
+            );
+            onClassClick(moduleId, classId);
         } catch (error) {
-            console.error("Error al añadir clase:", error);
+            showAlert(`Error al añadir clase: ${error.message}`, "Error");
         }
     };
 
-    const onDeleteClass = async (moduleId, classId) => {
-        if (confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
-            try {
-                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/classes/${classId}`);
-                onModulesUpdate((prevModules) =>
-                    prevModules.map((mod) =>
-                        getModuleId(mod) === moduleId
-                            ? {
-                                ...mod,
-                                classes: mod.classes.filter((c) => getClassId(c) !== classId)
-                            }
-                            : mod
-                    )
-                );
-            } catch (error) {
-                console.error("Error al eliminar clase:", error);
-            }
-        }
+   const onDeleteClass = async (moduleId, classId, classTitle) => {
+        showConfirm(
+            `¿Estás seguro de que deseas eliminar la clase "${classTitle}"?`,
+            async () => {
+                try {
+                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/classes/${classId}`);
+                    onModulesUpdate(/* ... tu lógica de filter ... */);
+                    showAlert("Clase eliminada con éxito.", "Eliminada");
+                } catch (error) {
+                    showAlert(`Error al eliminar la clase: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
     };
 
     const onMoveClass = async (classIndex, direction) => {
@@ -175,7 +177,7 @@ const ModuleCard = ({
                 )
             );
         } catch (error) {
-            console.error("Error actualizando el orden de las clases:", error);
+            showAlert(`Error actualizando el orden de las clases: ${error.message}`, "Error");
         }
     };
 
@@ -202,7 +204,7 @@ const ModuleCard = ({
                 )
             );
         } catch (error) {
-            console.error("Error cambiando restricción:", error);
+            showAlert(`Error cambiando restricción: ${error.message}`, "Error");
         }
     };
 
@@ -242,7 +244,7 @@ const ModuleCard = ({
                             <FaPlus />
                         </button>
                         <button
-                            onClick={() => onDeleteModule(getModuleId(moduleData))}
+                            onClick={() => onDeleteModule(getModuleId(moduleData), moduleData.title)}
                             className={styles.deleteButton}
                         >
                             <FaTrash />
@@ -303,7 +305,7 @@ const ModuleCard = ({
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onDeleteClass(getModuleId(moduleData), getClassId(cls));
+                                            onDeleteClass(getModuleId(moduleData), getClassId(cls), cls.title);
                                         }}
                                         className={styles.classAction}
                                         title="Eliminar Clase"

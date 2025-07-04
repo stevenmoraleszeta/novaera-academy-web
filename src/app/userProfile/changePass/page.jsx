@@ -5,7 +5,8 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import RequireAuth from '@/features/RequireAuth';
-import styles from './changePassword.module.css'; 
+import styles from './changePassword.module.css';
+import { useModal } from '@/context/ModalContext'; 
 
 function ChangePasswordPage() {
     const { currentUser } = useAuth();
@@ -14,23 +15,19 @@ function ChangePasswordPage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+
+    const { showAlert } = useModal(); 
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccessMessage('');
-
         if (newPassword !== confirmPassword) {
-            setError('La nueva contraseña y su confirmación no coinciden.');
+            showAlert('La nueva contraseña y su confirmación no coinciden.', 'Error de validación');
             return;
         }
         
         if (!newPassword || newPassword.length < 6) {
-            setError('La nueva contraseña debe tener al menos 6 caracteres.');
+            showAlert('La nueva contraseña debe tener al menos 6 caracteres.', 'Contraseña débil');
             return;
         }
 
@@ -49,19 +46,18 @@ function ChangePasswordPage() {
                 }
             );
 
-            setSuccessMessage('¡Contraseña actualizada con éxito!');
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
+            showAlert('¡Contraseña actualizada con éxito!', 'Éxito');
 
             setTimeout(() => {
                 router.push('/userProfile');
             }, 1000);
 
         } catch (err) {
-            const errorMessage = err.response?.data?.message || 'Ocurrió un error al cambiar la contraseña.';
-            setError(errorMessage);
-            console.error("Error changing password:", err);
+           const errorMessage = err.response?.data?.message || 'Ocurrió un error al cambiar la contraseña.';
+            showAlert(errorMessage, 'Error');
         } finally {
             setIsLoading(false);
         }
@@ -69,52 +65,56 @@ function ChangePasswordPage() {
 
     return (
         <RequireAuth>
-            <div className={styles.container}>
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <h2>Cambiar Contraseña</h2>
-                    
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="currentPassword">Contraseña actual</label>
-                        <input
-                            type="password"
-                            id="currentPassword"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="newPassword">Nueva contraseña</label>
-                        <input
-                            type="password"
-                            id="newPassword"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="confirmPassword">Confirmar nueva contraseña</label>
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+            <section>
+                <div className="auth-main-container">
+                    <div className="auth-container">
+                        <form onSubmit={handleSubmit} className={styles.authFormContainer}>
+                            <h1>Cambiar Contraseña</h1>
+                            
+                            <div className={styles.authInputGroup}>
+                                <label htmlFor="currentPassword">Contraseña actual</label>
+                                <input
+                                    type="password"
+                                    id="currentPassword"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className={styles.authInputGroup}>
+                                <label htmlFor="newPassword">Nueva contraseña</label>
+                                <input
+                                    type="password"
+                                    id="newPassword"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className={styles.authInputGroup}>
+                                <label htmlFor="confirmPassword">Confirmar nueva contraseña</label>
+                                <input
+                                    type="password"
+                                    id="confirmPassword"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
 
-                    {error && <p className={styles.error}>{error}</p>}
-                    {successMessage && <p className={styles.success}>{successMessage}</p>}
-                    <button type="submit" className={styles.submitButton} disabled={isLoading}>
-                        {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
-                    </button>
-                    <button type="button" className={styles.backButton} onClick={() => router.push('/userProfile')}>
-                        Regresar al perfil
-                    </button>
-                </form>
-            </div>
+                            <div className="formActions">
+                                <button type="submit" className="saveButton" disabled={isLoading}>
+                                    {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
+                                </button>
+                                <button type="button" className="cancelButton" onClick={() => router.push('/userProfile')}>
+                                    Regresar al perfil
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </section>
         </RequireAuth>
     );
 }

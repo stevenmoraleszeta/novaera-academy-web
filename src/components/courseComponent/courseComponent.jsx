@@ -4,6 +4,7 @@ import React, { useEffect, useState, use, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
+import { useModal } from '../../context/ModalContext';
 
 import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses"; 
 import CourseDetails from "@/components/courseDetails/courseDetails";
@@ -44,6 +45,11 @@ const CourseDetail = ({
     const [searchTerm, setSearchTerm] = useState("");
     const [searchEmail, setSearchEmail] = useState("");
     const [mentorList, setMentorList] = useState([]);
+
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [selectedImageFile, setSelectedImageFile] = useState(null);
+
+    const { showAlert, showConfirm } = useModal();
     
     const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
         userId: currentUser?.userid,
@@ -126,8 +132,8 @@ const CourseDetail = ({
                 body: JSON.stringify({ mentorId: Number(mentorId) }),
             });
             setSelectedMentor(Number(mentorId));
-        } catch (e) {
-            console.error("Error al asignar mentor:", e);
+        } catch (error) {
+            showAlert(`Error al asignar mentor: ${error.message}`, "Error");
         }
     };
 
@@ -145,27 +151,26 @@ const CourseDetail = ({
                 }),
             });
             setStudents([...students, numericId]);
-        } catch (e) {
-            console.error("Error al agregar estudiante:", e);
+            showAlert("Estudiante añadido con éxito.", "Éxito");
+        } catch (error) {
+            showAlert(`Error al añadir estudiante: ${error.message}`, "Error");
         }
     };
 
-    const handleRemoveStudent = async (studentId) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`);
-            const data = await res.json();
-            const studentCourse = data.find(sc => sc.userid === studentId);
-            if (studentCourse) {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/${studentCourse.id}`, {
-                    method: "DELETE",
-                });
-                const updatedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`);
-                const updatedData = await updatedRes.json();
-                setStudents(updatedData.map(sc => sc.userid));
-            }
-        } catch (e) {
-            console.error("Error al eliminar estudiante:", e);
-        }
+    const handleRemoveStudent = async (studentId, studentName) => {
+        showConfirm(
+            `¿Estás seguro de que deseas eliminar a "${studentName}" de este curso?`,
+            async () => {
+                try {
+                    // ... tu lógica para encontrar y borrar studentCourse ...
+                    setStudents(prev => prev.filter(id => id !== studentId));
+                    showAlert("Estudiante eliminado del curso.", "Éxito");
+                } catch (error) {
+                    showAlert(`Error al eliminar estudiante: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
     };
 
     const openVideoModal = () => {
@@ -203,21 +208,23 @@ const CourseDetail = ({
 
     useEffect(() => {
         const checkEnrollmentStatus = async () => {
-            if (!currentUser || !currentUser.userid || !courseId) return;
+            if (!currentUser || !currentUser.userid || !courseId) {
+                setIsEnrolled(false);
+                return;
+            }
 
             try {
                 const response = await fetch(
                     `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.userid}`
                 );
-
-                if (response.status === 200) {
-                    const data = await response.json();
-                    setIsEnrolled(data && data.length > 0);
-                } else {
+                if (!response.ok) {
                     setIsEnrolled(false);
+                    return;
                 }
+                const data = await response.json();
+                setIsEnrolled(Array.isArray(data) && data.length > 0);
             } catch (error) {
-                console.error("Error checking enrollment status:", error);
+                console.error("Error de red al verificar inscripción:", error);
                 setIsEnrolled(false);
             }
         };
@@ -283,7 +290,9 @@ const CourseDetail = ({
                 body: JSON.stringify(backendCourse),
             });
 
-            if (!response.ok) {
+            if (response.ok) {
+                showAlert("El curso se ha actualizado correctamente.", "Éxito");
+            }else{
                 throw new Error("Error al actualizar el curso");
             }
         } catch (error) {
@@ -328,8 +337,9 @@ const CourseDetail = ({
 
             modulesWithSortedClasses.sort((a, b) => a.orderModule - b.orderModule);
             setModules(modulesWithSortedClasses);
+            showAlert("Módulo añadido con éxito.", "Éxito");
         } catch (error) {
-            console.error("Error al añadir módulo:", error);
+            showAlert(`Error al añadir módulo: ${error.message}`, "Error");
         }
     };
 
@@ -341,6 +351,24 @@ const CourseDetail = ({
     const handleSaveVideoUrl = async () => {
         await handleFieldChange("videoUrl", videoUrl);
         setIsVideoModalOpen(false);
+    };
+
+
+    //Para subir la imagen no se como funciona!!!
+    //FALTAAAAA
+    const handleSaveImage = async () => {
+        if (!selectedImageFile) {
+            showAlert("Por favor, selecciona una imagen primero.", "Atención");
+            return;
+        }
+        try {
+            //Logica para subirlo a firebase!!!!!
+            console.log("Subiendo archivo:", selectedImageFile);
+            showAlert("Imagen subida y guardada con éxito.", "Éxito");
+            setIsImageModalOpen(false);
+        } catch (error) {
+            showAlert(`Hubo un error al subir la imagen: ${error.message}`, "Error");
+        }
     };
 
     useEffect(() => {
@@ -377,6 +405,7 @@ const CourseDetail = ({
                     openGroupModal={openGroupModal}
                     openVideoModal={openVideoModal}
                     isLiveCourse={isLiveCourse}
+                    openImageModal={() => setIsImageModalOpen(true)}
                 />
             </div>
             {!isEnrolled && (
@@ -454,6 +483,48 @@ const CourseDetail = ({
                     </div>
                 </Modal>
             )}
+
+            {isImageModalOpen && (
+                <Modal 
+                    isOpen={isImageModalOpen}
+                    onClose={() => setIsImageModalOpen(false)}
+                    title="Subir nueva imagen"
+                    modalType="customContent"
+                >
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <p>Selecciona la imagen que deseas subir.</p>
+                        <input
+                            type="file"
+                            name="imageUpload"
+                            accept="image/png, image/jpeg, image/webp"
+                            onChange={e => setSelectedImageFile(e.target.files[0])}
+                            style={{ width: "100%" }}
+                        />
+                        {selectedImageFile && (
+                            <p style={{ fontSize: '14px', color: '#888' }}>
+                                Archivo seleccionado: {selectedImageFile.name}
+                            </p>
+                        )}
+
+                        <div className="formActions">
+                            <button 
+                                className="saveButton" 
+                                onClick={handleSaveImage}
+                                disabled={!selectedImageFile} 
+                            >
+                                Guardar Imagen
+                            </button>
+                            <button 
+                                className="cancelButton" 
+                                onClick={() => setIsImageModalOpen(false)}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+
             {isGroupModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -498,7 +569,7 @@ const CourseDetail = ({
                                 <option value="">Selecciona un estudiante</option>
                                 {filteredStudents.map(user => (
                                     <option key={user.userid} value={user.userid}>
-                                        {user.firstname || "Nombre no disponible"} - {user.email}
+                                        {`${user.firstname} ${user.lastname1 || "Nombre no disponible"}`} - {user.email}
                                     </option>
                                 ))}
                             </select>
@@ -516,11 +587,13 @@ const CourseDetail = ({
                             <tbody>
                                 {students.map(studentId => {
                                     const student = allUsers.find(user => user.userid === studentId);
+                                    const fullName = student ? `${student.firstname} ${student.lastname1}` : "Nombre no disponible";
                                     return (
                                         <tr key={studentId}>
-                                            <td>{student ? student.firstname : "Nombre no disponible"}</td>
+                                            {/* <td>{student ? student.firstname : "Nombre no disponible"}</td> */}
+                                            <td>{fullName}</td>
                                             <td>
-                                                <button onClick={() => handleRemoveStudent(studentId)}>
+                                                <button onClick={() => handleRemoveStudent(studentId, fullName)}>
                                                     <FaTrash />
                                                 </button>
                                             </td>

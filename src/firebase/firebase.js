@@ -29,4 +29,4 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 // Exporta los servicios necesarios
-export { auth, db, storage, googleProvider, signInWithPopup };
+export { app, auth, db, storage, googleProvider, signInWithPopup };

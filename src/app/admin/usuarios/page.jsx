@@ -62,8 +62,6 @@ const AdminUsers = () => {
             type: 'select',
             options: countryOptions 
         },
-        // { label: 'Rol *', field: 'roleid', type: 'number', required: true},
-        // { label: 'País', field: 'country' },
     ];
 
     return (
