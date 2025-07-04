@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './genericModal.module.css'; 
 import { FaTimes, FaCheck } from 'react-icons/fa';
 
 const GenericModal = ({ isOpen, onClose, title, message, type, onConfirm }) => {
