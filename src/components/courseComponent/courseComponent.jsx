@@ -153,6 +153,7 @@ const CourseDetail = ({
         }
 
         try {
+            //Inscribir al estudiante en el curso
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -168,9 +169,49 @@ const CourseDetail = ({
                 throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
             }
 
+            console.log("✅ Estudiante inscrito en el curso");
+
+            //Asignar proyectos existentes al estudiante(solo para cursos en vivo)
+            if (isLiveCourse) {
+                try {
+                    const projectAssignmentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/assign-to-student`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            userId: Number(studentId),
+                            courseId: Number(courseId),
+                        }),
+                    });
+
+                    if (projectAssignmentResponse.ok) {
+                        const assignmentData = await projectAssignmentResponse.json();
+                        console.log("Proyectos asignados:", assignmentData);
+
+                        if (assignmentData.assignedProjects > 0) {
+                            showAlert(
+                                `Estudiante añadido con éxito. Se asignaron ${assignmentData.assignedProjects} proyecto(s) automáticamente.`,
+                                "Éxito"
+                            );
+                        } else {
+                            showAlert("Estudiante añadido con éxito. No había proyectos nuevos para asignar.", "Éxito");
+                        }
+                    } else {
+                        console.warn("Error asignando proyectos, pero el estudiante fue inscrito");
+                        showAlert("Estudiante añadido con éxito, pero hubo un problema asignando proyectos existentes.", "Advertencia");
+                    }
+                } catch (projectError) {
+                    console.error("Error asignando proyectos:", projectError);
+                    showAlert("Estudiante añadido con éxito, pero hubo un problema asignando proyectos existentes.", "Advertencia");
+                }
+            } else {
+                showAlert("Estudiante añadido con éxito.", "Éxito");
+            }
+
+            //Actualiza la lista local de estudiantes
             setStudents([...students, numericId]);
-            showAlert("Estudiante añadido con éxito.", "Éxito");
+
         } catch (error) {
+            console.error("Error al añadir estudiante:", error);
             showAlert(`Error al añadir estudiante: ${error.message}`, "Error");
         }
     };
