@@ -125,10 +125,10 @@ export default function Features({ course, setCourse, courseId }) {
     // Eliminar la relación course-feature (no el feature en sí)
     const handleDeleteFeature = (feature) => {
         showConfirm(
-            `¿Estás seguro de eliminar la característica "${feature.title}" del curso?`,
+            `¿Estás seguro de eliminar la característica "${feature.coursefeatureid}" del curso?`,
             async () => {
                 try {
-                    await axios.delete(`${API_URL}/course-features/${feature.coursefeatureid}`);
+                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/course-features/${feature.coursefeatureid}`);
                     await fetchCourseFeatures();
                     showAlert("Característica eliminada del curso.", "Éxito");
                 } catch (error) {
@@ -144,15 +144,15 @@ export default function Features({ course, setCourse, courseId }) {
         const newFeatures = [...features];
         const [movedFeature] = newFeatures.splice(index, 1);
         newFeatures.splice(index + direction, 0, movedFeature);
+       
+            // Actualiza el campo order localmente
+            newFeatures.forEach((feature, i) => {
+                feature.order = i + 1;
+            });
 
-        // Actualiza el campo order localmente
-        newFeatures.forEach((feature, i) => {
-            feature.order = i + 1;
-        });
+            setFeatures(newFeatures);
 
-        setFeatures(newFeatures);
-
-        try {
+         try {
             await Promise.all(
                 newFeatures.map((feature, i) => {
                     if (!feature.coursefeatureid) {
@@ -293,6 +293,7 @@ export default function Features({ course, setCourse, courseId }) {
                                         </button>
                                     </div>
                                     {/* Eliminar solo si tiene coursefeatureid */}
+
                                     {feature.coursefeatureid && (
                                         <button
                                             className={styles.featuresActionsBtn}
@@ -302,6 +303,15 @@ export default function Features({ course, setCourse, courseId }) {
                                             <FaTrash />
                                         </button>
                                     )}
+                                    {/* {feature.coursefeatureid && (
+                                        <button
+                                            className={styles.featuresActionsBtn}
+                                            onClick={() => handleDeleteFeature(feature)}
+                                            type="button"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    )} */}
                                 </div>
                             )}
                         </div>

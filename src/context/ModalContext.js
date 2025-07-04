@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useState, useContext } from 'react';
-import GenericModal from '../components/modal/genericModal'; 
+import GenericModal from '../components/modal/GenericModal'; // Lo crearemos en el paso 2
 
 const ModalContext = createContext();
 
@@ -11,7 +11,7 @@ export const ModalProvider = ({ children }) => {
         title: '',
         message: '',
         onConfirm: null,
-        type: 'alert',
+        type: 'alert', 
     });
 
     const showAlert = (message, title = 'Aviso') => {

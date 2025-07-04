@@ -3,6 +3,8 @@
 import React, { useContext, useState, useEffect, createContext, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useModal } from './ModalContext';
+
 import {
     loginPersonalizado,
     signOutFirebase,
@@ -30,6 +32,8 @@ export function AuthProvider({ children }) {
     const router = useRouter();
 
     const isGoogleLoginRef = useRef(false);
+
+    const { showAlert } = useModal();
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -82,9 +86,10 @@ export function AuthProvider({ children }) {
 
             if (infoIsMissing) {
                 router.push("/completeInfo");
-            }else{
-                router.push('/');
             }
+            // else{
+                // router.push('/');
+            // }
         } else if (!isCheckingUser && !currentUser) {
             setMissingInfo(false);
         }
@@ -125,7 +130,7 @@ export function AuthProvider({ children }) {
             setMissingInfo(!user.country || !user.phone || !user.age);
 
         } catch (error) {
-            console.error("Error al iniciar sesión:", error.message);
+            showAlert(error.message, "Error al Iniciar Sesión");
             throw error;
         }
     };
@@ -148,8 +153,6 @@ export function AuthProvider({ children }) {
             // Cambiar esto cuando el backend está en otro dominio
             if (!event.origin.includes(process.env.NEXT_PUBLIC_API_URL.replace('/api', ''))) return;
 
-            // const { token, user, isNewUser } = event.data;
-
             const { token, user, firebaseToken, isNewUser } = event.data;
 
             if (token && user) {
@@ -160,8 +163,6 @@ export function AuthProvider({ children }) {
                 localStorage.setItem("token", token);
                 setCurrentUser(user);
                 setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
-
-                // popup.close();
 
                 setMissingInfo(!user.country || !user.phone || !user.age);
 
@@ -174,9 +175,7 @@ export function AuthProvider({ children }) {
                         console.error("Error autenticando en Firebase:", error);
                     }
                 }
-
                 popup.close();
-
                 window.removeEventListener("message", handleMessage);
             }
         };
@@ -210,8 +209,10 @@ export function AuthProvider({ children }) {
             setCurrentUser(user);
             setIsAdmin(false);
             // setMissingInfo(true);
+            showAlert("¡Tu cuenta ha sido creada exitosamente!", "Registro Completo");
         } catch (error) {
-            console.error("Error al registrar usuario:", error.response?.data?.error || error.message);
+            const errorMessage = error.response?.data?.error || error.message;
+            showAlert(errorMessage, "Error en el Registro");
             throw error;
         }
     };
@@ -230,7 +231,7 @@ export function AuthProvider({ children }) {
 
             localStorage.removeItem("token");
             setCurrentUser(null);
-
+            showAlert("Has cerrado sesión exitosamente.", "Hasta Pronto");
             // Cerrar sesión en Firebase también
             try {
                 await signOutFirebase();
@@ -239,7 +240,8 @@ export function AuthProvider({ children }) {
                 console.error("Error cerrando sesión en Firebase:", firebaseError);
             }
         } catch (error) {
-            console.error("Error al cerrar sesión:", error.response?.data?.error || error.message);
+            const errorMessage = error.response?.data?.error || error.message;
+            showAlert(`Error al cerrar sesión: ${errorMessage}`, "Error");
         }
     };
 

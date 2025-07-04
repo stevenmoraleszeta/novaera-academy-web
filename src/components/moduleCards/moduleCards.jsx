@@ -178,7 +178,6 @@ const ModuleCard = ({
             );
         } catch (error) {
             showAlert(`Error actualizando el orden de las clases: ${error.message}`, "Error");
-            // console.error("Error actualizando el orden de las clases:", error);
         }
     };
 
@@ -206,7 +205,6 @@ const ModuleCard = ({
             );
         } catch (error) {
             showAlert(`Error cambiando restricción: ${error.message}`, "Error");
-           // console.error("Error cambiando restricción:", error);
         }
     };
 

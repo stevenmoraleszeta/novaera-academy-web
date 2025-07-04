@@ -43,8 +43,8 @@ export default function RootLayout({ children }) {
         <meta name="google-site-verification" content="8bxJkE6LORDcTXliwjxeBFGTCSfMn5EaFvm7tLLUVd4" />
       </head>
       <body className={`app ${montserrat.className}`}>
-        <AuthProvider>
-          <ModalProvider> 
+        <ModalProvider>
+          <AuthProvider>
             <SpeedInsights />
             <div className="page-container">
               <Navbar />
@@ -53,8 +53,8 @@ export default function RootLayout({ children }) {
               <FooterZ />
             </div>
             <Analytics />
-          </ModalProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </ModalProvider>
       </body>
     </html>
   );

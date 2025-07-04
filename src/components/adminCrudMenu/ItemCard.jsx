@@ -1,5 +1,3 @@
-// Archivo: ItemCard.jsx (MODIFICADO)
-
 import React from 'react';
 import styles from './CrudMenu.module.css';
 import { FaTrash } from 'react-icons/fa';

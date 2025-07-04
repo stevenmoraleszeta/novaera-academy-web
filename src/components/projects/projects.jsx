@@ -187,7 +187,6 @@ const ProjectsList = ({
     }
 
     const openEditModal = (project) => {
-        console.log(project);
         const inputDate = project.duedate ? project.duedate.split('T')[0] : '';
         setEditProject({
             ...project,

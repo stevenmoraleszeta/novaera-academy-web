@@ -24,7 +24,6 @@ function UserProfile() {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const apiUser = response.data;
-                console.log(apiUser);
                 setUserInfo({
                     firstname: apiUser.firstname || '',
                     lastname1: apiUser.lastname1 || '',

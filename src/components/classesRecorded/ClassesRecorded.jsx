@@ -20,7 +20,7 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
 
   const { showAlert, showConfirm } = useModal();
 
-  // --- FUNCIÓN PARA VALIDAR EL FORMULARIO ---
+  // --- Validar el formulario de edicion y agregar grabaciones ---
   const validateForm = () => {
         const newErrors = {};
         if (!currentTitle.trim()) newErrors.title = "El título es obligatorio.";
@@ -33,7 +33,6 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length > 0) {
-            // Usa el modal genérico para la alerta de validación
             showAlert(Object.values(newErrors).join('\n'), "Formulario Incompleto");
             return false;
         }

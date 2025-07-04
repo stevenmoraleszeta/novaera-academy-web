@@ -3,6 +3,7 @@ import { FaArchive, FaCopy } from "react-icons/fa";
 import styles from "./courseCardMenu.module.css";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useModal } from "@/context/ModalContext";
 import Image from "next/image";
 import axios from "axios";
 
@@ -10,6 +11,7 @@ const CourseCardMenu = ({ course, courseType, collectionName }) => {
   const router = useRouter();
   const [isArchived, setIsArchived] = useState(course.archived);
   const { isAdmin } = useAuth();
+  const { showAlert, showConfirm } = useModal(); 
 
   // Determina la ruta en función del tipo de curso
   const courseRoute =
@@ -19,56 +21,54 @@ const CourseCardMenu = ({ course, courseType, collectionName }) => {
     router.push(`${courseRoute}/${courseId}`);
   };
 
-  const handleArchiveCourse = async (courseId) => {
-    const confirmArchive = window.confirm(
-      "¿Estás seguro de que deseas archivar este curso?"
-    );
-    if (!confirmArchive) return;
-
-    try {
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`,
-        {
-          ...course,
-          archived: true,
-          updatedAt: new Date().toISOString(),
-        }
-      );
-      setIsArchived(true);
-      window.location.reload();
-    } catch (error) {
-      console.error("Error archiving course: ", error);
-    }
-  };
+  const handleArchiveCourse = (courseId) => {
+        showConfirm(
+            `¿Estás seguro de que deseas archivar el curso "${course.title}"?`,
+            async () => {
+                try {
+                    await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
+                        ...course,
+                        archived: true,
+                    });
+                    setIsArchived(true); 
+                    showAlert("Curso archivado con éxito.", "Archivado");
+                    if (onUpdate) onUpdate(); 
+                } catch (error) {
+                    showAlert(`Error al archivar: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Archivado"
+        );
+    };
 
   // Duplicar curso usando el backend
-  const handleDuplicateCourse = async (course) => {
-    const confirmDuplicate = window.confirm(
-      "¿Deseas duplicar este curso?"
-    );
-    if (!confirmDuplicate) return;
+   const handleDuplicateCourse = (course) => {
+        showConfirm(
+            `¿Deseas duplicar el curso "${course.title}"?`,
+            async () => {
+                try {
+                    const newCourse = {
+                      ...course,
+                      title: `${course.title} (Copy)`,
+                      archived: false,
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    };
+                    delete newCourse.courseid;
+                    delete newCourse.id;
 
-    try {
-      const newCourse = {
-        ...course,
-        title: `${course.title} (Copy)`,
-        archived: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      delete newCourse.courseid;
-      delete newCourse.id;
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/courses`,
-        newCourse
-      );
-      // Redirige al nuevo curso si tienes el id, si no, recarga
-      window.location.reload();
-    } catch (error) {
-      console.error("Error duplicating course: ", error);
-    }
-  };
+                    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/courses`, newCourse);
+                    showAlert("Curso duplicado con éxito. La lista se actualizará.", "Duplicado");
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1500);
+                } catch (error) {
+                    showAlert(`Error al duplicar: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Duplicación"
+        );
+    };
 
   if (isArchived) return null;
 

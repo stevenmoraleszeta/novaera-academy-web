@@ -218,7 +218,6 @@ const CourseDetail = ({
                     `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${courseId}/${currentUser.userid}`
                 );
                 if (!response.ok) {
-                    console.log("Hola");
                     setIsEnrolled(false);
                     return;
                 }
@@ -356,6 +355,7 @@ const CourseDetail = ({
 
 
     //Para subir la imagen no se como funciona!!!
+    //FALTAAAAA
     const handleSaveImage = async () => {
         if (!selectedImageFile) {
             showAlert("Por favor, selecciona una imagen primero.", "Atención");
@@ -364,7 +364,6 @@ const CourseDetail = ({
         try {
             //Logica para subirlo a firebase!!!!!
             console.log("Subiendo archivo:", selectedImageFile);
-            // Se actualiza el modal
             showAlert("Imagen subida y guardada con éxito.", "Éxito");
             setIsImageModalOpen(false);
         } catch (error) {
