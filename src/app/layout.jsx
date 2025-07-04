@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "../components/navbar/Navbar";
 import FooterZ from "@/components/footer/Footer";
 import { AuthProvider } from "@/context/AuthContext";
+import { ModalProvider } from "@/context/ModalContext";
 import { Montserrat } from "next/font/google";
 import FixedBtn from "@/components/fixedBtn/fixedBtn";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -43,14 +44,16 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`app ${montserrat.className}`}>
         <AuthProvider>
-          <SpeedInsights />
-          <div className="page-container">
-            <Navbar />
-            <FixedBtn />
-            <main className="content">{children}</main>
-            <FooterZ />
-          </div>
-          <Analytics />
+          <ModalProvider> 
+            <SpeedInsights />
+            <div className="page-container">
+              <Navbar />
+              <FixedBtn />
+              <main className="content">{children}</main>
+              <FooterZ />
+            </div>
+            <Analytics />
+          </ModalProvider>
         </AuthProvider>
       </body>
     </html>

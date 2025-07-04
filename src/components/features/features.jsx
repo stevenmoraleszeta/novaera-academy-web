@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import styles from "./features.module.css";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useModal } from '../../context/ModalContext';
 import {
     FaTrash,
     FaPlus,
@@ -42,12 +43,15 @@ export default function Features({ course, setCourse, courseId }) {
     const [loading, setLoading] = useState(false);
     const [features, setFeatures] = useState([]);
 
+    const { showAlert, showConfirm } = useModal();
+
     const fetchCourseFeatures = async () => {
         setLoading(true);
         try {
             const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course-features/by-course/${courseId}`);
             setFeatures(data);
         } catch (error) {
+            showAlert("No se pudieron cargar las características del curso.", "Error");
             setFeatures([]);
         } finally {
             setLoading(false);
@@ -88,7 +92,7 @@ export default function Features({ course, setCourse, courseId }) {
             );
             fetchCourseFeatures();
         } catch (error) {
-            console.error("Error al actualizar icono:", error);
+            showAlert("Error al actualizar icono: ", "Error");
         }
     };
 
@@ -111,30 +115,28 @@ export default function Features({ course, setCourse, courseId }) {
                     order: (features?.length || 0) + 1
                 }
             );
-            fetchCourseFeatures();
+            await fetchCourseFeatures();
+            showAlert("Característica añadida con éxito.", "Éxito");
         } catch (error) {
-            console.error("Error al agregar feature:", error);
+            showAlert(`Error al agregar: ${error.message}`, "Error");
         }
     };
 
     // Eliminar la relación course-feature (no el feature en sí)
-    const handleDeleteFeature = async (index) => {
-        const feature = features[index];
-        if (!feature.coursefeatureid) {
-            // Si no tiene relación, solo lo quitamos localmente
-            const updatedFeatures = [...features];
-            updatedFeatures.splice(index, 1);
-            setFeatures(updatedFeatures);
-            return;
-        }
-        try {
-            await axios.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/course-features/${feature.coursefeatureid}`
-            );
-            fetchCourseFeatures();
-        } catch (error) {
-            console.error("Error al eliminar feature del curso:", error);
-        }
+    const handleDeleteFeature = (feature) => {
+        showConfirm(
+            `¿Estás seguro de eliminar la característica "${feature.title}" del curso?`,
+            async () => {
+                try {
+                    await axios.delete(`${API_URL}/course-features/${feature.coursefeatureid}`);
+                    await fetchCourseFeatures();
+                    showAlert("Característica eliminada del curso.", "Éxito");
+                } catch (error) {
+                    showAlert(`Error al eliminar: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
     };
 
     // Cambiar el orden de los features (actualiza la relación)
@@ -164,7 +166,7 @@ export default function Features({ course, setCourse, courseId }) {
                 })
             );
         } catch (error) {
-            console.error("Error al actualizar el orden de las características:", error);
+            showAlert("Error al actualizar el orden de las características:", "Error");
         }
     };
 
@@ -187,7 +189,7 @@ export default function Features({ course, setCourse, courseId }) {
                 }
             );
         } catch (error) {
-            console.error("Error al actualizar feature:", error);
+            showAlert("Error al actualizar la característica:", "Error");
         }
     };
 
@@ -294,7 +296,7 @@ export default function Features({ course, setCourse, courseId }) {
                                     {feature.coursefeatureid && (
                                         <button
                                             className={styles.featuresActionsBtn}
-                                            onClick={() => handleDeleteFeature(index)}
+                                            onClick={() => handleDeleteFeature(feature)}
                                             type="button"
                                         >
                                             <FaTrash />

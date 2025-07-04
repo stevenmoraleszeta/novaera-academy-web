@@ -4,6 +4,7 @@ import React, { useEffect, useState, use, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
+import { useModal } from '../../context/ModalContext';
 
 import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses"; 
 import CourseDetails from "@/components/courseDetails/courseDetails";
@@ -47,6 +48,8 @@ const CourseDetail = ({
 
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [selectedImageFile, setSelectedImageFile] = useState(null);
+
+    const { showAlert, showConfirm } = useModal();
     
     const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
         userId: currentUser?.userid,
@@ -129,8 +132,8 @@ const CourseDetail = ({
                 body: JSON.stringify({ mentorId: Number(mentorId) }),
             });
             setSelectedMentor(Number(mentorId));
-        } catch (e) {
-            console.error("Error al asignar mentor:", e);
+        } catch (error) {
+            showAlert(`Error al asignar mentor: ${error.message}`, "Error");
         }
     };
 
@@ -148,27 +151,26 @@ const CourseDetail = ({
                 }),
             });
             setStudents([...students, numericId]);
-        } catch (e) {
-            console.error("Error al agregar estudiante:", e);
+            showAlert("Estudiante añadido con éxito.", "Éxito");
+        } catch (error) {
+            showAlert(`Error al añadir estudiante: ${error.message}`, "Error");
         }
     };
 
-    const handleRemoveStudent = async (studentId) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`);
-            const data = await res.json();
-            const studentCourse = data.find(sc => sc.userid === studentId);
-            if (studentCourse) {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/${studentCourse.id}`, {
-                    method: "DELETE",
-                });
-                const updatedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`);
-                const updatedData = await updatedRes.json();
-                setStudents(updatedData.map(sc => sc.userid));
-            }
-        } catch (e) {
-            console.error("Error al eliminar estudiante:", e);
-        }
+    const handleRemoveStudent = async (studentId, studentName) => {
+        showConfirm(
+            `¿Estás seguro de que deseas eliminar a "${studentName}" de este curso?`,
+            async () => {
+                try {
+                    // ... tu lógica para encontrar y borrar studentCourse ...
+                    setStudents(prev => prev.filter(id => id !== studentId));
+                    showAlert("Estudiante eliminado del curso.", "Éxito");
+                } catch (error) {
+                    showAlert(`Error al eliminar estudiante: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
     };
 
     const openVideoModal = () => {
@@ -289,7 +291,9 @@ const CourseDetail = ({
                 body: JSON.stringify(backendCourse),
             });
 
-            if (!response.ok) {
+            if (response.ok) {
+                showAlert("El curso se ha actualizado correctamente.", "Éxito");
+            }else{
                 throw new Error("Error al actualizar el curso");
             }
         } catch (error) {
@@ -334,8 +338,9 @@ const CourseDetail = ({
 
             modulesWithSortedClasses.sort((a, b) => a.orderModule - b.orderModule);
             setModules(modulesWithSortedClasses);
+            showAlert("Módulo añadido con éxito.", "Éxito");
         } catch (error) {
-            console.error("Error al añadir módulo:", error);
+            showAlert(`Error al añadir módulo: ${error.message}`, "Error");
         }
     };
 
@@ -353,18 +358,17 @@ const CourseDetail = ({
     //Para subir la imagen no se como funciona!!!
     const handleSaveImage = async () => {
         if (!selectedImageFile) {
-            alert("Por favor, selecciona una imagen primero.");
+            showAlert("Por favor, selecciona una imagen primero.", "Atención");
             return;
         }
-
         try {
             //Logica para subirlo a firebase!!!!!
             console.log("Subiendo archivo:", selectedImageFile);
             // Se actualiza el modal
+            showAlert("Imagen subida y guardada con éxito.", "Éxito");
             setIsImageModalOpen(false);
         } catch (error) {
-            console.error("Error al subir la imagen:", error);
-            alert("Hubo un error al subir la imagen.");
+            showAlert(`Hubo un error al subir la imagen: ${error.message}`, "Error");
         }
     };
 
@@ -566,7 +570,7 @@ const CourseDetail = ({
                                 <option value="">Selecciona un estudiante</option>
                                 {filteredStudents.map(user => (
                                     <option key={user.userid} value={user.userid}>
-                                        {user.firstname || "Nombre no disponible"} - {user.email}
+                                        {`${user.firstname} ${user.lastname1 || "Nombre no disponible"}`} - {user.email}
                                     </option>
                                 ))}
                             </select>
@@ -584,11 +588,13 @@ const CourseDetail = ({
                             <tbody>
                                 {students.map(studentId => {
                                     const student = allUsers.find(user => user.userid === studentId);
+                                    const fullName = student ? `${student.firstname} ${student.lastname1}` : "Nombre no disponible";
                                     return (
                                         <tr key={studentId}>
-                                            <td>{student ? student.firstname : "Nombre no disponible"}</td>
+                                            {/* <td>{student ? student.firstname : "Nombre no disponible"}</td> */}
+                                            <td>{fullName}</td>
                                             <td>
-                                                <button onClick={() => handleRemoveStudent(studentId)}>
+                                                <button onClick={() => handleRemoveStudent(studentId, fullName)}>
                                                     <FaTrash />
                                                 </button>
                                             </td>

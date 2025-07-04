@@ -4,6 +4,7 @@ import styles from "./ProjectsList.module.css";
 import { useAuth } from "@/context/AuthContext";
 import { useFirebaseIntegration } from "@/hooks/useFirebaseIntegration";
 import { Modal } from "../modal/modal";
+import { useModal } from '../../context/ModalContext';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
 
@@ -30,6 +31,8 @@ const ProjectsList = ({
     const [editProject, setEditProject] = useState(null);
     const [uploadingFile, setUploadingFile] = useState(false);
 
+    const { showAlert, showConfirm } = useModal();
+
     // Cargar proyectos al montar
     useEffect(() => {
         if (!courseId) return;
@@ -50,7 +53,6 @@ const ProjectsList = ({
             });
             const responseData = await res.json();
             if (!res.ok) {
-                // const errorText = await res.text();
                 throw new Error(responseData.error || "Error al crear el proyecto.");
             }
             const newProject = responseData.project;
@@ -86,13 +88,10 @@ const ProjectsList = ({
             }
 
             setProjects(currentProjects => [...currentProjects, newProject]);
+            showAlert("Proyecto añadido exitosamente.", "Éxito");
 
-            // Recargar proyectos
-            // const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            // setProjects(await updated.json());
         } catch (err) {
-            console.error("Error al añadir proyecto:", err);
-            alert(err.message);
+            showAlert(`Error al añadir proyecto: ${err.message}`, "Error");
         }
     };
 
@@ -125,18 +124,25 @@ const ProjectsList = ({
         }
     };
 
-    const deleteProject = async (projectId) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
-                method: "DELETE",
-            });
-            if (!res.ok) throw new Error("Error al eliminar el proyecto");
-            // Recargar proyectos
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
-        } catch (err) {
-            console.error("Error al eliminar proyecto:", err);
-        }
+    const deleteProject = async (projectId, projectTitle) => {
+        showConfirm(
+            `¿Estás seguro de que deseas eliminar el proyecto "${projectTitle}"?`,
+            async () => {
+                try {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
+                        method: "DELETE",
+                    });
+                    if (!res.ok) throw new Error("Error al eliminar el proyecto");
+                    
+                    const updatedProjects = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`).then(res => res.json());
+                    setProjects(updatedProjects);
+                    showAlert("Proyecto eliminado.", "Éxito");
+                } catch (err) {
+                    showAlert(`Error al eliminar: ${err.message}`, "Error");
+                }
+            },
+            "Confirmar Eliminación"
+        );
     };
 
     const moveProject = async (projectId, index, direction) => {
@@ -166,7 +172,7 @@ const ProjectsList = ({
             );
             setProjects(reordered);
         } catch (err) {
-            console.error("Error al reordenar proyectos:", err);
+            showAlert(`Error al reordenar proyectos: ${err.message}`, "Error");
         }
     };
 
@@ -230,19 +236,14 @@ const ProjectsList = ({
                 });
                 if (!res.ok) throw new Error("Error al entregar el proyecto");
             }
-
             // Recargar proyectos
             const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
             setProjects(await updated.json());
             setIsEditModalOpen(false);
             setEditProject(null);
-
+            showAlert("Proyecto actualizado.", "Éxito");
         } catch (err) {
-            console.error("Error en handleEditProject:", err);
-            // Si es error de archivo, ya se mostró. Si es otro error, mostrarlo
-            if (!err.message.includes('Firebase') && !err.message.includes('autenticación')) {
-                alert(err.message);
-            }
+            showAlert(`Error al actualizar: ${err.message}`, "Error");
         }
     };
 
@@ -291,17 +292,8 @@ const ProjectsList = ({
             return downloadURL;
 
         } catch (error) {
-            console.error("Error subiendo archivo:", error);
-
-            if (error.code === 'storage/unauthorized') {
-                alert("Error: No tienes permisos para subir archivos. Asegúrate de estar autenticado.");
-            } else if (error.message.includes('Firebase')) {
-                alert("Error de autenticación: " + error.message);
-            } else {
-                alert("Error subiendo archivo: " + error.message);
-            }
-
-            throw error;
+             showAlert(`Error subiendo archivo: ${error.message}`, "Error de Firebase");
+             throw error;
         } finally {
             setUploadingFile(false);
         }
@@ -338,7 +330,7 @@ const ProjectsList = ({
                                 <FaArrowDown />
                             </button>
                             <button
-                                onClick={e => { e.stopPropagation(); deleteProject(project.projectid); }}
+                                onClick={e => { e.stopPropagation(); deleteProject(project.projectid, project.title); }}
                                 className={styles.projectAction}
                                 title="Eliminar Proyecto"
                             >
