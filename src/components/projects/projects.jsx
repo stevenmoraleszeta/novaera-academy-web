@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes, FaDownload  } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaTrash, FaPlus, FaTimes, FaDownload } from "react-icons/fa";
 import styles from "./ProjectsList.module.css";
 import { useAuth } from "@/context/AuthContext";
 import { useFirebaseIntegration } from "@/hooks/useFirebaseIntegration";
@@ -47,11 +47,11 @@ const ProjectsList = ({
     ///agrega varios pero con el problema que se lo agrega todos al primero que encuentre, entonces crea varios pero con el mismo usuario!!!!!
     const addProject = async (projectData) => {
         const uniqueStudentIds = [...new Set(students)];
-        
+
         if (!uniqueStudentIds || uniqueStudentIds.length === 0) {
             showAlert("No se puede añadir un proyecto porque no hay estudiantes inscritos en el curso.", "Acción Requerida");
-            return; 
-        }   
+            return;
+        }
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
                 method: "POST",
@@ -66,8 +66,6 @@ const ProjectsList = ({
             if (!newProject || !newProject.projectid) {
                 throw new Error("La API no devolvió los datos del nuevo proyecto.");
             }
-            console.log(`Asignando proyecto ${newProject.projectid} a ${uniqueStudentIds} - ${newProject.studentId} - estudiantes.`);
-           
             const assignmentPromises = uniqueStudentIds.map(studentId => {
                 // console.log(newProject);
                 const studentProjectData = {
@@ -146,12 +144,18 @@ const ProjectsList = ({
                     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
                         method: "DELETE",
                     });
-                    if (!res.ok) throw new Error("Error al eliminar el proyecto");
-                    
-                    const updatedProjects = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`).then(res => res.json());
+
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({ error: "Error desconocido" }));
+                        throw new Error(errorData.error || `Error ${res.status}: ${res.statusText}`);
+                    }
+
+                    const updatedProjects = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`)
+                        .then(res => res.json());
                     setProjects(updatedProjects);
-                    showAlert("Proyecto eliminado.", "Éxito");
+                    showAlert("Proyecto eliminado exitosamente.", "Éxito");
                 } catch (err) {
+                    console.error("Error al eliminar proyecto:", err);
                     showAlert(`Error al eliminar: ${err.message}`, "Error");
                 }
             },
@@ -305,8 +309,8 @@ const ProjectsList = ({
             return downloadURL;
 
         } catch (error) {
-             showAlert(`Error subiendo archivo: ${error.message}`, "Error de Firebase");
-             throw error;
+            showAlert(`Error subiendo archivo: ${error.message}`, "Error de Firebase");
+            throw error;
         } finally {
             setUploadingFile(false);
         }
@@ -477,19 +481,19 @@ const ProjectsList = ({
                                     className={styles.title}
                                 />
                                 <label>Instrucciones del proyecto</label>
-                                    {editProject.fileurl ? (
-                                        <a
-                                            href={editProject.fileurl}
-                                            download
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className= "cancelButton"
-                                        >
-                                            <FaDownload /> Descargar Instrucciones
-                                        </a>
-                                    ) : (
-                                        <p className={styles.noFileMessage}>No hay instrucciones adjuntas.</p>
-                                    )}
+                                {editProject.fileurl ? (
+                                    <a
+                                        href={editProject.fileurl}
+                                        download
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="cancelButton"
+                                    >
+                                        <FaDownload /> Descargar Instrucciones
+                                    </a>
+                                ) : (
+                                    <p className={styles.noFileMessage}>No hay instrucciones adjuntas.</p>
+                                )}
                                 <label>Archivo</label>
                                 <input
                                     type="file"

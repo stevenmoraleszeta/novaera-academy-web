@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import useFetchCourse from "@/hooks/fetchCourses/useFetchCourse";
 import { useModal } from '../../context/ModalContext';
 
-import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses"; 
+import { useCompletedClasses } from "@/hooks/useCompletedClasses/useCompletedClasses";
 import CourseDetails from "@/components/courseDetails/courseDetails";
 import CourseVideo from "@/components/courseVideo/courseVideo";
 import Features from "@/components/features/features";
@@ -50,7 +50,7 @@ const CourseDetail = ({
     const [selectedImageFile, setSelectedImageFile] = useState(null);
 
     const { showAlert, showConfirm } = useModal();
-    
+
     const { completedClasses, fetchCompletedStatus } = useCompletedClasses({
         userId: currentUser?.userid,
     });
@@ -77,8 +77,13 @@ const CourseDetail = ({
 
     const filteredStudents = allUsers.filter(
         (user) =>
+            // Filtrar por texto de búsqueda
             (user.firstname?.toLowerCase().includes(searchTerm.toLowerCase()) || !searchTerm) &&
-            (user.email?.toLowerCase().includes(searchEmail.toLowerCase()) || !searchEmail)
+            (user.email?.toLowerCase().includes(searchEmail.toLowerCase()) || !searchEmail) &&
+            // Excluir estudiantes que ya están inscritos en el curso
+            !students.includes(user.userid) &&
+            // Solo mostrar usuarios que no son administradores (opcional, según tu lógica de negocio)
+            user.roleid !== 8
     );
 
     useEffect(() => {
@@ -140,8 +145,15 @@ const CourseDetail = ({
     const handleAddStudent = async (studentId) => {
         const numericId = Number(studentId);
         if (!numericId) return;
+
+        // Verificar si el estudiante ya está inscrito en el curso
+        if (students.includes(numericId)) {
+            showAlert("Este estudiante ya está inscrito en el curso.", "Acción no permitida");
+            return;
+        }
+
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-courses`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -150,6 +162,12 @@ const CourseDetail = ({
                     enrollmentDate: new Date().toISOString().split('T')[0],
                 }),
             });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: "Error desconocido" }));
+                throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+            }
+
             setStudents([...students, numericId]);
             showAlert("Estudiante añadido con éxito.", "Éxito");
         } catch (error) {
@@ -162,10 +180,52 @@ const CourseDetail = ({
             `¿Estás seguro de que deseas eliminar a "${studentName}" de este curso?`,
             async () => {
                 try {
-                    // ... tu lógica para encontrar y borrar studentCourse ...
+                    // Primero buscamos el registro student-course para obtener el ID
+                    const studentCourseResponse = await fetch(
+                        `${process.env.NEXT_PUBLIC_API_URL}/student-courses/by-course/${courseId}`
+                    );
+
+                    if (!studentCourseResponse.ok) {
+                        throw new Error("Error al obtener los registros de estudiantes del curso");
+                    }
+
+                    const studentCourses = await studentCourseResponse.json();
+                    console.log("Student courses data:", studentCourses); // Para debugging
+
+                    const studentCourseRecord = studentCourses.find(sc => sc.userid === studentId);
+                    console.log("Found student course record:", studentCourseRecord); // Para debugging
+
+                    if (!studentCourseRecord) {
+                        throw new Error("No se encontró el registro del estudiante en este curso");
+                    }
+
+                    const recordId = studentCourseRecord.studentcourseid ||
+                        studentCourseRecord.id ||
+                        studentCourseRecord.studentCourseId;
+
+                    if (!recordId) {
+                        console.error("Student course record structure:", Object.keys(studentCourseRecord));
+                        throw new Error("No se pudo encontrar el ID del registro student-course");
+                    }
+
+                    // Eliminamos el registro usando el ID del student-course
+                    const deleteResponse = await fetch(
+                        `${process.env.NEXT_PUBLIC_API_URL}/student-courses/${recordId}`,
+                        {
+                            method: "DELETE",
+                        }
+                    );
+
+                    if (!deleteResponse.ok) {
+                        const errorData = await deleteResponse.json().catch(() => ({ error: "Error desconocido" }));
+                        throw new Error(errorData.error || `Error ${deleteResponse.status}: ${deleteResponse.statusText}`);
+                    }
+
+                    // Actualizamos el estado local
                     setStudents(prev => prev.filter(id => id !== studentId));
                     showAlert("Estudiante eliminado del curso.", "Éxito");
                 } catch (error) {
+                    console.error("Error al eliminar estudiante:", error);
                     showAlert(`Error al eliminar estudiante: ${error.message}`, "Error");
                 }
             },
@@ -292,7 +352,7 @@ const CourseDetail = ({
 
             if (response.ok) {
                 showAlert("El curso se ha actualizado correctamente.", "Éxito");
-            }else{
+            } else {
                 throw new Error("Error al actualizar el curso");
             }
         } catch (error) {
@@ -479,13 +539,13 @@ const CourseDetail = ({
                             <button className="saveButton" onClick={handleSaveVideoUrl}>Guardar</button>
                             <button className="cancelButton" onClick={() => setIsVideoModalOpen(false)}>Cancelar</button>
                         </div>
-                            
+
                     </div>
                 </Modal>
             )}
 
             {isImageModalOpen && (
-                <Modal 
+                <Modal
                     isOpen={isImageModalOpen}
                     onClose={() => setIsImageModalOpen(false)}
                     title="Subir nueva imagen"
@@ -507,15 +567,15 @@ const CourseDetail = ({
                         )}
 
                         <div className="formActions">
-                            <button 
-                                className="saveButton" 
+                            <button
+                                className="saveButton"
                                 onClick={handleSaveImage}
-                                disabled={!selectedImageFile} 
+                                disabled={!selectedImageFile}
                             >
                                 Guardar Imagen
                             </button>
-                            <button 
-                                className="cancelButton" 
+                            <button
+                                className="cancelButton"
                                 onClick={() => setIsImageModalOpen(false)}
                             >
                                 Cancelar
@@ -567,13 +627,22 @@ const CourseDetail = ({
                         <div className={styles.buttonContainer}>
                             <select id="studentSelect">
                                 <option value="">Selecciona un estudiante</option>
-                                {filteredStudents.map(user => (
-                                    <option key={user.userid} value={user.userid}>
-                                        {`${user.firstname} ${user.lastname1 || "Nombre no disponible"}`} - {user.email}
+                                {filteredStudents.length > 0 ? (
+                                    filteredStudents.map(user => (
+                                        <option key={user.userid} value={user.userid}>
+                                            {`${user.firstname} ${user.lastname1 || "Nombre no disponible"}`} - {user.email}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option value="" disabled>
+                                        {searchTerm || searchEmail ? "No se encontraron estudiantes" : "Todos los estudiantes ya están inscritos"}
                                     </option>
-                                ))}
+                                )}
                             </select>
-                            <button onClick={() => handleAddStudent(document.getElementById('studentSelect').value)}>
+                            <button
+                                onClick={() => handleAddStudent(document.getElementById('studentSelect').value)}
+                                disabled={filteredStudents.length === 0}
+                            >
                                 <FaPlus />
                             </button>
                         </div>
@@ -603,7 +672,7 @@ const CourseDetail = ({
                             </tbody>
                         </table>
                         <div className="formActions">
-                            <button className= "cancelButton" onClick={() => setIsGroupModalOpen(false)}>
+                            <button className="cancelButton" onClick={() => setIsGroupModalOpen(false)}>
                                 Cerrar
                             </button>
                         </div>

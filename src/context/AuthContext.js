@@ -82,8 +82,6 @@ export function AuthProvider({ children }) {
 
             if (infoIsMissing) {
                 router.push("/completeInfo");
-            } else {
-                router.push('/');
             }
         } else if (!isCheckingUser && !currentUser) {
             setMissingInfo(false);
