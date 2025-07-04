@@ -6,17 +6,17 @@ import CrudMenu from "@/components/adminCrudMenu/adminCrudMenu";
 const ProjectsPage = () => {
     document.title = "Gestión de estudiantes - Zeta Academia";
     const displayFields = [
-         { label: 'Titulo', field: 'project_title'}, 
+        { label: 'Titulo', field: 'project_title' },
         {
             label: 'Estudiante',
             render: (item) => `${item.student_firstname || ''} ${item.student_lastname1 || ''}`.trim()
         },
         {
-            label: 'Mentor Asignado', 
+            label: 'Mentor Asignado',
             render: (item) => `${item.mentor_firstname || ''} ${item.mentor_lastname1 || ''}`.trim() || 'Sin asignar'
         },
-        { 
-            label: 'Fecha de Entrega', 
+        {
+            label: 'Fecha de Entrega',
             field: 'project_duedate',
             render: (item) => new Date(item.project_duedate).toLocaleDateString()
         },
@@ -24,39 +24,39 @@ const ProjectsPage = () => {
     ];
 
     const editFields = [
-        { 
-            label: 'Título *', 
-            field: 'project_title', 
+        {
+            label: 'Título *',
+            field: 'project_title',
             type: 'text',
             required: true
         },
-        {   label: 'Curso', 
+        {
+            label: 'Curso',
             field: 'course_name'
         },
-        { 
-            label: 'Fecha Límite *', 
-            render: (item) => <p>{item.submissiondate ? new Date(item.project_duedate).toLocaleString() : 'Fecha de Entregada'}</p>, 
+        {
+            label: 'Fecha Límite *',
+            render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>,
             type: 'text',
             required: true
         },
         { label: 'Puntuación', field: 'score', type: 'number' },
-        { 
-            label: 'Fecha de entrega *', 
-            render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>, 
+        {
+            label: 'Fecha de entrega *',
+            render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : 'Fecha de Entregada'}</p>,
             type: 'text',
             required: true
         },
-        //Esto no se como manejarlo del los archivos!!!
-        // { 
-        //     label: 'Archivo del Proyecto', 
-        //     field: 'project_fileurl', 
-        //     type: 'text', 
-        //     placeholder: 'https://ejemplo.com/feedback.pdf' 
-        // },
-        { 
-            label: 'Comentarios para el Estudiante', 
-            field: 'comments', 
-            type: 'textarea' 
+        {
+            label: 'Archivo del Proyecto',
+            field: 'fileurl',
+            type: 'text',
+            placeholder: 'https://ejemplo.com/feedback.pdf'
+        },
+        {
+            label: 'Comentarios para el Estudiante',
+            field: 'comments',
+            type: 'textarea'
         },
         {
             label: 'Proyecto del Estudiante',

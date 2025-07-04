@@ -3,8 +3,6 @@
 import React, { useContext, useState, useEffect, createContext, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useModal } from './ModalContext';
-
 import {
     loginPersonalizado,
     signOutFirebase,
@@ -33,8 +31,6 @@ export function AuthProvider({ children }) {
 
     const isGoogleLoginRef = useRef(false);
 
-    const { showAlert } = useModal();
-
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
@@ -49,8 +45,8 @@ export function AuthProvider({ children }) {
                 const response = await axios.get(`${apiUrl}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                const user = response.data;
 
+                const user = response.data;
                 setCurrentUser(user);
                 setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8); // asume que el rol de admin tiene roleid 8
             } catch (error) {
@@ -73,23 +69,22 @@ export function AuthProvider({ children }) {
             let infoIsMissing;
             if (isNewGoogleUser) {
                 infoIsMissing = false;
-                setIsNewGoogleUser(false); 
+                setIsNewGoogleUser(false);
             } else {
-                infoIsMissing = !currentUser.firstname || 
-                                !currentUser.lastname1 || 
-                                !currentUser.country || 
-                                !currentUser.phone ||
-                                (currentUser.age === null || currentUser.age === undefined);
+                infoIsMissing = !currentUser.firstname ||
+                    !currentUser.lastname1 ||
+                    !currentUser.country ||
+                    !currentUser.phone ||
+                    (currentUser.age === null || currentUser.age === undefined);
             }
-            
+
             setMissingInfo(infoIsMissing);
 
             if (infoIsMissing) {
                 router.push("/completeInfo");
+            } else {
+                router.push('/');
             }
-            // else{
-                // router.push('/');
-            // }
         } else if (!isCheckingUser && !currentUser) {
             setMissingInfo(false);
         }
@@ -126,11 +121,16 @@ export function AuthProvider({ children }) {
 
             setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
 
-
-            setMissingInfo(!user.country || !user.phone || !user.age);
+            // Calcular si falta información usando la misma lógica que en otros lugares
+            const infoIsMissing = !user.firstname ||
+                !user.lastname1 ||
+                !user.country ||
+                !user.phone ||
+                (user.age === null || user.age === undefined);
+            setMissingInfo(infoIsMissing);
 
         } catch (error) {
-            showAlert(error.message, "Error al Iniciar Sesión");
+            console.error("Error al iniciar sesión:", error.message);
             throw error;
         }
     };
@@ -153,10 +153,10 @@ export function AuthProvider({ children }) {
             // Cambiar esto cuando el backend está en otro dominio
             if (!event.origin.includes(process.env.NEXT_PUBLIC_API_URL.replace('/api', ''))) return;
 
-            const { token, user, firebaseToken, isNewUser } = event.data;
+            const { token, user, isNewUser, firebaseToken } = event.data;
 
             if (token && user) {
-                if(isNewUser){
+                if (isNewUser) {
                     setIsNewGoogleUser(true);
                 }
 
@@ -164,7 +164,13 @@ export function AuthProvider({ children }) {
                 setCurrentUser(user);
                 setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
 
-                setMissingInfo(!user.country || !user.phone || !user.age);
+                // Calcular si falta información usando la misma lógica consistente
+                const infoIsMissing = !user.firstname ||
+                    !user.lastname1 ||
+                    !user.country ||
+                    !user.phone ||
+                    (user.age === null || user.age === undefined);
+                setMissingInfo(infoIsMissing);
 
                 // Si hay firebaseToken, autenticar en Firebase
                 if (firebaseToken) {
@@ -175,7 +181,9 @@ export function AuthProvider({ children }) {
                         console.error("Error autenticando en Firebase:", error);
                     }
                 }
+
                 popup.close();
+
                 window.removeEventListener("message", handleMessage);
             }
         };
@@ -209,11 +217,30 @@ export function AuthProvider({ children }) {
             setCurrentUser(user);
             setIsAdmin(false);
             // setMissingInfo(true);
-            showAlert("¡Tu cuenta ha sido creada exitosamente!", "Registro Completo");
         } catch (error) {
-            const errorMessage = error.response?.data?.error || error.message;
-            showAlert(errorMessage, "Error en el Registro");
+            console.error("Error al registrar usuario:", error.response?.data?.error || error.message);
             throw error;
+        }
+    };
+
+    // Función para actualizar el usuario actual
+    const updateCurrentUser = (updatedUser) => {
+        setCurrentUser(updatedUser);
+
+        // Actualizar también los estados derivados
+        if (updatedUser) {
+            setIsAdmin(updatedUser.firstname === 'AdminAccount' || updatedUser.roleid === 8);
+
+            // Recalcular si falta información
+            const infoIsMissing = !updatedUser.firstname ||
+                !updatedUser.lastname1 ||
+                !updatedUser.country ||
+                !updatedUser.phone ||
+                (updatedUser.age === null || updatedUser.age === undefined);
+            setMissingInfo(infoIsMissing);
+        } else {
+            setIsAdmin(false);
+            setMissingInfo(false);
         }
     };
 
@@ -231,7 +258,7 @@ export function AuthProvider({ children }) {
 
             localStorage.removeItem("token");
             setCurrentUser(null);
-            showAlert("Has cerrado sesión exitosamente.", "Hasta Pronto");
+
             // Cerrar sesión en Firebase también
             try {
                 await signOutFirebase();
@@ -240,8 +267,7 @@ export function AuthProvider({ children }) {
                 console.error("Error cerrando sesión en Firebase:", firebaseError);
             }
         } catch (error) {
-            const errorMessage = error.response?.data?.error || error.message;
-            showAlert(`Error al cerrar sesión: ${errorMessage}`, "Error");
+            console.error("Error al cerrar sesión:", error.response?.data?.error || error.message);
         }
     };
 
@@ -258,11 +284,12 @@ export function AuthProvider({ children }) {
         }
     };
 
-    useEffect(() => {
-        if (!isCheckingUser && currentUser && missingInfo) {
-            router.push("/completeInfo");
-        }
-    }, [currentUser, missingInfo, isCheckingUser, router]);
+    // Este useEffect ya no es necesario porque la lógica de redirección está en el useEffect anterior
+    // useEffect(() => {
+    //     if (!isCheckingUser && currentUser && missingInfo) {
+    //         router.push("/completeInfo");
+    //     }
+    // }, [currentUser, missingInfo, isCheckingUser, router]);
 
 
     const value = {
@@ -270,7 +297,7 @@ export function AuthProvider({ children }) {
         loginWithEmailAndPassword,
         registerWithEmailAndPassword,
         logout,
-        updateCurrentUser: setCurrentUser,
+        updateCurrentUser, // Usar la nueva función
         isAdmin,
         missingInfo,
         loginWithGoogle,

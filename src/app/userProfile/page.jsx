@@ -27,7 +27,7 @@ function UserProfile() {
                 setUserInfo({
                     firstname: apiUser.firstname || '',
                     lastname1: apiUser.lastname1 || '',
-                    lastname2: apiUser.lastname2 || '',                    
+                    lastname2: apiUser.lastname2 || '',
                     phone: apiUser.phone || '',
                     country: apiUser.country || '',
                     age: apiUser.age || '',
@@ -120,13 +120,15 @@ function UserProfile() {
                 updatedAt: new Date().toISOString(),
             };
 
-            await axios.put(
+            const response = await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`,
                 updatedUser,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            updateCurrentUser({ ...currentUser, photourl });
+            // Actualizar el usuario actual con los datos del servidor
+            const userFromServer = response.data;
+            updateCurrentUser(userFromServer);
             router.push("/cursos-en-linea");
         } catch (error) {
             if (error.response && error.response.data && error.response.data.error) {
