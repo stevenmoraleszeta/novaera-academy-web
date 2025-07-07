@@ -244,6 +244,31 @@ export function AuthProvider({ children }) {
         }
     };
 
+
+    // funcion para recuperar contraseña!!!
+    const sendPasswordResetRequest = async (email) => {
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/request-password-reset`, { email });
+        } catch (error) {
+            console.error("Error al solicitar el reseteo de contraseña:", error.response?.data?.error || error.message);
+            throw error;
+        }
+    };
+
+
+    //Funcion para cambiar la contreseña manteniendo el token 
+    const resetPasswordWithToken = async (token, newPassword) => {
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password`, { token, newPassword });
+        } catch (error) {
+            console.error("Error al cambiar la contraseña:", error.response?.data?.error || error.message);
+            throw error;
+        }
+    };
+
+
+    
+
     const logout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -284,14 +309,6 @@ export function AuthProvider({ children }) {
         }
     };
 
-    // Este useEffect ya no es necesario porque la lógica de redirección está en el useEffect anterior
-    // useEffect(() => {
-    //     if (!isCheckingUser && currentUser && missingInfo) {
-    //         router.push("/completeInfo");
-    //     }
-    // }, [currentUser, missingInfo, isCheckingUser, router]);
-
-
     const value = {
         currentUser,
         loginWithEmailAndPassword,
@@ -304,7 +321,9 @@ export function AuthProvider({ children }) {
         isCheckingUser,
         firebaseUser,
         setFirebaseUser,
-        ensureFirebaseAuthentication
+        ensureFirebaseAuthentication, 
+        sendPasswordResetRequest, 
+        resetPasswordWithToken
     };
 
     return <AuthContext.Provider value={value}>{!isCheckingUser && children}</AuthContext.Provider>;
