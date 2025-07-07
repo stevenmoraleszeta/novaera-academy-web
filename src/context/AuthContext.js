@@ -82,11 +82,13 @@ export function AuthProvider({ children }) {
 
             if (infoIsMissing) {
                 router.push("/completeInfo");
-            } else {
-                router.push('/');
-            }
+            } 
+            // else {
+                // router.push('/');
+            // }
         } else if (!isCheckingUser && !currentUser) {
             setMissingInfo(false);
+            router.push('/');
         }
     }, [currentUser, isCheckingUser, isNewGoogleUser, router]);
 

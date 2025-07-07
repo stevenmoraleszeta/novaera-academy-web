@@ -157,12 +157,14 @@ const CourseDetail = ({
         }
     };
 
+    // Falta implementar el borrado de los estudiantes al curso
     const handleRemoveStudent = async (studentId, studentName) => {
         showConfirm(
             `¿Estás seguro de que deseas eliminar a "${studentName}" de este curso?`,
             async () => {
                 try {
                     // ... tu lógica para encontrar y borrar studentCourse ...
+                    // await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/student-courses/${studentId}`);
                     setStudents(prev => prev.filter(id => id !== studentId));
                     showAlert("Estudiante eliminado del curso.", "Éxito");
                 } catch (error) {
@@ -544,7 +546,8 @@ const CourseDetail = ({
                                 const user = allUsers.find(u => u.userid === mentor.userid);
                                 return (
                                     <option key={mentor.mentorid} value={mentor.mentorid}>
-                                        {user ? user.firstname : "Nombre no disponible"}
+                                        {`${user.firstname} ${user.lastname1}`}
+                                        {/* {user ? user.firstname : "Nombre no disponible"} */}
                                     </option>
                                 );
                             })}
@@ -569,7 +572,7 @@ const CourseDetail = ({
                                 <option value="">Selecciona un estudiante</option>
                                 {filteredStudents.map(user => (
                                     <option key={user.userid} value={user.userid}>
-                                        {`${user.firstname} ${user.lastname1 || "Nombre no disponible"}`} - {user.email}
+                                        {`${user.firstname} ${user.lastname1}`} - {user.email}
                                     </option>
                                 ))}
                             </select>
@@ -590,7 +593,6 @@ const CourseDetail = ({
                                     const fullName = student ? `${student.firstname} ${student.lastname1}` : "Nombre no disponible";
                                     return (
                                         <tr key={studentId}>
-                                            {/* <td>{student ? student.firstname : "Nombre no disponible"}</td> */}
                                             <td>{fullName}</td>
                                             <td>
                                                 <button onClick={() => handleRemoveStudent(studentId, fullName)}>
