@@ -85,6 +85,7 @@ export function AuthProvider({ children }) {
             }
         } else if (!isCheckingUser && !currentUser) {
             setMissingInfo(false);
+            router.push('/');
         }
     }, [currentUser, isCheckingUser, isNewGoogleUser, router]);
 
@@ -242,6 +243,31 @@ export function AuthProvider({ children }) {
         }
     };
 
+
+    // funcion para recuperar contraseña!!!
+    const sendPasswordResetRequest = async (email) => {
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/request-password-reset`, { email });
+        } catch (error) {
+            console.error("Error al solicitar el reseteo de contraseña:", error.response?.data?.error || error.message);
+            throw error;
+        }
+    };
+
+
+    //Funcion para cambiar la contreseña manteniendo el token 
+    const resetPasswordWithToken = async (token, newPassword) => {
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password`, { token, newPassword });
+        } catch (error) {
+            console.error("Error al cambiar la contraseña:", error.response?.data?.error || error.message);
+            throw error;
+        }
+    };
+
+
+    
+
     const logout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -282,7 +308,6 @@ export function AuthProvider({ children }) {
         }
     };
 
-
     const value = {
         currentUser,
         loginWithEmailAndPassword,
@@ -295,7 +320,9 @@ export function AuthProvider({ children }) {
         isCheckingUser,
         firebaseUser,
         setFirebaseUser,
-        ensureFirebaseAuthentication
+        ensureFirebaseAuthentication, 
+        sendPasswordResetRequest, 
+        resetPasswordWithToken
     };
 
     return <AuthContext.Provider value={value}>{!isCheckingUser && children}</AuthContext.Provider>;

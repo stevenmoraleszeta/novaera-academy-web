@@ -5,31 +5,28 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Head from "next/head";
-import { Modal } from "@/components/modal/modal";
+import { useModal } from "@/context/ModalContext";
+import Link from 'next/link';
 
 function UserAndPassword() {
     const { loginWithEmailAndPassword } = useAuth();
+    const { showAlert } = useModal();
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
-        setIsAlertOpen(false);
-
+        setLoading(true);
         try {
             await loginWithEmailAndPassword(email, password);
-            router.push("/");
         } catch (err) {
-            setError("Ocurrió un error al iniciar sesión.");
-            setIsAlertOpen(true);
+            showAlert("Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.", "Error de Autenticación");
+        } finally{
+            setLoading(false);
         }
     };
-
-    const onClose = () => setIsAlertOpen(false);
 
     return (
         <>
@@ -77,9 +74,9 @@ function UserAndPassword() {
                                 required
                             />
                             <p className="auth-forgot-password-link">
-                                <a href="https://wa.link/9vy9v9" className="auth-link">
+                                <Link href="/forgotPassword" className="auth-link">
                                     ¿Olvidaste tu contraseña?
-                                </a>
+                                </Link>
                             </p>
                             <button type="submit" className="auth-submit-button">
                                 Iniciar Sesión
@@ -94,12 +91,8 @@ function UserAndPassword() {
                                 Volver
                             </a>
                         </form>
-                        {error && <p className="auth-error-text">{error}</p>}
                     </div>
                 </div>
-                {isAlertOpen && (
-                    <Modal modalType="alert" onClose={onClose} title="Error" description="Algo salió mal!"></Modal>
-                )}
             </section>
         </>
     );
