@@ -63,33 +63,6 @@ export function AuthProvider({ children }) {
         fetchCurrentUser();
     }, []);
 
-
-    useEffect(() => {
-        if (!isCheckingUser && currentUser) {
-            let infoIsMissing;
-            if (isNewGoogleUser) {
-                infoIsMissing = false;
-                setIsNewGoogleUser(false);
-            } else {
-                infoIsMissing = !currentUser.firstname ||
-                    !currentUser.lastname1 ||
-                    !currentUser.country ||
-                    !currentUser.phone ||
-                    (currentUser.age === null || currentUser.age === undefined);
-            }
-
-            setMissingInfo(infoIsMissing);
-
-            if (infoIsMissing) {
-                router.push("/completeInfo");
-            }
-        } else if (!isCheckingUser && !currentUser) {
-            setMissingInfo(false);
-            router.push('/');
-        }
-    }, [currentUser, isCheckingUser, isNewGoogleUser, router]);
-
-
     // Función para iniciar sesión con email y contraseña
 
     // Escuchar cambios en Firebase Auth
@@ -117,16 +90,9 @@ export function AuthProvider({ children }) {
             localStorage.setItem("token", token);
             setCurrentUser(user);
             setFirebaseUser(firebaseUser || null);
-
             setIsAdmin(user.firstname === 'AdminAccount' || user.roleid === 8);
 
-            // Calcular si falta información usando la misma lógica que en otros lugares
-            const infoIsMissing = !user.firstname ||
-                !user.lastname1 ||
-                !user.country ||
-                !user.phone ||
-                (user.age === null || user.age === undefined);
-            setMissingInfo(infoIsMissing);
+            return user;
 
         } catch (error) {
             console.error("Error al iniciar sesión:", error.message);

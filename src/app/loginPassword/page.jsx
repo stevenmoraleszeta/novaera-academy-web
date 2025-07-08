@@ -20,7 +20,17 @@ function UserAndPassword() {
         e.preventDefault();
         setLoading(true);
         try {
-            await loginWithEmailAndPassword(email, password);
+            const user = await loginWithEmailAndPassword(email, password);
+            const infoIsMissing = !user.firstname ||
+                                  !user.lastname1 ||
+                                  !user.country ||
+                                  !user.phone ||
+                                  (user.age === null || user.age === undefined);
+            if (infoIsMissing) {
+                router.push('/completeInfo');
+            } else {
+                router.push('/'); // Redirige al main solo si la info está completa
+            }
         } catch (err) {
             showAlert("Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.", "Error de Autenticación");
         } finally{
