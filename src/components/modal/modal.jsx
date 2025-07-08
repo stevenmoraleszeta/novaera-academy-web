@@ -123,7 +123,7 @@ export function Modal({
                         {editFields.map(({ label, field, type, render, options, required }) => {
                             if (render) {
                                 return (
-                                    <div key={label} className={styles.fieldRow}>
+                                    <div key={label} className={`${styles.fieldRow} form-field-item`}>
                                         <label>{label}</label>
                                         <div className={styles.readOnlyField}>{render(editedItem)}</div>
                                     </div>
@@ -131,7 +131,7 @@ export function Modal({
                             }
                             if (type === 'select') {
                                 return (
-                                    <div key={field} className={styles.fieldRow}>
+                                    <div key={field} className={`${styles.fieldRow} form-field-item`}>
                                         <label>{label}</label>
                                         <select
                                             name={field}
@@ -150,7 +150,7 @@ export function Modal({
                                 );
                             }
                             return (
-                                <div key={field} className={styles.fieldRow}>
+                                <div key={field} className={`${styles.fieldRow} form-field-item`}>
                                     <label>{label}</label>
                                     <input
                                         type={type || 'text'}

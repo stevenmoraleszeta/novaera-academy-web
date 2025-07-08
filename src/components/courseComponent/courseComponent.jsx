@@ -15,6 +15,11 @@ import { Modal } from "@/components/modal/modal";
 import ProjectsList from "@/components/projects/projects";
 import ClassesRecorded from "@/components/classesRecorded/ClassesRecorded";
 
+import { useFirebaseIntegration } from "@/hooks/useFirebaseIntegration"; 
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/firebase/firebase";
+
+
 import { FaPlus, FaTrash } from "react-icons/fa";
 import styles from "./courseComponent.module.css";
 
@@ -48,6 +53,9 @@ const CourseDetail = ({
 
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [selectedImageFile, setSelectedImageFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const { ensureFirebaseConnection, isConnecting } = useFirebaseIntegration();
+    const [uploadingFile, setUploadingFile] = useState(false);
 
     const { showAlert, showConfirm } = useModal();
 
@@ -335,6 +343,7 @@ const CourseDetail = ({
 
     const handleFieldChange = async (field, value) => {
         const fieldMap = {
+            imageUrl: "imageurl",
             discountedprice: "discountedPrice",
             originalprice: "originalPrice",
             description: "description",
@@ -453,21 +462,52 @@ const CourseDetail = ({
         setIsVideoModalOpen(false);
     };
 
-
-    //Para subir la imagen no se como funciona!!!
-    //FALTAAAAA
-    const handleSaveImage = async () => {
-        if (!selectedImageFile) {
-            showAlert("Por favor, selecciona una imagen primero.", "Atención");
-            return;
-        }
+    const handleSaveImage = async () => {  
         try {
-            //Logica para subirlo a firebase!!!!!
-            console.log("Subiendo archivo:", selectedImageFile);
+            setUploadingFile(true);
+
+            // Asegurar autenticación en Firebase antes de subir
+            console.log("Asegurando autenticación en Firebase...");
+            const firebaseUser = await ensureFirebaseConnection();
+            console.log("Usuario autenticado en Firebase:", firebaseUser.uid);
+
+            // Crear referencia única del archivo
+            const timestamp = Date.now();
+            const sanitizedFileName = selectedImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const fileName = `${timestamp}_${sanitizedFileName}`;
+            const storageRef = ref(storage, `projects/${firebaseUser.uid}/${fileName}`);
+
+            console.log("Subiendo archivo a Firebase Storage...");
+
+            // Subir archivo
+            const snapshot = await uploadBytes(storageRef, selectedImageFile);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            console.log("Archivo subido exitosamente:", downloadURL);
+            
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}/image`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                    body: JSON.stringify({ imageUrl: downloadURL }),
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error al guardar la URL en la base de datos.");
+            }
+
+            const updatedCourseData = await response.json();
+            setCourse(updatedCourseData.course);
             showAlert("Imagen subida y guardada con éxito.", "Éxito");
             setIsImageModalOpen(false);
+            setSelectedImageFile(null);
+
         } catch (error) {
-            showAlert(`Hubo un error al subir la imagen: ${error.message}`, "Error");
+            showAlert(`Error subiendo archivo: ${error.message}`, "Error de Firebase");
+        } finally {
+            setUploadingFile(false);
         }
     };
 
@@ -610,13 +650,15 @@ const CourseDetail = ({
                             <button
                                 className="saveButton"
                                 onClick={handleSaveImage}
-                                disabled={!selectedImageFile}
+                                disabled={!selectedImageFile || isUploading || isConnecting}
                             >
-                                Guardar Imagen
+                                {isUploading ? 'Subiendo...' : 'Guardar Imagen'}
+                                
                             </button>
                             <button
                                 className="cancelButton"
                                 onClick={() => setIsImageModalOpen(false)}
+                                disabled={isUploading}
                             >
                                 Cancelar
                             </button>
@@ -645,7 +687,6 @@ const CourseDetail = ({
                                 return (
                                     <option key={mentor.mentorid} value={mentor.mentorid}>
                                         {`${user.firstname} ${user.lastname1}`}
-                                        {/* {user ? user.firstname : "Nombre no disponible"} */}
                                     </option>
                                 );
                             })}

@@ -32,7 +32,7 @@ const CourseCardMenu = ({ course, courseType, collectionName }) => {
                     });
                     setIsArchived(true); 
                     showAlert("Curso archivado con éxito.", "Archivado");
-                    if (onUpdate) onUpdate(); 
+                    // if (onUpdate) onUpdate(); //no se que hace esto!
                 } catch (error) {
                     showAlert(`Error al archivar: ${error.message}`, "Error");
                 }
@@ -79,7 +79,7 @@ const CourseCardMenu = ({ course, courseType, collectionName }) => {
     >
       <Image
         src={
-          course.imageUrl ||
+          course.imageurl ||
           "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"
         }
         alt={course.title || "Imagen del curso"}
