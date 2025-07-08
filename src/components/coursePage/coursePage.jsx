@@ -20,7 +20,7 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
     const [priceRange, setPriceRange] = useState(maxPrice);
     const [selectedCategory, setSelectedCategory] = useState("");
 
-    const { showAlert } = useModal();
+    const { showAlert, showConfirm } = useModal();
 
     useEffect(() => {
         if (error) {
@@ -79,70 +79,78 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
     };
 
     const handleAddCourse = async () => {
-        try {
-            const defaultImageUrl =
-                "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALL·E%202024-09-14%2012.19.23%20-%20An%20epic%20and%20highly%20realistic%20scene%20of%20a%20woman%20learning%20to%20program%20in%20Python%2C%20with%20blue%20and%20yellow%20as%20the%20predominant%20colors.%20The%20woman%2C%20a%20young%20adult%20.webp?alt=media&token=496e97a6-c60f-44f0-8e87-12b0a1f5a755";
+        showConfirm(
+            "¿Estás seguro de que deseas crear un nuevo curso con la configuración por defecto?",
+            async () => {
+                try {
+                    const defaultImageUrl =
+                        "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FDALL·E%202024-09-14%2012.19.23%20-%20An%20epic%20and%20highly%20realistic%20scene%20of%20a%20woman%20learning%20to%20program%20in%20Python%2C%20with%20blue%20and%20yellow%20as%20the%20predominant%20colors.%20The%20woman%2C%20a%20young%20adult%20.webp?alt=media&token=496e97a6-c60f-44f0-8e87-12b0a1f5a755";
 
-            let categoryId = 1;
-            if (pathname.startsWith("/cursos-en-vivo")) {
-                categoryId = 2;
-            }
+                    let categoryId = 1;
+                    if (pathname.startsWith("/cursos-en-vivo")) {
+                        categoryId = 2;
+                    }
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: "Curso Introducción a la Programación con Python",
-                    description: "Aprende a programar desde cero con Python, el lenguaje de programación más popular del mundo.",
-                    discountedPrice: 29.99,
-                    originalPrice: 39.99,
-                    imageUrl: defaultImageUrl,
-                    courseIcon: '📘',
-                    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                    archived: false,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    categoryId,
-                    mentorId: 1,
-                    modalityId: 1
-                }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Error al crear el curso');
-            }
-
-            // Obtener el ID del curso recién creado
-            const newCourse = await response.json();
-            const courseId = newCourse.courseid || newCourse.id;
-
-            // Agregar features por defecto (IDs 1, 2, 3, 4)
-            const featuresToAdd = [1, 2, 3, 4];
-            await Promise.all(
-                featuresToAdd.map(async (featureId, idx) => {
-                    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/course-features`, {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            courseid: courseId,
-                            featureid: featureId,
-                            order: idx + 1
+                            title: "Curso Introducción a la Programación con Python",
+                            description: "Aprende a programar desde cero con Python, el lenguaje de programación más popular del mundo.",
+                            discountedPrice: 29.99,
+                            originalPrice: 39.99,
+                            imageUrl: defaultImageUrl,
+                            courseIcon: '📘',
+                            videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                            archived: false,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            categoryId,
+                            mentorId: 1,
+                            modalityId: 1
                         }),
                     });
-                })
-            );
-            showAlert("¡Curso creado exitosamente! La página se recargará.", "Éxito");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } catch (error) {
-            showAlert(`Error al agregar el curso: ${error.message}`, "Error");
-        }
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Error al crear el curso');
+                    }
+                    
+                    // Obtener el ID del curso recién creado
+                    const newCourse = await response.json();
+                    const courseId = newCourse.courseid || newCourse.id;
+                    
+                     // Agregar features por defecto (IDs 1, 2, 3, 4)
+                    const featuresToAdd = [1, 2, 3, 4];
+                    await Promise.all(
+                        featuresToAdd.map(async (featureId, idx) => {
+                            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/course-features`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    courseid: courseId,
+                                    featureid: featureId,
+                                    order: idx + 1
+                                }),
+                            });
+                        })
+                    );
+
+                    showAlert("¡Curso creado exitosamente! La página se recargará.", "Éxito");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+
+                } catch (error) {
+                    showAlert(`Error al agregar el curso: ${error.message}`, "Error");
+                }
+            },
+            "Confirmar Creación"
+        );
     };
 
     const categories = ["Programación", "Ofimática"];
@@ -185,8 +193,7 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
                                 <span>${priceRange}</span>
                             </div>
                         )}
-                        <span>$</span>
-                        <span>{priceRange}</span>
+                        <span>- ${priceRange}</span>
                     </div>
                 </div>
                 {isAdmin && (

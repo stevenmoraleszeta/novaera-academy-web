@@ -109,6 +109,29 @@ button:hover {
   color: var(--text-color);
 }
 
+
+.form-field-item {
+  margin-bottom: 1rem; 
+}
+
+.form-field-item label {
+  display: block;
+  font-size: 0.8em;   
+  font-weight: 700;    
+  color:  var(--text-color);     
+  text-transform: uppercase; 
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.form-field-item p,
+.form-field-item a {
+  margin: 0; 
+  font-size: 1em;  
+  color: var(--color-lighter);
+}
+
+
 /*
 Button for cancel and save action
 */

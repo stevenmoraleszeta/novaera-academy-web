@@ -5,7 +5,7 @@ import styles from './CrudMenu.module.css';
 import useFetchData from "@/hooks/useFetchData/useFetchData";
 import { useRouter } from 'next/navigation';
 import { useModalForm } from "@/hooks/useModalForm/useModalForm";
-// import { useConfirmationModal } from "@/hooks/useConfirmationModal/useConfirmationModal";
+import { useConfirmationModal } from "@/hooks/useConfirmationModal/useConfirmationModal";
 import { useSearch } from '@/hooks/useSearch/useSearch';
 import { useModal } from "@/context/ModalContext"; 
 import { useApiActions } from '@/hooks/useApiActions/useApiActions';
@@ -20,7 +20,6 @@ const CrudMenu = ({
     editFields,
     pageTitle,
     idField = 'userid',
-    getItemName,
     itemActions = [],
     filterFunction,
     fileUploadHandler,
@@ -36,6 +35,8 @@ const CrudMenu = ({
     const [ data, setData] = useState([]);
     const { filteredData, setSearchTerm } = useSearch(data, displayFields);
     const { isModalOpen, isEditMode, selectedItem, openForEdit, openForAdd, closeModal } = useModalForm(editFields);
+    const { isConfirmationOpen, itemForConfirmation, openConfirmation, closeConfirmation } = useConfirmationModal();
+
     const { showAlert, showConfirm} = useModal(); 
 
     const { saveItem, deleteItem } = useApiActions({
@@ -43,6 +44,7 @@ const CrudMenu = ({
         idField,
         refetch,
         closeModal, 
+        closeConfirmation,
         showAlert,
         showConfirm
     });
@@ -59,14 +61,11 @@ const CrudMenu = ({
         }
     }, [error, showAlert]);
 
+    const handleItemClick = (item) => openForEdit(item);
     const handleAddClick = () => openForAdd();
 
-
-    //Falta implementar
     const handleDeleteItem = (item) => {
-        const itemName = getItemName 
-            ? getItemName(item) 
-            : `${item.firstname || ''} ${item.lastname1 || ''}`.trim() || item.project_title || 'el elemento';
+        const itemName = `${item.firstname} ${item.lastname1}` || 'el elemento';
         showConfirm(
             `¿Estás seguro de que deseas eliminar "${itemName}"?`,
             () => deleteItem(item),
@@ -92,6 +91,10 @@ const CrudMenu = ({
         } catch (error) {
             console.error("Error al guardar el elemento:", error);
         }
+    };
+
+    const handleConfirmDelete = () => {
+        deleteItem(itemForConfirmation);
     };
 
     return (
@@ -127,6 +130,13 @@ const CrudMenu = ({
                     isEditMode={isEditMode}
                 />
             )}
+            <Modal
+                modalType="confirmation"
+                isOpen={isConfirmationOpen}
+                onClose={closeConfirmation}
+                onConfirm={handleConfirmDelete}
+                description="¿Estás seguro de que deseas realizar esta acción?"
+            />
         </div>
     );
 };

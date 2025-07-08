@@ -18,7 +18,7 @@ export const useApiActions = ({ collectionName, idField, refetch, closeModal, cl
             refetch();
             if (closeModal) closeModal();
 
-            showAlert("El usuario se ha guardado correctamente", "Éxito");
+            showAlert("El elemento se ha guardado correctamente", "Éxito");
         } catch (error) {
             showAlert(`Error al guardar el elemento`, "Error");
         }

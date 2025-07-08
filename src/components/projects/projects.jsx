@@ -31,8 +31,10 @@ const ProjectsList = ({
     const [editProject, setEditProject] = useState(null);
     const [uploadingFile, setUploadingFile] = useState(false);
     const [myStudentProjects, setMyStudentProjects] = useState([]);
+    const [submissionMessage, setSubmissionMessage] = useState({ text: '', type: '' });
 
     const { showAlert, showConfirm } = useModal();
+
     // Cargar proyectos al montar
     useEffect(() => {
         if (!courseId) return;
@@ -206,16 +208,27 @@ const ProjectsList = ({
         return new Intl.DateTimeFormat('es-CR', options).format(date);
     }
 
-    const openEditModal = (project) => {
+    const openEditModal = async (project) => {
+        setSubmissionMessage({ text: '', type: '' });
         const inputDate = project.duedate ? project.duedate.split('T')[0] : '';
-        const submissionInfo = getSubmissionInfo(project.projectid);
+
+        let submissionInfo = null;
+        if (!isAdmin && currentUser?.userid) {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects/submission/${project.projectid}/${currentUser.userid}`);
+                submissionInfo = await response.json();
+                console.log("Entrega específica obtenida de la API:", submissionInfo);
+            } catch (err) {
+                console.error("Error al buscar la entrega específica:", err);
+            }
+        }
 
         setEditProject({
             ...project,
             dueDate: inputDate,
             file: null, // No puede editar el archivo anterior, solo subir uno nuevo
             fileurl: project.fileurl,
-            submissionInfo: submissionInfo, // Añadir info de entrega si existe
+            submissionInfo: submissionInfo, 
         });
         setIsEditModalOpen(true);
     };
@@ -223,6 +236,7 @@ const ProjectsList = ({
     // Función para guardar cambios (admin o estudiante)
     const handleEditProject = async (e) => {
         e.preventDefault();
+        setUploadingFile(true);
 
         try {
             let fileUrl = editProject.fileurl || editProject.fileUrl || "";
@@ -262,6 +276,9 @@ const ProjectsList = ({
                     throw new Error(errorData.error || "Error al entregar el proyecto");
                 }
 
+                const successMessage = isAdmin ? "Proyecto actualizado exitosamente." : "Proyecto enviado exitosamente.";
+                setSubmissionMessage({ text: successMessage, type: 'success' });
+
                 // Recargar proyectos del estudiante después de la entrega
                 const studentProjectsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`);
                 const allStudentProjects = await studentProjectsRes.json();
@@ -271,16 +288,22 @@ const ProjectsList = ({
                 );
                 setMyStudentProjects(myProjects);
 
+                // Recargar proyectos
+                setTimeout(async () => {
+                    setIsEditModalOpen(false);
+                    setSubmissionMessage({ text: '', type: '' });
+                    const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+                    setProjects(await updated.json());
+                }, 2000);
+
+
                 showAlert("Proyecto entregado exitosamente.", "Éxito");
             }
-            // Recargar proyectos
-            const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-            setProjects(await updated.json());
-            setIsEditModalOpen(false);
-            setEditProject(null);
-            showAlert("Proyecto actualizado.", "Éxito");
         } catch (err) {
-            showAlert(`Error al actualizar: ${err.message}`, "Error");
+            setSubmissionMessage({ text: `Error: ${err.message}`, type: 'error' });
+            setTimeout(() => {
+                setSubmissionMessage({ text: '', type: '' });
+            }, 3000);
         }
     };
 
@@ -491,21 +514,6 @@ const ProjectsList = ({
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
                             <h3>{isAdmin ? "Editar Proyecto" : "Entregar Proyecto"}</h3>
-
-                            {/* Mostrar error si hay problemas con Firebase */}
-                            {error && (
-                                <div style={{
-                                    padding: '12px',
-                                    backgroundColor: '#ffebee',
-                                    border: '1px solid #f44336',
-                                    borderRadius: '4px',
-                                    marginBottom: '16px',
-                                    color: '#d32f2f'
-                                }}>
-                                    ⚠️ {error}
-                                </div>
-                            )}
-
                             <form onSubmit={handleEditProject} className={styles.modalForm}>
                                 <label>Título</label>
                                 <input
@@ -525,6 +533,7 @@ const ProjectsList = ({
                                     disabled={!isAdmin}
                                     className={styles.title}
                                 />
+                                <hr className={styles.divider} />
                                 <label>Instrucciones del proyecto</label>
                                 {editProject.fileurl ? (
                                     <a
@@ -572,7 +581,6 @@ const ProjectsList = ({
                                         )}
                                     </div>
                                 )}
-
                                 <label>
                                     {isAdmin ? "Archivo" : editProject.submissionInfo?.studentfileurl ? "Actualizar entrega" : "Entregar archivo"}
                                 </label>
