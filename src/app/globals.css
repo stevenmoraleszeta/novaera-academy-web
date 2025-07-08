@@ -692,7 +692,7 @@ Modals elements
 }
 
 .add-element-button {
-  margin-top: 10vh;
+  margin-top: 1vh;
   width: 100%;
   background-color: transparent;
   border: dashed 5px var(--color-secondary);

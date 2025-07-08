@@ -1,12 +1,9 @@
 /* --- Main Container --- */
 .recordingsBlock {
-    background: linear-gradient(var(--color-dark), var(--color-black));
     border-radius: 10px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
 }
-
 /* --- item unique recording --- */
 .recordingItem {
     display: flex;
@@ -20,7 +17,7 @@
 }
 
 .recordingItem:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -104,28 +101,31 @@
     color: var(--text-color);
 }
 
-/* Estilo para el campo de entrada con error */
+
 .inputError {
-  border-color: #e53e3e; /* Un color rojo para el borde */
+  border-color: #e53e3e; 
   box-shadow: 0 0 0 1px #e53e3e;
 }
 
-/* Estilo para el mensaje de error */
+
 .errorMessage {
-  color: #c53030; /* Un color rojo más oscuro para el texto */
-  font-size: 0.875rem; /* 14px */
-  margin-top: 0.25rem; /* 4px */
-  display: block; /* Para que ocupe su propia línea */
+  color: #c53030; 
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block; 
   font-weight:bold;
 }
 
-/* Estilo para el mensaje de ayuda/guía */
 .helpMessage {
-  color: #718096; /* Un color gris para el texto de ayuda */
+  color: #718096;
   font-size: 0.875rem;
   margin-top: 0.25rem;
   display: block;
 }
+
+
+
+
 
 @media (max-width: 1024px) {
     .recordingsBlock {
