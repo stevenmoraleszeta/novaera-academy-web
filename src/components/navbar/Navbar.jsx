@@ -34,6 +34,13 @@ function Navbar() {
 
     return (
         <nav className="topnav">
+            <button
+                className={styles.hamburger} 
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label="Toggle navigation"
+            >
+                ☰
+            </button>
             <Link href={'/'} className={styles.imgLink}>
                 <Image
                     alt="ZetaLogo"
@@ -44,13 +51,6 @@ function Navbar() {
                     priority
                 />
             </Link>
-            <button
-                className={styles.hamburger} 
-                onClick={() => setMenuOpen(!menuOpen)}
-                aria-label="Toggle navigation"
-            >
-                ☰
-            </button>
 
             {/* Lista de links de navegación */}
             <ul className={`navLinks ${menuOpen ? styles.showMenu : ''}`}>
