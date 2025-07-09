@@ -181,14 +181,16 @@ const ModuleCard = ({
         }
     };
 
-    const onToggleClassRestriction = async (moduleId, classId, currentStatus) => {
+    const onToggleClassRestriction = async (moduleId, classId, currentStatus, title, orderClass) => {
         try {
             await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/classes/${classId}`,
                 {
                     restricted: !currentStatus,
                     courseId,
-                    moduleId
+                    moduleId,
+                    title,
+                    orderClass,
                 }
             );
             onModulesUpdate((prevModules) =>
@@ -295,7 +297,7 @@ const ModuleCard = ({
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onToggleClassRestriction(getModuleId(moduleData), getClassId(cls), cls.restricted);
+                                            onToggleClassRestriction(getModuleId(moduleData), getClassId(cls), cls.restricted, cls.title, classIndex);
                                         }}
                                         className={styles.classAction}
                                         title={cls.restricted ? "Desbloquear Clase" : "Bloquear Clase"}
