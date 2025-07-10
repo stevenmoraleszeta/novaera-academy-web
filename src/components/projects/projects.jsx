@@ -62,7 +62,6 @@ const ProjectsList = ({
     }, [currentUser?.userid, courseId, isAdmin]);
 
     if (!isStudentInCourse && !isAdmin) return null;
-
     // Función para verificar si el estudiante ya entregó un proyecto
     const hasSubmittedProject = (projectId) => {
         if (isAdmin) return false;
@@ -236,8 +235,13 @@ const ProjectsList = ({
     // Función para guardar cambios (admin o estudiante)
     const handleEditProject = async (e) => {
         e.preventDefault();
-        setUploadingFile(true);
+        
+        if (!isAdmin && !editProject.file) {
+            showAlert("Por favor, selecciona un archivo para entregar.", "Acción Requerida");
+            return; 
+        }
 
+        setUploadingFile(true);
         try {
             let fileUrl = editProject.fileurl || editProject.fileUrl || "";
             if (editProject.file) {
@@ -260,6 +264,7 @@ const ProjectsList = ({
                     }),
                 });
                 if (!res.ok) throw new Error("Error al editar el proyecto");
+
             } else {
                 // Solo permite subir archivo para estudiantes
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects/submit/${editProject.projectid}`, {
@@ -268,18 +273,22 @@ const ProjectsList = ({
                     body: JSON.stringify({
                         studentFileUrl: fileUrl,
                         userId: currentUser?.userid,
-                        comments: null,
                     }),
                 });
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({ error: "Error desconocido" }));
                     throw new Error(errorData.error || "Error al entregar el proyecto");
                 }
+            }
 
-                const successMessage = isAdmin ? "Proyecto actualizado exitosamente." : "Proyecto enviado exitosamente.";
-                setSubmissionMessage({ text: successMessage, type: 'success' });
+            showAlert(isAdmin ? "Proyecto actualizado." : "Proyecto entregado.", "Éxito");
 
-                // Recargar proyectos del estudiante después de la entrega
+            // Recargar proyectos del estudiante después de la entrega
+            const updatedProjectsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
+            const updatedProjects = await updatedProjectsRes.json();
+            setProjects(updatedProjects);
+
+            if (!isAdmin) {
                 const studentProjectsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/student-projects`);
                 const allStudentProjects = await studentProjectsRes.json();
                 const myProjects = allStudentProjects.filter(sp =>
@@ -287,23 +296,13 @@ const ProjectsList = ({
                     sp.courseid === parseInt(courseId)
                 );
                 setMyStudentProjects(myProjects);
-
-                // Recargar proyectos
-                setTimeout(async () => {
-                    setIsEditModalOpen(false);
-                    setSubmissionMessage({ text: '', type: '' });
-                    const updated = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/course/${courseId}`);
-                    setProjects(await updated.json());
-                }, 2000);
-
-
-                showAlert("Proyecto entregado exitosamente.", "Éxito");
             }
+            setIsEditModalOpen(false);
+
         } catch (err) {
-            setSubmissionMessage({ text: `Error: ${err.message}`, type: 'error' });
-            setTimeout(() => {
-                setSubmissionMessage({ text: '', type: '' });
-            }, 3000);
+            showAlert(`Error: ${err.message}`, "Error");
+        } finally {
+            setUploadingFile(false); 
         }
     };
 

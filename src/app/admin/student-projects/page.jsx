@@ -56,11 +56,12 @@ const ProjectsPage = () => {
                     : <p><i>No se ha subido el proyecto.</i></p>;
             }
         },
-        { label: 'Puntuación', field: 'score', type: 'number' },
+        { label: 'Puntuación', field: 'score', type: 'number', required: true },
         {
             label: 'Comentarios para el Estudiante',
             field: 'comments',
-            type: 'textarea'
+            type: 'textarea',
+            required: true
         },
         {
             label: 'Proyecto del Estudiante',
