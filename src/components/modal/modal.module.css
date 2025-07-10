@@ -57,13 +57,13 @@
 .modalForm {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 30px;
     width: 100%;
 }
 
 .modalForm input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border-radius: 4px;
     font-size: 14px;
     box-sizing: border-box;
@@ -73,23 +73,4 @@
     font-size: 14px;
     font-weight: bold;
     color: #fff;
-}
-
-/* form modal Add ? edit  */
-
-.fieldRow input {
-    margin-bottom: 20px;
-}
-
-/* Responsividad */
-@media (max-width: 768px) {
-    .modalContentContainer {
-        width: 90%;
-    }
-}
-
-@media (max-width: 500px) {
-    .modalContentContainer {
-        width: 95%;
-    }
 }

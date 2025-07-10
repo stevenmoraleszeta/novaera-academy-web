@@ -26,7 +26,6 @@ const ProjectsPage = () => {
         {
             label: 'Fecha de Límite',
             field: 'project_duedate',
-            // render: (item) => new Date(item.project_duedate).toLocaleDateString()
             render: (item) => item.project_duedate ? new Date(item.project_duedate).toLocaleDateString('es-ES', dateOptions) : 'N/A'
         },
         { label: 'Estado', field: 'status_name' },
@@ -35,29 +34,19 @@ const ProjectsPage = () => {
     const editFields = [
         {
             label: 'Título',
-            // field: 'project_title',
-            // type: 'text',
-            // required: true
             render: (item) => <p>{item.project_title || 'N/A'}</p>
         },
         {
             label: 'Curso',
-            // field: 'course_name'
              render: (item) => <p>{item.course_name || 'N/A'}</p>
         },
         {
             label: 'Fecha Límite',
-            // render: (item) => <p>{item.project_duedate ? new Date(item.project_duedate).toLocaleString() : 'Fecha de Límite'}</p>,
             render: (item) => <p>{item.project_duedate ? new Date(item.project_duedate).toLocaleDateString('es-ES', dateOptions) : 'N/A'}</p>
-            // type: 'text',
-            // required: true
         },
         {
-            label: 'Fecha de entrega *',
-            // render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleString() : '--Fecha de Entrega--'}</p>,
+            label: 'Fecha de entrega',
             render: (item) => <p>{item.submissiondate ? new Date(item.submissiondate).toLocaleDateString('es-ES', dateOptions) : 'Pendiente de entrega'}</p>
-            // type: 'text',
-            // required: true
         },
         {
             label: 'Archivo del Proyecto',
@@ -66,15 +55,13 @@ const ProjectsPage = () => {
                     ? <a href={item.project_fileurl} target="_blank" rel="noopener noreferrer">Descargar proyecto</a>
                     : <p><i>No se ha subido el proyecto.</i></p>;
             }
-            // field: 'fileurl',
-            // type: 'text',
-            // placeholder: 'https://ejemplo.com/feedback.pdf'
         },
-        { label: 'Puntuación', field: 'score', type: 'number' },
+        { label: 'Puntuación', field: 'score', type: 'number', required: true },
         {
             label: 'Comentarios para el Estudiante',
             field: 'comments',
-            type: 'textarea'
+            type: 'textarea',
+            required: true
         },
         {
             label: 'Proyecto del Estudiante',

@@ -1,15 +1,21 @@
 /* File: src/pages/admin/AdminMenu.module.css */
-.adminMenuContainer {
+/* .adminMenuContainer {
     display: flex;
     justify-content: center;
     padding: 40px;
+} */
+
+.adminMenuContainer {
+    /* Hacemos el padding un poco más adaptable en móviles */
+    padding: 40px 20px;
 }
 
 .buttonContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
-    max-width: 1200px;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .adminButton {
@@ -17,8 +23,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    /* height: 200px; */
+    aspect-ratio: 1 / 1;
     background-color: var(--color-dark);
     /* Fondo oscuro del botón */
     border-radius: 12px;
@@ -60,4 +67,11 @@
 .adminButton:hover span {
     color: var(--color-lighter);
     /* Cambio de color del texto al hacer hover */
+}
+
+
+@media (max-width: 600px) {
+  .adminMenuContainer {
+    padding: 20px;
+  }
 }

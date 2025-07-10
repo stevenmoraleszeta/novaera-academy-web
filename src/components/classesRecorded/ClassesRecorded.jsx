@@ -137,7 +137,7 @@ const ClassesRecorded = ({ courseId, isAdmin }) => {
   return (
     <div className={styles.recordingsBlock}>
       <h3>Grabaciones de Clases</h3>
-
+      
       {/* Mapeo de las grabaciones */}
       {recordings.map((rec, index) => {
         return (
