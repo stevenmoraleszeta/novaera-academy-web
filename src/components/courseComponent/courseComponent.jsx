@@ -391,7 +391,7 @@ const CourseDetail = ({
             });
 
             if (response.ok) {
-                showAlert("El curso se ha actualizado correctamente.", "Éxito");
+                console.log('Curso actualizado exitosamente')
             } else {
                 throw new Error("Error al actualizar el curso");
             }
@@ -668,7 +668,7 @@ const CourseDetail = ({
                         <div className={styles.buttonContainer}>
                             <select id="studentSelect">
                                 <option value="">Selecciona un estudiante</option>
-                                
+
                                 {filteredStudents.length > 0 ? (
                                     filteredStudents.map(user => (
                                         <option key={user.userid} value={user.userid}>
