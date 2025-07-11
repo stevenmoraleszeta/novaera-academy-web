@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import CoursesPage from "@/components/coursePage/coursePage";
 
 export const metadata = {
@@ -11,15 +12,28 @@ export const metadata = {
     }
 };
 
-const OnlineCourses = () => {
+const CoursePageSkeleton = () => (
+    <div style={{ padding: '40px 20px' }}>
+        <div style={{ height: '50px', backgroundColor: '#f0f0f0', marginBottom: '30px', borderRadius: '5px' }}></div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
+            {[...Array(6)].map((_, i) => (
+                <div key={i} style={{ height: '400px', backgroundColor: '#f0f0f0', borderRadius: '10px' }}></div>
+            ))}
+        </div>
+    </div>
+);
+
+const LiveCoursesPage = () => {
     return (
-        <CoursesPage
-            collectionName="liveCourses"
-            courseType="live"
-            pageTitle="Cursos en Vivo - ZETA"
-            placeholderText="Python, SQL, Excel..."
-        />
+        <Suspense fallback={<CoursePageSkeleton />}>
+            <CoursesPage
+                collectionName="liveCourses"
+                courseType="live"
+                pageTitle="Cursos en Vivo - ZETA"
+                placeholderText="Python, SQL, Excel..."
+            />
+        </Suspense>
     );
 };
 
-export default OnlineCourses;
+export default LiveCoursesPage;

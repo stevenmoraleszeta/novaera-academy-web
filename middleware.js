@@ -10,9 +10,18 @@ export function middleware(request) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-    // Redirecciones para URLs comunes sin barra final
+    // Headers de performance y cache
+    response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+    response.headers.set('X-Robots-Tag', 'index, follow');
+
+    // Preload critical resources para páginas de cursos
     const pathname = request.nextUrl.pathname;
-    
+    if (pathname.startsWith('/cursos-en-')) {
+        response.headers.set('Link',
+            `<${process.env.NEXT_PUBLIC_API_URL}/courses>; rel=preload; as=fetch; crossorigin=anonymous`
+        );
+    }
+
     console.log('Middleware ejecutándose para:', pathname);
 
     // Redireccionar URLs antiguas o variaciones comunes

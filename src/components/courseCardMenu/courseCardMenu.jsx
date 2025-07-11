@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, memo } from "react";
 import { FaArchive, FaCopy } from "react-icons/fa";
 import styles from "./courseCardMenu.module.css";
 import { useRouter } from "next/navigation";
@@ -7,70 +7,72 @@ import { useModal } from "@/context/ModalContext";
 import Image from "next/image";
 import axios from "axios";
 
-const CourseCardMenu = ({ course, courseType, collectionName }) => {
+const CourseCardMenu = memo(({ course, courseType, collectionName }) => {
   const router = useRouter();
   const [isArchived, setIsArchived] = useState(course.archived);
   const { isAdmin } = useAuth();
-  const { showAlert, showConfirm } = useModal(); 
+  const { showAlert, showConfirm } = useModal();
 
   // Determina la ruta en función del tipo de curso
   const courseRoute =
     courseType === "live" ? "/cursos-en-vivo" : "/cursos-en-linea";
 
-  const handleViewCourse = (courseId) => {
+  const handleViewCourse = useCallback((courseId) => {
     router.push(`${courseRoute}/${courseId}`);
-  };
+  }, [courseRoute, router]);
 
-  const handleArchiveCourse = (courseId) => {
-        showConfirm(
-            `¿Estás seguro de que deseas archivar el curso "${course.title}"?`,
-            async () => {
-                try {
-                    await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
-                        ...course,
-                        archived: true,
-                    });
-                    setIsArchived(true); 
-                    showAlert("Curso archivado con éxito.", "Archivado");
-                    // if (onUpdate) onUpdate(); //no se que hace esto!
-                } catch (error) {
-                    showAlert(`Error al archivar: ${error.message}`, "Error");
-                }
-            },
-            "Confirmar Archivado"
-        );
-    };
+  const handleArchiveCourse = useCallback((courseId) => {
+    showConfirm(
+      `¿Estás seguro de que deseas archivar el curso "${course.title}"?`,
+      async () => {
+        try {
+          await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
+            ...course,
+            archived: true,
+          });
+          setIsArchived(true);
+          showAlert("Curso archivado con éxito.", "Archivado");
+          // if (onUpdate) onUpdate(); //no se que hace esto!
+        } catch (error) {
+          showAlert(`Error al archivar: ${error.message}`, "Error");
+        }
+      },
+      "Confirmar Archivado"
+    );
+  }, [course, showAlert, showConfirm]);
 
   // Duplicar curso usando el backend
-   const handleDuplicateCourse = (course) => {
-        showConfirm(
-            `¿Deseas duplicar el curso "${course.title}"?`,
-            async () => {
-                try {
-                    const newCourse = {
-                      ...course,
-                      title: `${course.title} (Copy)`,
-                      archived: false,
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                    };
-                    delete newCourse.courseid;
-                    delete newCourse.id;
+  const handleDuplicateCourse = useCallback((course) => {
+    showConfirm(
+      `¿Deseas duplicar el curso "${course.title}"?`,
+      async () => {
+        try {
+          const newCourse = {
+            ...course,
+            title: `${course.title} (Copy)`,
+            archived: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          delete newCourse.courseid;
+          delete newCourse.id;
 
-                    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/courses`, newCourse);
-                    showAlert("Curso duplicado con éxito. La lista se actualizará.", "Duplicado");
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 1500);
-                } catch (error) {
-                    showAlert(`Error al duplicar: ${error.message}`, "Error");
-                }
-            },
-            "Confirmar Duplicación"
-        );
-    };
+          await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/courses`, newCourse);
+          showAlert("Curso duplicado con éxito. La lista se actualizará.", "Duplicado");
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } catch (error) {
+          showAlert(`Error al duplicar: ${error.message}`, "Error");
+        }
+      },
+      "Confirmar Duplicación"
+    );
+  }, [course, showAlert, showConfirm]);
 
   if (isArchived) return null;
+
+  const defaultImageUrl = "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45";
 
   return (
     <div
@@ -78,14 +80,16 @@ const CourseCardMenu = ({ course, courseType, collectionName }) => {
       onClick={() => handleViewCourse(course.courseid || course.id)}
     >
       <Image
-        src={
-          course.imageurl ||
-          "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2FprogrammingDefaulImage.webp?alt=media&token=1ddc96cb-88e5-498e-8d9f-a870f32ecc45"
-        }
+        src={course.imageurl || defaultImageUrl}
         alt={course.title || "Imagen del curso"}
         className={styles.courseImage}
-        width={1000}
-        height={1000}
+        width={400}
+        height={250}
+        loading="lazy"
+        placeholder="blur"
+        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHB0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAQIAEQMhkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+JNKpBJXu9/wCxjmD"
+        priority={false}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
       <div className={styles.courseInfo}>
         <h2>{course.title}</h2>
@@ -133,6 +137,9 @@ const CourseCardMenu = ({ course, courseType, collectionName }) => {
       </div>
     </div>
   );
-};
+});
+
+// Agregar displayName para debugging
+CourseCardMenu.displayName = 'CourseCardMenu';
 
 export default CourseCardMenu;

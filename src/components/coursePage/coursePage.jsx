@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import CourseCardMenu from "@/components/courseCardMenu/courseCardMenu";
 import useFetchCourses from "@/hooks/useFetchCourses/useFetchCourses";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,11 +16,17 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
     const { courses, minPrice, maxPrice, loading, error } = useFetchCourses(collectionName);
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [filteredCourses, setFilteredCourses] = useState([]);
     const [priceRange, setPriceRange] = useState(maxPrice);
     const [selectedCategory, setSelectedCategory] = useState("");
 
     const { showAlert, showConfirm } = useModal();
+
+    // Actualizar priceRange cuando maxPrice cambie
+    useEffect(() => {
+        if (maxPrice && priceRange !== maxPrice) {
+            setPriceRange(maxPrice);
+        }
+    }, [maxPrice]);
 
     useEffect(() => {
         if (error) {
@@ -32,53 +38,49 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
         document.title = pageTitle;
     }, [pageTitle]);
 
-    const matchesQuery = (course, query) =>
-        course?.title?.toLowerCase().includes(query.toLowerCase());
+    // Memoriza las funciones de filtrado para evitar recreaciones innecesarias
+    const filterFunctions = useMemo(() => ({
+        matchesQuery: (course, query) =>
+            course?.title?.toLowerCase().includes(query.toLowerCase()),
+        withinPriceRange: (course, range) =>
+            course?.discountedPrice <= range,
+        matchesCategory: (course, category) =>
+            !category || course?.category === category
+    }), []);
 
-    const withinPriceRange = (course, range) =>
-        course?.discountedPrice <= range;
+    // Memoeizar los cursos filtrados para evitar recálculos innecesarios
+    const filteredCourses = useMemo(() => {
+        if (!courses.length) return [];
 
-    const matchesCategory = (course, category) =>
-        !category || course?.category === category;
-
-    const handleFilter = () => {
         const normalizedCourses = courses.map(course => ({
             ...course,
             archived: Boolean(course.archived),
         }));
 
-        const filtered = normalizedCourses.filter((course) =>
-            matchesQuery(course, searchQuery) &&
-            withinPriceRange(course, priceRange) &&
-            matchesCategory(course, selectedCategory) &&
+        return normalizedCourses.filter((course) =>
+            filterFunctions.matchesQuery(course, searchQuery) &&
+            filterFunctions.withinPriceRange(course, priceRange) &&
+            filterFunctions.matchesCategory(course, selectedCategory) &&
             !course.archived
         );
-        setFilteredCourses(filtered);
-    };
+    }, [courses, searchQuery, priceRange, selectedCategory, filterFunctions]);
 
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            handleFilter();
-        }, 300);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery, priceRange, selectedCategory, courses]);
-
-    const handleSearch = (query) => {
+    // Usar useCallback para las funciones de manejo de eventos
+    const handleSearch = useCallback((query) => {
         setSearchQuery(query);
-    };
+    }, []);
 
-    const handlePriceChange = (event) => {
+    const handlePriceChange = useCallback((event) => {
         setPriceRange(parseInt(event.target.value, 10));
-    };
+    }, []);
 
-    const handleCategoryChange = (category) => {
+    const handleCategoryChange = useCallback((category) => {
         setSelectedCategory((prevCategory) =>
             prevCategory === category ? "" : category
         );
-    };
+    }, []);
 
-    const handleAddCourse = async () => {
+    const handleAddCourse = useCallback(async () => {
         showConfirm(
             "¿Estás seguro de que deseas crear un nuevo curso con la configuración por defecto?",
             async () => {
@@ -117,12 +119,12 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
                         const errorData = await response.json();
                         throw new Error(errorData.error || 'Error al crear el curso');
                     }
-                    
+
                     // Obtener el ID del curso recién creado
                     const newCourse = await response.json();
                     const courseId = newCourse.courseid || newCourse.id;
-                    
-                     // Agregar features por defecto (IDs 1, 2, 3, 4)
+
+                    // Agregar features por defecto (IDs 1, 2, 3, 4)
                     const featuresToAdd = [1, 2, 3, 4];
                     await Promise.all(
                         featuresToAdd.map(async (featureId, idx) => {
@@ -151,9 +153,10 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
             },
             "Confirmar Creación"
         );
-    };
+    }, [pathname, showAlert, showConfirm]);
 
-    const categories = ["Programación", "Ofimática"];
+    // Memorizar las categorías
+    const categories = useMemo(() => ["Programación", "Ofimática"], []);
 
     return (
         <div className={styles.container}>
@@ -203,23 +206,36 @@ const CoursesPage = ({ collectionName, pageTitle, placeholderText, courseType })
                 )}
             </div>
 
-            {loading && <p>Cargando cursos...</p>}
+            {loading && (
+                <div className={styles.loadingContainer}>
+                    <div className={styles.spinner}></div>
+                    <p>Cargando cursos...</p>
+                </div>
+            )}
 
-            <div className={styles.courseGrid}>
-                {filteredCourses?.length > 0 &&
-                    filteredCourses.map((course) => (
-                        <CourseCardMenu
-                            key={course.courseid}
-                            course={{
-                                ...course,
-                                id: course.courseid,
-                            }}
-                            courseType={courseType}
-                            collectionName={collectionName}
-                        />
-                    ))}
-
-            </div>
+            {!loading && (
+                <div className={styles.courseGrid}>
+                    {filteredCourses?.length > 0 ? (
+                        filteredCourses.map((course) => (
+                            <CourseCardMenu
+                                key={course.courseid}
+                                course={{
+                                    ...course,
+                                    id: course.courseid,
+                                }}
+                                courseType={courseType}
+                                collectionName={collectionName}
+                            />
+                        ))
+                    ) : (
+                        !loading && (
+                            <div className={styles.noCourses}>
+                                <p>No se encontraron cursos que coincidan con los filtros seleccionados.</p>
+                            </div>
+                        )
+                    )}
+                </div>
+            )}
 
             <footer className={styles.footer}>
                 <p>¿No ves el curso que buscas?</p>
