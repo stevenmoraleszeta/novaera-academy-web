@@ -176,7 +176,7 @@ const PaymentPage = () => {
                         </ul>
                     </Modal>
 
-                    {course ? (
+                    {courseId && course && course.title ? (
                         <div className={styles.paymentContainer}>
                             <div className={styles.paymentBox}>
                                 <h1 className={styles.paymentTitle}>{course.title}</h1>
