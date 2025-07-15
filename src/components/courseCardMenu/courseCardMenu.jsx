@@ -1,11 +1,17 @@
-import React, { useState, useCallback, memo } from "react";
-import { FaArchive, FaCopy } from "react-icons/fa";
-import styles from "./courseCardMenu.module.css";
+import React, { useState, useCallback, memo, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useModal } from "@/context/ModalContext";
 import Image from "next/image";
-import axios from "axios";
+
+// Lazy load iconos solo cuando se necesiten (para admin)
+const FaArchive = lazy(() => import("react-icons/fa").then(module => ({ default: module.FaArchive })));
+const FaCopy = lazy(() => import("react-icons/fa").then(module => ({ default: module.FaCopy })));
+
+// Lazy load axios solo cuando se necesite
+const axios = lazy(() => import("axios"));
+
+import styles from "./courseCardMenu.module.css";
 
 const CourseCardMenu = memo(({ course, courseType, collectionName }) => {
   const router = useRouter();
@@ -21,18 +27,19 @@ const CourseCardMenu = memo(({ course, courseType, collectionName }) => {
     router.push(`${courseRoute}/${courseId}`);
   }, [courseRoute, router]);
 
-  const handleArchiveCourse = useCallback((courseId) => {
+  const handleArchiveCourse = useCallback(async (courseId) => {
     showConfirm(
       `¿Estás seguro de que deseas archivar el curso "${course.title}"?`,
       async () => {
         try {
+          // Lazy load axios solo cuando se necesite
+          const { default: axios } = await import("axios");
           await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`, {
             ...course,
             archived: true,
           });
           setIsArchived(true);
           showAlert("Curso archivado con éxito.", "Archivado");
-          // if (onUpdate) onUpdate(); //no se que hace esto!
         } catch (error) {
           showAlert(`Error al archivar: ${error.message}`, "Error");
         }
@@ -42,11 +49,13 @@ const CourseCardMenu = memo(({ course, courseType, collectionName }) => {
   }, [course, showAlert, showConfirm]);
 
   // Duplicar curso usando el backend
-  const handleDuplicateCourse = useCallback((course) => {
+  const handleDuplicateCourse = useCallback(async (course) => {
     showConfirm(
       `¿Deseas duplicar el curso "${course.title}"?`,
       async () => {
         try {
+          // Lazy load axios solo cuando se necesite
+          const { default: axios } = await import("axios");
           const newCourse = {
             ...course,
             title: `${course.title} (Copy)`,
@@ -120,7 +129,9 @@ const CourseCardMenu = memo(({ course, courseType, collectionName }) => {
               }}
               title="Duplicar curso"
             >
-              <FaCopy />
+              <Suspense fallback={<span>📋</span>}>
+                <FaCopy />
+              </Suspense>
             </button>
             <button
               className={styles.archiveButton}
@@ -130,7 +141,9 @@ const CourseCardMenu = memo(({ course, courseType, collectionName }) => {
               }}
               title="Archivar curso"
             >
-              <FaArchive />
+              <Suspense fallback={<span>📁</span>}>
+                <FaArchive />
+              </Suspense>
             </button>
           </div>
         )}

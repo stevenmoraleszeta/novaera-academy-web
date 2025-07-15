@@ -1,16 +1,25 @@
 import "./globals.css";
-import Navbar from "../components/navbar/Navbar";
-import FooterZ from "@/components/footer/Footer";
-import { AuthProvider } from "@/context/AuthContext";
-import { ModalProvider } from "@/context/ModalContext";
 import { Montserrat } from "next/font/google";
-import FixedBtn from "@/components/fixedBtn/fixedBtn";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/react";
+import { Suspense, lazy } from "react";
+
+// Lazy load componentes no críticos
+const Navbar = lazy(() => import("../components/navbar/Navbar"));
+const FooterZ = lazy(() => import("@/components/footer/Footer"));
+const FixedBtn = lazy(() => import("@/components/fixedBtn/fixedBtn"));
+
+// Lazy load proveedores de contexto
+const AuthProvider = lazy(() => import("@/context/AuthContext").then(module => ({ default: module.AuthProvider })));
+const ModalProvider = lazy(() => import("@/context/ModalContext").then(module => ({ default: module.ModalProvider })));
+
+// Lazy load analytics (solo en producción)
+const SpeedInsights = lazy(() => import("@vercel/speed-insights/next").then(module => ({ default: module.SpeedInsights })));
+const Analytics = lazy(() => import("@vercel/analytics/react").then(module => ({ default: module.Analytics })));
 
 const montserrat = Montserrat({
   weight: ["400", "700"],
   subsets: ["latin"],
+  display: 'swap', // Optimización para fuentes
+  preload: true,
 });
 
 export const metadata = {
@@ -49,21 +58,21 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="canonical" href="https://zetaacademia.com" />
+        {/* Critical CSS preload */}
+        <link rel="preload" href="/globals.css" as="style" />
 
-        {/* Geo-targeting meta tags */}
-        <meta name="geo.region" content="CO" />
-        <meta name="geo.placename" content="Colombia" />
-        <meta name="geo.position" content="4.570868;-74.297333" />
-        <meta name="ICBM" content="4.570868, -74.297333" />
+        {/* DNS prefetch para recursos externos */}
+        <link rel="dns-prefetch" href="//firebasestorage.googleapis.com" />
+        <link rel="dns-prefetch" href="//vercel.com" />
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
 
-        {/* Additional SEO meta tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta httpEquiv="Content-Language" content="es" />
-        <meta name="format-detection" content="telephone=no" />
+        {/* Preconnect para recursos críticos */}
+        <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossOrigin="" />
 
-        {/* Schema.org structured data */}
+        {/* Viewport optimizado */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0" />
+
+        {/* Schema.org structured data - optimizado */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -76,49 +85,44 @@ export default function RootLayout({ children }) {
               "logo": "https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FZETA%201200.png?alt=media&token=3adb303b-a52f-4f7f-8266-b2bbba867083",
               "address": {
                 "@type": "PostalAddress",
-                "addressCountry": "CO",
-                "addressRegion": "Colombia"
-              },
-              "offers": {
-                "@type": "Offer",
-                "category": "Educación Online"
+                "addressCountry": "CO"
               }
             })
           }}
         />
 
-        {/* Open Graph tags (preserved existing ones) */}
-        <meta property="og:title" content="ZETA Academia" />
-        <meta property="og:description" content="ZETA Plataforma Educativa" />
-        <meta property="og:url" content="https://zetaacademia.com" />
-        <meta property="og:type" content="website" />
-
-        <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FZETA%201200.png?alt=media&token=3adb303b-a52f-4f7f-8266-b2bbba867083" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-
-        <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FZ%201200.png?alt=media&token=1dfe7287-6ea0-4ca2-aa3b-25dc9af60b98" />
-        <meta property="og:image:width" content="500" />
-        <meta property="og:image:height" content="500" />
-
-        <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/zeta-3a31d.appspot.com/o/images%2Ficons%2FZ%201200.png?alt=media&token=1dfe7287-6ea0-4ca2-aa3b-25dc9af60b98" />
-        <meta property="og:image:width" content="200" />
-        <meta property="og:image:height" content="200" />
+        {/* Eliminar Open Graph duplicados - ya están en metadata */}
         <meta name="google-site-verification" content="8bxJkE6LORDcTXliwjxeBFGTCSfMn5EaFvm7tLLUVd4" />
       </head>
       <body className={`app ${montserrat.className}`}>
-        <ModalProvider>
-          <AuthProvider>
-            <SpeedInsights />
-            <div className="page-container">
-              <Navbar />
-              <FixedBtn />
-              <main className="content">{children}</main>
-              <FooterZ />
-            </div>
-            <Analytics />
-          </AuthProvider>
-        </ModalProvider>
+        <Suspense fallback={<div style={{ minHeight: '100vh', background: '#000' }}></div>}>
+          <ModalProvider>
+            <AuthProvider>
+              {/* Solo cargar analytics en producción */}
+              {process.env.NODE_ENV === 'production' && (
+                <Suspense fallback={null}>
+                  <SpeedInsights />
+                  <Analytics />
+                </Suspense>
+              )}
+              <div className="page-container">
+                <Suspense fallback={<div style={{ height: '80px', background: '#000' }}></div>}>
+                  <Navbar />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                  <FixedBtn />
+                </Suspense>
+
+                <main className="content">{children}</main>
+
+                <Suspense fallback={<div style={{ height: '200px', background: '#000' }}></div>}>
+                  <FooterZ />
+                </Suspense>
+              </div>
+            </AuthProvider>
+          </ModalProvider>
+        </Suspense>
       </body>
     </html>
   );

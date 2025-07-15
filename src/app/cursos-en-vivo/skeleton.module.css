@@ -1,0 +1,43 @@
+.courseSkeleton {
+    padding: 40px 20px;
+    min-height: 70vh;
+    background: var(--color-bg, #000);
+    color: var(--color-text, #fff);
+}
+
+.skeletonSearch {
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+    border-radius: 5px;
+    animation: pulse 1.5s ease-in-out infinite;
+    will-change: opacity;
+    transform: translateZ(0);
+}
+
+.skeletonGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.skeletonCard {
+    height: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    animation: pulse 1.5s ease-in-out infinite;
+    will-change: opacity;
+    transform: translateZ(0);
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}

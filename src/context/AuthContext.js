@@ -1,8 +1,7 @@
 "use client"; // Indica que este componente se ejecuta en el cliente
 
-import React, { useContext, useState, useEffect, createContext, useRef } from "react";
+import React, { useContext, useState, useEffect, createContext, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import {
     loginPersonalizado,
     signOutFirebase,
@@ -11,6 +10,9 @@ import {
     ensureFirebaseAuth,
     getCurrentFirebaseUser
 } from "../utils/firebaseAuthCustom";
+
+// Lazy load axios solo cuando se necesite
+const loadAxios = () => import("axios");
 
 // Crear el contexto de autenticación
 const AuthContext = createContext();
@@ -41,6 +43,9 @@ export function AuthProvider({ children }) {
                     setIsCheckingUser(false);
                     return;
                 }
+
+                // Lazy load axios
+                const { default: axios } = await loadAxios();
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
                 const response = await axios.get(`${apiUrl}/users/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -231,9 +236,6 @@ export function AuthProvider({ children }) {
         }
     };
 
-
-    
-
     const logout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -274,7 +276,8 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const value = {
+    // Memorizar el valor del contexto para evitar re-renderizados innecesarios
+    const value = useMemo(() => ({
         currentUser,
         loginWithEmailAndPassword,
         registerWithEmailAndPassword,
@@ -286,10 +289,24 @@ export function AuthProvider({ children }) {
         isCheckingUser,
         firebaseUser,
         setFirebaseUser,
-        ensureFirebaseAuthentication, 
-        sendPasswordResetRequest, 
+        ensureFirebaseAuthentication,
+        sendPasswordResetRequest,
         resetPasswordWithToken
-    };
+    }), [
+        currentUser,
+        isAdmin,
+        missingInfo,
+        isCheckingUser,
+        firebaseUser,
+        loginWithEmailAndPassword,
+        registerWithEmailAndPassword,
+        logout,
+        updateCurrentUser,
+        loginWithGoogle,
+        ensureFirebaseAuthentication,
+        sendPasswordResetRequest,
+        resetPasswordWithToken
+    ]);
 
     return <AuthContext.Provider value={value}>{!isCheckingUser && children}</AuthContext.Provider>;
 }
