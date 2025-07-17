@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { FaTrash, FaCamera } from "react-icons/fa";
 import styles from "./UserProfileForm.module.css";
-import defaultAvatar  from "@/assets/img/defaultProfileImage.jpg";
+import defaultAvatar from "@/assets/img/defaultProfileImage.jpg";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 import Link from "next/link";
 
@@ -12,14 +13,22 @@ const UserProfileForm = ({
     countries,
     handleChange,
     handleFileChange,
+    handleRemovePhoto,
     handleSubmit,
     handleLogout,
     loading,
+    uploading,
+    imagePreview,
+    uploadError,
 }) => {
     if (!currentUser) return null;
 
     if (loading) {
-        return <div>Cargando...</div>;
+        return (
+            <div className={styles.userProfileContainer}>
+                <LoadingSpinner size="large" message="Cargando perfil..." />
+            </div>
+        );
     }
 
     return (
@@ -29,23 +38,43 @@ const UserProfileForm = ({
                     <label htmlFor="photoUpload">
                         <Image
                             alt="profile's photo"
-                            src={userInfo.photourl || defaultAvatar}
+                            src={imagePreview || userInfo.photourl || defaultAvatar}
                             width={150}
                             height={150}
                             className={styles.userImg}
-                            priority 
+                            priority
                         />
                         <div className={styles.photoOverlay}>
                             <FaCamera className={styles.photoIcon} />
+                            {uploading && (
+                                <div className={styles.uploadingContainer}>
+                                    <LoadingSpinner size="small" message="Subiendo..." />
+                                </div>
+                            )}
                         </div>
                     </label>
                     <input
                         id="photoUpload"
                         type="file"
-                        accept="image/png, image/jpeg, image/webp" 
+                        accept="image/png, image/jpeg, image/webp"
                         className={styles.hiddenFileInput}
                         onChange={handleFileChange}
+                        disabled={uploading}
                     />
+                    {(userInfo.photourl || imagePreview) && (
+                        <button
+                            type="button"
+                            onClick={handleRemovePhoto}
+                            className={styles.removePhotoButton}
+                            disabled={uploading}
+                            title="Eliminar foto"
+                        >
+                            <FaTrash />
+                        </button>
+                    )}
+                    {uploadError && (
+                        <p className={styles.errorText}>{uploadError}</p>
+                    )}
                 </div>
                 <div className={styles.userInformationContainer}>
                     <div className={styles.firstContainerInformation}>
@@ -123,13 +152,18 @@ const UserProfileForm = ({
                         </Link>
                     </div>
                     <div className={styles.actionsContainer}>
-                        <button type="submit" className={styles.submitButton}>
-                            Guardar Cambios
+                        <button
+                            type="submit"
+                            className={styles.submitButton}
+                            disabled={uploading}
+                        >
+                            {uploading ? 'Subiendo imagen...' : 'Guardar Cambios'}
                         </button>
                         <button
                             type="button"
                             onClick={handleLogout}
                             className={styles.logoutButton}
+                            disabled={uploading}
                         >
                             Cerrar Sesión
                         </button>

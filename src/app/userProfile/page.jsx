@@ -7,14 +7,17 @@ import RequireAuth from "@/features/RequireAuth";
 import UserProfileForm from "@/components/userProfile/userProfile";
 import countries from "@/jsonFiles/paises.json";
 import { useAuth } from "@/context/AuthContext";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 function UserProfile() {
     const { currentUser, updateCurrentUser } = useAuth();
     const router = useRouter();
+    const { uploadImage, uploading, error, clearError } = useImageUpload();
 
     const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -57,9 +60,28 @@ function UserProfile() {
     };
 
     const handleFileChange = (e) => {
-        if (e.target.files[0]) {
-            setImageFile(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file) {
+            clearError(); // Limpiar errores previos
+            setImageFile(file);
+
+            // Crear preview de la imagen
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
         }
+    };
+
+    const handleRemovePhoto = () => {
+        clearError(); // Limpiar errores previos
+        setImageFile(null);
+        setImagePreview(null);
+        setUserInfo(prev => ({
+            ...prev,
+            photourl: ''
+        }));
     };
 
     const handleChange = (e) => {
@@ -76,16 +98,14 @@ function UserProfile() {
             const token = localStorage.getItem("token");
             let photourl = userInfo.photourl ?? "";
 
+            // Subir imagen a Firebase Storage si hay una nueva imagen
             if (imageFile) {
-                const formData = new FormData();
-                formData.append("file", imageFile);
+                const userId = currentUser?.userid || userInfo?.userid || currentUser?.id || userInfo?.id;
+                if (!userId) {
+                    throw new Error("No se encontró el ID del usuario.");
+                }
 
-                const uploadResponse = await axios.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/upload`,
-                    formData,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                photourl = uploadResponse.data.url;
+                photourl = await uploadImage(imageFile, userId);
             }
 
             const userId =
@@ -129,12 +149,18 @@ function UserProfile() {
             // Actualizar el usuario actual con los datos del servidor
             const userFromServer = response.data;
             updateCurrentUser(userFromServer);
+
+            // Limpiar estados de imagen
+            setImageFile(null);
+            setImagePreview(null);
+
+            alert("Perfil actualizado exitosamente");
             router.push("/cursos-en-linea");
         } catch (error) {
             if (error.response && error.response.data && error.response.data.error) {
                 alert("Error al actualizar usuario: " + error.response.data.error);
             } else {
-                alert("Error de red al actualizar usuario");
+                alert("Error al actualizar usuario: " + error.message);
             }
             console.error("Error updating profile", error);
         }
@@ -154,9 +180,13 @@ function UserProfile() {
                 countries={countries}
                 handleChange={handleChange}
                 handleFileChange={handleFileChange}
+                handleRemovePhoto={handleRemovePhoto}
                 handleSubmit={handleSubmit}
                 handleLogout={handleLogout}
                 loading={loading}
+                uploading={uploading}
+                imagePreview={imagePreview}
+                uploadError={error}
             />
         </RequireAuth>
     );
