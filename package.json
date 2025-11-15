@@ -19,8 +19,7 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-syntax-highlighter": "^15.6.1",
-    "typed.js": "^2.1.0",
-    "zeta-academia": "file:"
+    "typed.js": "^2.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
