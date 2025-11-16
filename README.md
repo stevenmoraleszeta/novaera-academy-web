@@ -224,7 +224,7 @@ Ensure all environment variables from `.env.example` are configured in your depl
 
 ## 📜 License
 
-**Copyright (c) 2024 Steven Morales Fallas**
+**Copyright (c) 2025 Steven Morales Fallas**
 
 All rights reserved. Redistribution, modification, reproduction, sublicensing, or any form of transaction (including commercial, educational, or promotional use) involving this repository, its source code, or derived works is strictly prohibited without the explicit and personal written authorization of the Lead Developer, Steven Morales Fallas.
 
